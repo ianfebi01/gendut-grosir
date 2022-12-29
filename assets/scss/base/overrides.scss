@@ -1,0 +1,112 @@
+@use '../abstracts/variables' as v;
+
+.__nuxt-error-page {
+  .error {
+    max-width: 1080px;
+    flex-direction: column;
+    background-color: #f7f8fb !important;
+    border-color: #f7f8fb !important;
+  }
+}
+
+// input text fields
+.v-input {
+  border-radius: 8px !important;
+  border-color: #d0d5dd !important;
+}
+
+//Pagination
+.v-pagination {
+  color: #344054 !important;
+  // icon
+  .v-icon {
+    color: #344054 !important;
+    margin: 0px 8px !important;
+  }
+  // pages
+  .v-pagination__item {
+    margin: 0px !important;
+    border-radius: 0px !important;
+    border: 1px solid #d0d5dd !important;
+    box-shadow: none !important;
+    background: #ffffff;
+    color: #344054 !important;
+
+    &:focus {
+      background: #f9fafb !important;
+    }
+  }
+  // icon
+  .v-pagination__navigation {
+    box-shadow: none;
+    border: 1px solid #d0d5dd;
+    width: auto !important;
+    font-weight: 500 !important;
+    color: #344054 !important;
+  }
+
+  // more
+  .v-pagination__more {
+    border: 1px solid #d0d5dd !important;
+    margin: 0px !important;
+    height: 34px !important;
+  }
+  .primary {
+    background: #f9fafb !important;
+  }
+}
+
+.v-pagination li:last-child .v-pagination__navigation {
+  margin: 0px !important;
+  height: 34px !important;
+  padding: var(--padding) !important;
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.v-pagination li:last-child .v-pagination__navigation::before {
+  // content: 'Next';
+  content: var(--next);
+}
+
+.v-pagination li:first-child .v-pagination__navigation {
+  margin: 0px !important;
+  height: 34px !important;
+  padding: var(--padding) !important;
+  border-bottom-right-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 8px;
+  border-top-left-radius: 8px;
+}
+
+.v-pagination li:first-child .v-pagination__navigation::after {
+  // content: 'Previous';
+  content: var(--pref);
+}
+
+// v-select
+.v-select.v-input--dense .v-select__selection--comma {
+  color: v.$secondary !important;
+  margin: 0 !important;
+}
+//v-data-table
+
+.tableSuperAdmin {
+  box-shadow: none !important;
+  border: 2px solid #f3f3f3 !important;
+  font-size: 14px !important;
+  line-height: 24px !important;
+}
+.tableSuperAdmin table th {
+  background: #f3f3f3 !important;
+  color: #667085 !important;
+  border-bottom: 1px solid #eaecf0;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  line-height: 24px !important;
+}
+
+.v-image__image--preload {
+  filter: none !important;
+}

@@ -1,0 +1,38 @@
+/**
+  * if there is a new color in variabless, 
+  * please register it here
+
+  * @example for background
+  * .bg-primary
+*/
+
+@use '../abstracts/variables' as v;
+
+.text-primary {
+  color: v.$primary !important;
+}
+.text-black {
+  color: v.$black !important;
+}
+.text-secondary {
+  color: v.$secondary !important;
+}
+.text-table {
+  color: v.$table !important;
+}
+
+.text-accent {
+  color: v.$accent !important;
+}
+
+.text-success {
+  color: v.$success !important;
+}
+
+.text-neutral-70 {
+  color: v.$neutral-70 !important;
+}
+
+.text-info {
+  color: v.$info !important;
+}
