@@ -94,19 +94,24 @@
           </template>
         </v-list-item-group>
       </v-list>
-
-      <!-- Profile -->
-      <v-layout class="userinfo ml-8" align-center justify-start>
-        <div class="userinfo__container">
-          <v-avatar class="userinfo__container--avatar" size="40" tile>
-            <v-img :src="user.profilePicture"></v-img>
-          </v-avatar>
-        </div>
-        <div>
-          <p class="userinfo__name">{{ user?.name }}</p>
-          <p class="userinfo__role">{{ user?.role }}</p>
-        </div>
-      </v-layout>
+      <div class="profile">
+        <v-divider class="mx-4 mb-4"></v-divider>
+        <!-- Profile -->
+        <v-layout class="userinfo" align-center justify-center>
+          <div class="userinfo__container">
+            <v-avatar class="userinfo__container--avatar" size="40" tile>
+              <v-img :src="user.profilePicture"></v-img>
+            </v-avatar>
+          </div>
+          <div>
+            <p class="userinfo__name">{{ user?.name }}</p>
+            <p class="userinfo__role">{{ user?.role }}</p>
+          </div>
+          <div class="ml-2" style="border: 1px solid red">
+            <v-icon size="40">$signout</v-icon>
+          </div>
+        </v-layout>
+      </div>
     </v-navigation-drawer>
   </div>
 </template>
@@ -214,6 +219,7 @@ export default {
   */
 .userinfo {
   width: 100%;
+
   /* max-width: 265px; */
   /* border-left: 1px solid #d9d9d9; */
   /* padding: 0px 20px;
@@ -250,5 +256,10 @@ export default {
     font-size: 10px;
     color: v.$gray-100;
   }
+}
+.profile {
+  position: absolute;
+  bottom: 15px;
+  width: 100%;
 }
 </style>
