@@ -16,10 +16,10 @@
         <img src="/logo-light.svg" alt="Logo GG" />
       </v-layout>
 
-      <v-divider></v-divider>
+      <!-- <v-divider></v-divider> -->
 
-      <v-list class="list" dense>
-        <v-list-item-group :value="menus.activeMenu" color="grey_100">
+      <v-list class="list mt-4" dense>
+        <v-list-item-group :value="menus.activeMenu" color="gray_100">
           <template v-for="menu in menus.filteredMenu">
             <template v-if="!menu.children">
               <v-list-item
@@ -36,18 +36,20 @@
                 "
               >
                 <v-list-item-action v-if="menu.name === 'Sign Out'">
-                  <v-icon color="grey_300">{{ menu.icon }}</v-icon>
+                  <v-icon color="gray_300">{{ menu.icon }}</v-icon>
                 </v-list-item-action>
                 <v-list-item-action v-else>
-                  <v-icon color="grey_300">{{ menu.icon }}</v-icon>
+                  <v-icon color="gray_300" class="gray_300--text">{{
+                    menu.icon
+                  }}</v-icon>
                 </v-list-item-action>
                 <v-list-item-content v-if="menu.name === 'Sign Out'">
-                  <v-list-item-title class="grey_100--text">{{
+                  <v-list-item-title class="gray_100--text">{{
                     menu.name
                   }}</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-content v-else>
-                  <v-list-item-title class="grey_100--text">{{
+                  <v-list-item-title class="gray_100--text">{{
                     menu.name
                   }}</v-list-item-title>
                 </v-list-item-content>
@@ -59,14 +61,14 @@
                 :value="isSubmenuOpen(menu.url)"
                 no-action
                 style="margin-top: 8px"
-                color="grey_100"
+                color="gray_100"
               >
                 <template #activator>
                   <v-list-item-action>
-                    <v-icon color="grey_300">{{ menu.icon }}</v-icon>
+                    <v-icon color="gray_300">{{ menu.icon }}</v-icon>
                   </v-list-item-action>
                   <v-list-item-content>
-                    <v-list-item-title class="grey_100--text">{{
+                    <v-list-item-title class="gray_100--text">{{
                       menu.name
                     }}</v-list-item-title>
                   </v-list-item-content>
@@ -82,7 +84,7 @@
                   @click="$router.push(submenu.url)"
                 >
                   <v-list-item-content>
-                    <v-list-item-title class="grey_100--text">{{
+                    <v-list-item-title class="gray_100--text">{{
                       submenu.name
                     }}</v-list-item-title>
                   </v-list-item-content>
@@ -92,6 +94,19 @@
           </template>
         </v-list-item-group>
       </v-list>
+
+      <!-- Profile -->
+      <v-layout class="userinfo ml-8" align-center justify-start>
+        <div class="userinfo__container">
+          <v-avatar class="userinfo__container--avatar" size="40" tile>
+            <v-img :src="user.profilePicture"></v-img>
+          </v-avatar>
+        </div>
+        <div>
+          <p class="userinfo__name">{{ user?.name }}</p>
+          <p class="userinfo__role">{{ user?.role }}</p>
+        </div>
+      </v-layout>
     </v-navigation-drawer>
   </div>
 </template>
@@ -119,6 +134,9 @@ export default {
     baseUrl() {
       return window.location.origin
     },
+    user() {
+      return this.$store.get('user/profile')
+    },
   },
   methods: {
     openNewTab(url) {
@@ -138,6 +156,7 @@ export default {
 
 <style lang="scss" scoped>
 @use '@/assets/scss/abstracts/mixins.scss' as m;
+@use '@/assets/scss/abstracts/variables.scss' as v;
 .brand {
   width: 100%;
   height: 64px;
@@ -183,6 +202,53 @@ export default {
     .v-list-item__title {
       font-weight: bold !important;
     }
+  }
+  .list__active {
+    background: v.$gray-700;
+  }
+}
+
+/*
+  If you don't need a global css, please don't add css in `assets` folder.
+  Use this method instead, with `scoped` props.
+  */
+.userinfo {
+  width: 100%;
+  /* max-width: 265px; */
+  /* border-left: 1px solid #d9d9d9; */
+  /* padding: 0px 20px;
+    margin: 0 12px; */
+  /* padding-left: 20px !important; */
+
+  @include m.element('container') {
+    /* border-left: 1px solid #e6e6e6; */
+    padding: 10px;
+    padding-left: 0;
+
+    @include m.modifier('avatar') {
+      /* background: linear-gradient(
+          104deg,
+          rgb(61, 141, 233) 0%,
+          rgb(119, 194, 238) 35%,
+          rgb(6, 90, 185) 100%
+        ); */
+      background: #f3f3f3;
+      /* border-radius: 8px; */
+      border-radius: 50% !important;
+    }
+  }
+
+  @include m.element('name') {
+    margin-bottom: 0;
+    font-size: 14px;
+    color: v.$gray-100;
+    font-weight: bold;
+  }
+
+  @include m.element('role') {
+    margin-bottom: 0;
+    font-size: 10px;
+    color: v.$gray-100;
   }
 }
 </style>

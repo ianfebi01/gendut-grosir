@@ -27,9 +27,9 @@ export default [
   //   icon: 'mdi-shopping-outline',
   // },
   {
-    name: 'POS',
+    name: 'Point Of Sales',
     url: '/',
-    icon: 'mdi-shopping-outline',
+    icon: '$shoping_bag',
     access: ['super_admin', 'admin'],
   },
   {
@@ -41,13 +41,13 @@ export default [
   {
     name: 'Orders',
     url: '/admin/orders',
-    icon: 'mdi-inbox-outline',
+    icon: '$orders',
     access: ['super_admin', 'admin'],
   },
   {
     name: 'Menu Library',
     url: '/admin/library',
-    icon: 'mdi-folder-outline',
+    icon: '$menulibrary',
     access: ['super_admin', 'admin'],
     children: [
       {
@@ -64,28 +64,28 @@ export default [
       },
     ],
   },
-  {
-    name: 'Discounts',
-    url: '/admin/discounts',
-    icon: '$discounts',
-    access: ['super_admin', 'admin'],
-  },
+  // {
+  //   name: 'Discounts',
+  //   url: '/admin/discounts',
+  //   icon: '$discounts',
+  //   access: ['super_admin', 'admin'],
+  // },
   {
     name: 'Customers',
     url: '/admin/customers',
-    icon: 'mdi-account-multiple-outline',
+    icon: '$customers',
     access: ['super_admin'],
   },
   {
     name: 'User Role Management',
     url: '/admin/role',
-    icon: 'mdi-account-check-outline',
+    icon: '$role',
     access: ['super_admin'],
   },
   {
     name: 'Sign Out',
     url: '/login',
-    icon: 'mdi-logout',
+    icon: '$signout',
     access: ['super_admin', 'admin'],
   },
 ]

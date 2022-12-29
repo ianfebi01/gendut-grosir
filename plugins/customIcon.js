@@ -12,6 +12,24 @@ export default new Vuetify({
       dashboard: {
         component: () => import('@/components/CustomIcons/Dashboard.vue'),
       },
+      shoping_bag: {
+        component: () => import('@/components/CustomIcons/ShopingBag.vue'),
+      },
+      signout: {
+        component: () => import('@/components/CustomIcons/SignOut.vue'),
+      },
+      role: {
+        component: () => import('@/components/CustomIcons/RoleIcon.vue'),
+      },
+      customers: {
+        component: () => import('@/components/CustomIcons/Customers.vue'),
+      },
+      menulibrary: {
+        component: () => import('@/components/CustomIcons/MenuLibrary.vue'),
+      },
+      orders: {
+        component: () => import('@/components/CustomIcons/Orders.vue'),
+      },
     },
   },
 })
