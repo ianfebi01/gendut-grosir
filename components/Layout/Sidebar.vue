@@ -51,7 +51,8 @@
                 </v-list-item-content>
               </v-list-item>
             </template>
-            <template v-else>
+
+            <template v-else-if="menu.children">
               <v-list-group
                 :key="menu.name"
                 :value="isSubmenuOpen(menu.url)"
@@ -144,6 +145,7 @@ export default {
       window.open(this.baseUrl + url, '_blank')
     },
     isSubmenuOpen(url) {
+      console.log('tes', url)
       return this.$route.path.startsWith(url)
     },
     async handleSignout() {

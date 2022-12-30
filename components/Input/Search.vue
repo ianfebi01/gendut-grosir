@@ -2,10 +2,10 @@
   <v-text-field
     :value="value"
     placeholder="Search"
-    color="primary"
+    background-color="#fff"
     hide-details
     outlined
-    height="35px"
+    height="44px"
     dense
     flat
     @keyup="debounceInput($event)"

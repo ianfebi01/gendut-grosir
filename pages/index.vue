@@ -33,7 +33,7 @@ export default {
   },
   computed: {
     datas() {
-      return this.$store.get('pos/product')
+      return this.$store.get('product/product')
     },
   },
   mounted() {
@@ -57,7 +57,7 @@ export default {
         page: 1,
         limit: 24,
       }
-      const res = await this.$store.dispatch('pos/getProduct', params)
+      const res = await this.$store.dispatch('product/getProduct', params)
       if (res) {
         this.loading = false
       } else {

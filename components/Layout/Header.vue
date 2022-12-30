@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-app-bar app color="white" flat height="70px">
+    <v-app-bar app color="white" flat height="72px">
       <div class="d-flex align-center" style="width: 100%">
         <v-app-bar-nav-icon
           color="gray_700"
@@ -8,6 +8,7 @@
           @click.stop="$store.set('drawer', !drawer)"
         ></v-app-bar-nav-icon>
         <v-list
+          v-if="router == '/'"
           width="100%"
           class="py-0 ml-2 d-flex flex-column justify-center align-center"
         >
@@ -21,6 +22,15 @@
             >
           </v-list-item-group>
         </v-list>
+        <v-layout
+          v-else
+          class="brand d-flex flex-column align-center justify-center"
+          align-center
+          justify-center
+        >
+          <!-- Place your own logo here -->
+          <img src="/logo.svg" alt="Logo GG" />
+        </v-layout>
       </div>
       <!-- <div class="d-flex align-center" style="width: 100%">gg</div> -->
     </v-app-bar>
@@ -48,12 +58,13 @@ export default {
     width() {
       return screen.width
     },
+    router() {
+      return this.$route.path
+    },
   },
   mounted() {},
   methods: {
-    handleSearch(search) {
-      console.log(search)
-    },
+    handleSearch(search) {},
   },
 }
 </script>

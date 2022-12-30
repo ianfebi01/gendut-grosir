@@ -79,6 +79,7 @@ export default {
           gray_400: '#98A2B3',
           gray_500: '#667085',
           gray_700: '#344054',
+          gray_900: '#101828',
           white: '#fff',
           bg_sidebar: '#101828',
         },

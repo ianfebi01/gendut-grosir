@@ -36,6 +36,12 @@ export default new Vuetify({
       cart: {
         component: () => import('@/components/CustomIcons/Cart.vue'),
       },
+      plus: {
+        component: () => import('@/components/CustomIcons/Plus.vue'),
+      },
+      trash: {
+        component: () => import('@/components/CustomIcons/Trash.vue'),
+      },
     },
   },
 })

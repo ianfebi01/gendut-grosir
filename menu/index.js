@@ -46,19 +46,19 @@ export default [
   },
   {
     name: 'Menu Library',
-    url: '/admin/library',
+    url: '/library',
     icon: '$menulibrary',
     access: ['super_admin', 'admin'],
     children: [
       {
         name: 'Category',
-        url: '/admin/library/category',
+        url: '/library/category',
         icon: '',
         access: ['super_admin', 'admin'],
       },
       {
-        name: 'Menu List',
-        url: '/admin/library/list',
+        name: 'Product',
+        url: '/library/product',
         icon: '',
         access: ['super_admin', 'admin'],
       },

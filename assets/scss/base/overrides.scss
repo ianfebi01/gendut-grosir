@@ -17,6 +17,9 @@
 .v-input input {
   color: v.$gray_500 !important;
 }
+.v-input__slot {
+  border-radius: 8px !important;
+}
 // input text fields
 .v-text-field--outlined:not(.v-input--is-focused)
   > .v-input__control

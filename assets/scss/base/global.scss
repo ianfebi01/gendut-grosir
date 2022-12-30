@@ -1,3 +1,5 @@
+@use '../abstracts/variables' as v;
+
 body {
   font-family: 'Inter', sans-serif;
 }
@@ -47,4 +49,78 @@ body {
 .full-width-height {
   width: 100% !important;
   height: 100% !important;
+}
+
+// Font size
+.text-10 {
+  font-size: 10px !important;
+}
+.text-12 {
+  font-size: 12px !important;
+}
+.text-14 {
+  font-size: 14px !important;
+}
+.text-16 {
+  font-size: 16px !important;
+}
+.text-18 {
+  font-size: 18px !important;
+}
+.text-20 {
+  font-size: 20px !important;
+}
+.text-22 {
+  font-size: 22px !important;
+}
+.text-24 {
+  font-size: 24px !important;
+}
+.text-26 {
+  font-size: 26px !important;
+}
+.text-28 {
+  font-size: 28px !important;
+}
+.text-30 {
+  font-size: 30px !important;
+}
+.text-32 {
+  font-size: 32px !important;
+}
+.text-34 {
+  font-size: 34px !important;
+}
+.text-36 {
+  font-size: 36px !important;
+  letter-spacing: normal !important;
+}
+
+// data table
+.data-table {
+  width: 100%;
+  border-radius: 8px !important;
+  border: 1px solid #eaecf0 !important;
+  box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1),
+    0px 1px 2px rgba(16, 24, 40, 0.06);
+
+  font-size: 14px !important;
+  line-height: 24px !important;
+}
+.data-table table th {
+  background: v.$gray_50 !important;
+  color: v.$gray_500 !important;
+  border-bottom: 1px solid #eaecf0 !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  line-height: 24px !important;
+}
+.data-table table th:nth-child(1) {
+  border-radius: 8px 0 0 0 !important;
+}
+.data-table table th:nth-last-child(-n + 1) {
+  border-radius: 0 8px 0 0 !important;
+}
+.data-table table tr td {
+  border-bottom: 1.5px solid v.$gray_200 !important;
 }

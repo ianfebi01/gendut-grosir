@@ -5,7 +5,7 @@
         <v-progress-circular
           indeterminate
           size="35"
-          color="#000"
+          color="#7F56D9"
         ></v-progress-circular>
       </v-overlay>
       <v-app>
