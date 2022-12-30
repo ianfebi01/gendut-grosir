@@ -1,5 +1,10 @@
 <template>
-  <v-container fluid style="height: 100vh; width: 100%">
+  <v-container
+    fluid
+    style="height: 100vh; width: 100%"
+    class="pa-0 ma-0"
+    fill-height
+  >
     <v-row
       align="center"
       justify="center"
@@ -17,7 +22,7 @@
       <v-col
         v-if="$vuetify.breakpoint.mdAndUp"
         cols="6"
-        class="d-flex justify-center align-center grey_10"
+        class="d-flex justify-center align-center gray_100"
         style="background: $primary; height: 100%"
       >
         <v-img src="/shoping-cart.svg"></v-img>

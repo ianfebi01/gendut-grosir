@@ -69,14 +69,6 @@ export default {
 :deep(.v-btn) {
   letter-spacing: 0;
 }
-:deep(
-    .v-text-field--outlined:not(.v-input--is-focused)
-      > .v-input__control
-      > .v-input__slot
-      fieldset
-  ) {
-  border: 2px solid #d0d5dd !important;
-}
 .round-corner {
   border-radius: 20px;
 }

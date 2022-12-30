@@ -30,6 +30,12 @@ export default new Vuetify({
       orders: {
         component: () => import('@/components/CustomIcons/Orders.vue'),
       },
+      magnify: {
+        component: () => import('@/components/CustomIcons/Magnify.vue'),
+      },
+      cart: {
+        component: () => import('@/components/CustomIcons/Cart.vue'),
+      },
     },
   },
 })

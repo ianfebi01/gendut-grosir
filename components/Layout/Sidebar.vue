@@ -29,11 +29,7 @@
                 style="margin-top: 8px"
                 :class="{ list__active: menus.activeMenu === menu.name }"
                 link
-                @click="
-                  menu.name === 'Sign Out'
-                    ? handleLogout()
-                    : $router.push(menu.url)
-                "
+                @click="$router.push(menu.url)"
               >
                 <v-list-item-action v-if="menu.name === 'Sign Out'">
                   <v-icon color="gray_300">{{ menu.icon }}</v-icon>
@@ -104,10 +100,10 @@
             </v-avatar>
           </div>
           <div>
-            <p class="userinfo__name">{{ user?.name }}</p>
+            <p class="userinfo__name text-truncate">{{ user?.name }}</p>
             <p class="userinfo__role">{{ user?.role }}</p>
           </div>
-          <div class="ml-2" style="border: 1px solid red">
+          <div class="ml-2 sign-out" @click="handleSignout">
             <v-icon size="40">$signout</v-icon>
           </div>
         </v-layout>
@@ -150,8 +146,8 @@ export default {
     isSubmenuOpen(url) {
       return this.$route.path.startsWith(url)
     },
-    async handleLogout() {
-      await this.$store.dispatch('admin/users/logOutUser')
+    async handleSignout() {
+      // await this.$store.dispatch('admin/users/logOutUser')
       this.$cookiz.removeAll()
       this.$router.go(0)
     },
@@ -261,5 +257,12 @@ export default {
   position: absolute;
   bottom: 15px;
   width: 100%;
+  .sign-out {
+    cursor: pointer;
+    @include m.on-event {
+      background-color: v.$gray-700;
+      border-radius: 8px;
+    }
+  }
 }
 </style>

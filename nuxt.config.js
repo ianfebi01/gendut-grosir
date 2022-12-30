@@ -34,7 +34,7 @@ export default {
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
     // https://go.nuxtjs.dev/eslint
-    '@nuxtjs/eslint-module',
+
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
   ],
@@ -73,8 +73,12 @@ export default {
           accent: '#D0D5DD',
           success: '#1BBF70',
           info: '#2881E9',
-          grey_100: '#F2F4F7',
-          grey_300: '#D0D5DD',
+          gray_100: '#F2F4F7',
+          gray_200: '#EAECF0',
+          gray_300: '#D0D5DD',
+          gray_400: '#98A2B3',
+          gray_500: '#667085',
+          gray_700: '#344054',
           white: '#fff',
           bg_sidebar: '#101828',
         },

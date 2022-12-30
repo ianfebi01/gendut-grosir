@@ -82,10 +82,10 @@ export default [
     icon: '$role',
     access: ['super_admin'],
   },
-  {
-    name: 'Sign Out',
-    url: '/login',
-    icon: '$signout',
-    access: ['super_admin', 'admin'],
-  },
+  // {
+  //   name: 'Sign Out',
+  //   url: '/login',
+  //   icon: '$signout',
+  //   access: ['super_admin', 'admin'],
+  // },
 ]
