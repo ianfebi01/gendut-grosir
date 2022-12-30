@@ -1,6 +1,18 @@
 <template>
   <v-container fluid class="full-width-height gray_100">
     <v-row class="px-1 pt-4">
+      <v-list
+        width="100%"
+        class="py-0 ml-2 d-flex flex-column justify-center align-center"
+      >
+        <v-list-item-group
+          class="d-flex align-center"
+          style="gap: 8px; width: 100%; max-width: 800px"
+        >
+          <Search v-model="search" @input="handleSearch($event)" />
+        </v-list-item-group> </v-list
+    ></v-row>
+    <v-row class="px-1 pt-4">
       <v-col
         v-for="item in datas"
         :key="item?.id"
@@ -21,14 +33,16 @@
 
 <script>
 import Product from '~/components/Card/Product.vue'
+import Search from '~/components/Input/Search.vue'
 
 export default {
   name: 'IndexPage',
-  components: { Product },
+  components: { Product, Search },
   layout: 'dashboard',
   data() {
     return {
       loadingSelected: false,
+      search: '',
     }
   },
   computed: {
@@ -78,6 +92,13 @@ export default {
           return '2'
       }
     },
+    handleSearch() {},
   },
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.theme--light.v-list) {
+  background: transparent;
+}
+</style>

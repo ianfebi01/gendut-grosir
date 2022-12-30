@@ -145,7 +145,6 @@ export default {
       window.open(this.baseUrl + url, '_blank')
     },
     isSubmenuOpen(url) {
-      console.log('tes', url)
       return this.$route.path.startsWith(url)
     },
     async handleSignout() {

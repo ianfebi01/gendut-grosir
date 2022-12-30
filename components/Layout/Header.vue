@@ -7,23 +7,8 @@
           tile
           @click.stop="$store.set('drawer', !drawer)"
         ></v-app-bar-nav-icon>
-        <v-list
-          v-if="router == '/'"
-          width="100%"
-          class="py-0 ml-2 d-flex flex-column justify-center align-center"
-        >
-          <v-list-item-group
-            class="d-flex align-center"
-            style="gap: 8px; width: 100%; max-width: 800px"
-          >
-            <Search v-model="search" @input="handleSearch($event)" />
-            <v-btn fab dense small depressed text
-              ><v-icon color="gray_700" size="20">$cart</v-icon></v-btn
-            >
-          </v-list-item-group>
-        </v-list>
+
         <v-layout
-          v-else
           class="brand d-flex flex-column align-center justify-center"
           align-center
           justify-center
@@ -31,6 +16,9 @@
           <!-- Place your own logo here -->
           <img src="/logo.svg" alt="Logo GG" />
         </v-layout>
+        <v-btn v-if="router == '/'" fab dense small depressed text
+          ><v-icon color="gray_700" size="20">$cart</v-icon></v-btn
+        >
       </div>
       <!-- <div class="d-flex align-center" style="width: 100%">gg</div> -->
     </v-app-bar>
@@ -38,10 +26,9 @@
 </template>
 
 <script>
-import Search from '../Input/Search.vue'
 export default {
   name: 'HeaderApp',
-  components: { Search },
+
   props: { logoutButton: { type: String, default: 'bottom' } },
   data() {
     return {
@@ -63,9 +50,7 @@ export default {
     },
   },
   mounted() {},
-  methods: {
-    handleSearch(search) {},
-  },
+  methods: {},
 }
 </script>
 
