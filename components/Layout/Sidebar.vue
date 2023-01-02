@@ -104,9 +104,9 @@
             <p class="userinfo__name text-truncate">{{ user?.name }}</p>
             <p class="userinfo__role">{{ user?.role }}</p>
           </div>
-          <div class="ml-2 sign-out" @click="handleSignout">
+          <v-btn depressed fab small text class="ml-2" @click="handleSignout">
             <v-icon size="40">$signout</v-icon>
-          </div>
+          </v-btn>
         </v-layout>
       </div>
     </v-navigation-drawer>
@@ -258,11 +258,11 @@ export default {
   position: absolute;
   bottom: 15px;
   width: 100%;
-  .sign-out {
-    cursor: pointer;
+  :deep(.v-btn) {
+    padding: 0;
+    border-radius: 8px;
     @include m.on-event {
       background-color: v.$gray-700;
-      border-radius: 8px;
     }
   }
 }

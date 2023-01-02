@@ -124,3 +124,12 @@ body {
 .data-table table tr td {
   border-bottom: 1.5px solid v.$gray_200 !important;
 }
+
+// Letter spacing
+.letter-spacing-normal {
+  letter-spacing: normal !important;
+}
+
+.line-height-md {
+  line-height: 20px;
+}

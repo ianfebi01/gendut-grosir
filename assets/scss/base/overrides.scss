@@ -134,7 +134,12 @@
 .v-image__image--preload {
   filter: none !important;
 }
+
 .v-btn:not(.v-app-bar__nav-icon):not(.v-btn--fab) {
+  letter-spacing: 0 !important;
+  border-radius: 8px !important;
+}
+.v-btn--outlined:not(.v-app-bar__nav-icon):not(.v-btn--fab) {
   letter-spacing: 0 !important;
   border-radius: 8px !important;
   border: 1px solid #d0d5dd !important;

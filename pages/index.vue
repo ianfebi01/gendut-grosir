@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="full-width-height gray_100">
-    <v-row class="px-1 pt-4">
+    <v-row class="px-6 pt-4">
       <v-list
         width="100%"
         class="py-0 ml-2 d-flex flex-column justify-center align-center"
@@ -12,7 +12,7 @@
           <Search v-model="search" @input="handleSearch($event)" />
         </v-list-item-group> </v-list
     ></v-row>
-    <v-row class="px-1 pt-4">
+    <v-row class="px-6 pt-4">
       <v-col
         v-for="item in datas"
         :key="item?.id"

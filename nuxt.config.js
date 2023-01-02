@@ -69,9 +69,10 @@ export default {
       themes: {
         light: {
           primary: '#7F56D9',
+          primary_50: '#f9f5ff',
+          primary_100: '#f4ebff',
           secondary: '#667085',
           accent: '#D0D5DD',
-          success: '#1BBF70',
           info: '#2881E9',
           gray_100: '#F2F4F7',
           gray_200: '#EAECF0',
@@ -82,6 +83,11 @@ export default {
           gray_900: '#101828',
           white: '#fff',
           bg_sidebar: '#101828',
+          error: '#F04438',
+          error_50: '#FEF3F2',
+          error_100: '#FEE4E2',
+          error_600: '#D92D20',
+          success: '#32D583',
         },
       },
     },

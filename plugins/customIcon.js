@@ -42,6 +42,18 @@ export default new Vuetify({
       trash: {
         component: () => import('@/components/CustomIcons/Trash.vue'),
       },
+      category_primary: {
+        component: () => import('@/components/CustomIcons/CategoryPrimary.vue'),
+      },
+      edit: {
+        component: () => import('@/components/CustomIcons/Edit.vue'),
+      },
+      warning_discard: {
+        component: () => import('~/components/CustomIcons/WarningDiscard.vue'),
+      },
+      warning_delete: {
+        component: () => import('~/components/CustomIcons/WarningDelete.vue'),
+      },
     },
   },
 })
