@@ -51,49 +51,41 @@ body {
   height: 100% !important;
 }
 
-// Font size
-.text-10 {
-  font-size: 10px !important;
-}
-.text-12 {
-  font-size: 12px !important;
-}
-.text-14 {
-  font-size: 14px !important;
-}
-.text-16 {
-  font-size: 16px !important;
-}
-.text-18 {
-  font-size: 18px !important;
-}
-.text-20 {
-  font-size: 20px !important;
-}
-.text-22 {
-  font-size: 22px !important;
-}
-.text-24 {
-  font-size: 24px !important;
-}
-.text-26 {
-  font-size: 26px !important;
-}
-.text-28 {
-  font-size: 28px !important;
-}
-.text-30 {
-  font-size: 30px !important;
-}
-.text-32 {
-  font-size: 32px !important;
-}
-.text-34 {
-  font-size: 34px !important;
-}
-.text-36 {
-  font-size: 36px !important;
-  letter-spacing: normal !important;
+$font-sizes: (
+  8: 8px,
+  9: 9px,
+  10: 10px,
+  11: 11px,
+  12: 12px,
+  13: 13px,
+  14: 14px,
+  15: 15px,
+  16: 16px,
+  17: 17px,
+  18: 18px,
+  19: 19px,
+  20: 20px,
+  24: 24px,
+  25: 25px,
+  26: 26px,
+  28: 28px,
+  29: 29px,
+  30: 30px,
+  31: 31px,
+  32: 32px,
+  33: 33px,
+  34: 34px,
+  35: 35px,
+  36: 36px,
+  37: 37px,
+  38: 38px,
+  39: 39px,
+  40: 40px,
+);
+@each $font-size, $size in $font-sizes {
+  .text-#{$font-size} {
+    font-size: $size;
+  }
 }
 
 // data table

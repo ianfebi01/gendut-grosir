@@ -54,6 +54,9 @@ export default new Vuetify({
       warning_delete: {
         component: () => import('~/components/CustomIcons/WarningDelete.vue'),
       },
+      upload: {
+        component: () => import('~/components/CustomIcons/Upload.vue'),
+      },
     },
   },
 })

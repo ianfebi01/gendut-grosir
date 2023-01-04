@@ -3,6 +3,7 @@ import EasyAccess, { defaultMutations } from 'vuex-easy-access'
 export const state = () => ({
   product: [],
   errorMessage: '',
+  paginator: {},
 })
 
 export const mutations = { ...defaultMutations(state()) }
@@ -10,11 +11,45 @@ export const mutations = { ...defaultMutations(state()) }
 export const plugins = [EasyAccess()]
 
 export const actions = {
-  getProduct({ dispatch }) {
+  getProduct({ dispatch }, params) {
     return this.$axios
-      .get(`api/product`)
+      .get(`api/product`, { params })
       .then((res) => {
         dispatch('set/product', res.data?.data?.data)
+        dispatch('set/paginator', res?.data?.data?.paginator)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  deleteProduct({ dispatch, state }, id) {
+    return this.$axios
+      .delete(`api/product/${id}`)
+      .then(() => {
+        const tmp = JSON.parse(JSON.stringify(state.product))
+        const index = tmp.findIndex((item) => item._id === id)
+
+        if (index != -1) {
+          tmp.splice(index, 1)
+          dispatch('set/product', tmp)
+        }
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  addProduct({ dispatch }, body) {
+    return this.$axios
+      .post(`api/product`, { ...body })
+      .then((res) => {
+        dispatch('set/product.push', res.data?.data)
+
         return true
       })
       .catch((err) => {

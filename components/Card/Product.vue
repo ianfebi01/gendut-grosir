@@ -1,9 +1,10 @@
 <template>
   <v-card
-    class="pa-3 card-collumn-barista-card"
+    class="card-collumn-barista-card"
     text
     outlined
     height="auto"
+    style="overflow: hidden"
     :loading="loading === item?.id"
     :disabled="loading === item?.id"
     @click="$emit('handleClick', item.id)"
@@ -19,10 +20,10 @@
     <v-container class="pa-0">
       <v-img
         lazy-src="lazy-loader.svg"
-        src="https://res.cloudinary.com/djyp9rr7s/image/upload/v1671439956/Pngtree_no_image_vector_illustration_isolated_4979075_ncvayj.png"
+        :src="item?.image"
         height="150px"
         width="100%"
-        class="img"
+        class=""
       >
         <v-card-actions class="d-flex justify-end">
           <v-btn
@@ -45,12 +46,12 @@
       </v-img>
 
       <v-list-item-title
-        class="text-title mt-2 font-weight-bold text-body-2 px-0 green-darken-1--text"
+        class="text-title mt-2 font-weight-bold text-body-2 px-0 green-darken-1--text mx-3"
       >
         {{ item?.name }}
       </v-list-item-title>
 
-      <v-card-actions class="px-0 text-body-2">
+      <v-card-actions class="px-0 text-body-2 mx-3 mb-3">
         <div
           style="width: 100%"
           class="px-0 d-flex align-center justify-space-between card-collumn-barista-btn"

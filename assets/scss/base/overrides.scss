@@ -21,7 +21,7 @@
   border-radius: 8px !important;
 }
 // input text fields
-.v-text-field--outlined:not(.v-input--is-focused)
+.v-text-field--outlined:not(.v-input--is-focused, .error--text)
   > .v-input__control
   > .v-input__slot
   fieldset {
@@ -30,13 +30,17 @@
   box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
 }
 // input text focused
-.v-text-field--outlined.v-input--is-focused
+.v-text-field--outlined.v-input--is-focused:not(.error--text)
   > .v-input__control
   > .v-input__slot
   fieldset {
   border: 1px solid #d6bbfb;
   box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px #f4ebff;
   border-radius: 8px;
+}
+// input text details
+.v-text-field__details {
+  margin-bottom: 0 !important;
 }
 
 //Pagination

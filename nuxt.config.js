@@ -26,6 +26,7 @@ export default {
   plugins: [
     { src: '@/plugins/axios' },
     { src: '@/plugins/customIcon', mode: 'client' },
+    { src: '@plugins/main', mode: 'client' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

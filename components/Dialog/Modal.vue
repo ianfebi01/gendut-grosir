@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="modal" persistent width="408">
+  <v-dialog v-model="modal" persistent :width="width" scrollable>
     <v-card style="border-radius: 12px !important">
       <v-card-title
         class="d-flex flex-column justify-center letter-spacing-normal"
@@ -27,31 +27,34 @@
         <slot name="content"></slot>
       </v-card-text>
       <v-card-actions>
-        <v-col class="px-0 pr-1">
-          <v-btn
-            block
-            outlined
-            height="44"
-            depressed
-            :disabled="loading"
-            dense
-            @click="cancel"
-          >
-            Cancel
-          </v-btn>
-        </v-col>
-        <v-col class="px-0 pl-1">
-          <v-btn
-            block
-            depressed
-            height="44"
-            color="primary"
-            :loading="loading"
-            @click="save"
-          >
-            Save
-          </v-btn>
-        </v-col>
+        <slot name="action">
+          <v-col class="px-0 pr-1">
+            <v-btn
+              block
+              outlined
+              height="44"
+              depressed
+              :disabled="loading"
+              dense
+              @click="cancel"
+            >
+              Cancel
+            </v-btn>
+          </v-col>
+          <v-col class="px-0 pl-1">
+            <v-btn
+              block
+              depressed
+              height="44"
+              color="primary"
+              :loading="loading"
+              :disabled="disable"
+              @click="save"
+            >
+              Save
+            </v-btn>
+          </v-col>
+        </slot>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -84,9 +87,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    disable: {
+      type: Boolean,
+      default: false,
+    },
     errorMessage: {
       type: String,
       default: 'You should set the text props!',
+    },
+    width: {
+      type: String,
+      default: '408px',
     },
   },
   computed: {
