@@ -57,6 +57,9 @@ export default new Vuetify({
       upload: {
         component: () => import('~/components/CustomIcons/Upload.vue'),
       },
+      money: {
+        component: () => import('~/components/CustomIcons/Money.vue'),
+      },
     },
   },
 })

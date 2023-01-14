@@ -2,6 +2,7 @@ import EasyAccess, { defaultMutations } from 'vuex-easy-access'
 
 export const state = () => ({
   product: [],
+  productDetails: {},
   errorMessage: '',
   paginator: {},
 })
@@ -50,6 +51,39 @@ export const actions = {
       .then((res) => {
         dispatch('set/product.push', res.data?.data)
 
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  editProduct({ dispatch, state }, body) {
+    return this.$axios
+      .put(`api/product/${body._id}`, { ...body })
+      .then((res) => {
+        const tmp = JSON.parse(JSON.stringify(state.product))
+        const index = tmp.findIndex((item) => item._id === body._id)
+        if (index != -1) {
+          tmp[index] = {
+            ...res?.data?.data,
+          }
+        }
+        dispatch('set/product', tmp)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  getProductById({ dispatch }, id) {
+    return this.$axios
+      .get(`api/product/${id}`)
+      .then((res) => {
+        dispatch('set/productDetails', res.data?.data)
         return true
       })
       .catch((err) => {

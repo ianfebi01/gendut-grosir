@@ -10,9 +10,24 @@
           style="gap: 8px; width: 100%; max-width: 800px"
         >
           <Search v-model="search" @input="handleSearch($event)" />
-        </v-list-item-group> </v-list
-    ></v-row>
-    <v-row class="px-6 pt-4">
+          <v-btn
+            color="gray_500"
+            outlined
+            height="44"
+            dense
+            style="background-color: #fff"
+            @click="modalPrice = true"
+          >
+            <v-icon size="15">$money</v-icon>
+            <span v-if="price === 'wholesalerPrice'" class="ml-2"> Sales </span>
+            <span v-else-if="price === 'retailPrice'" class="ml-2">
+              Retail
+            </span>
+          </v-btn>
+        </v-list-item-group>
+      </v-list></v-row
+    >
+    <v-row v-if="datas?.length && !loading" class="px-6 pt-4">
       <v-col
         v-for="item in datas"
         :key="item?.id"
@@ -22,32 +37,105 @@
         <Product
           :item="item"
           :loading="loadingSelected"
-          customer-status="retailPrice"
+          :customer-status="price"
           @handleClick="handleClickSelect($event)"
-          @handleClickFavorite="handleClickFavorite($event)"
         />
       </v-col>
     </v-row>
+    <v-row v-else-if="!datas?.length && !loading" style="height: 90%">
+      <v-col align-self="center" style="height: 100%">
+        <Empty />
+      </v-col>
+    </v-row>
+    <v-row v-else-if="loading" style="height: 90%">
+      <v-col
+        align-self="center"
+        style="height: 100%"
+        class="d-flex align-center justify-center"
+      >
+        <Loading />
+      </v-col>
+    </v-row>
+    <Modal
+      title="Who's your Customer?"
+      subtitle="Select Sales or Retail"
+      :modal-prop="modalPrice"
+      :error-message="''"
+    >
+      <template #action>
+        <v-col class="px-0 pr-1">
+          <v-btn
+            block
+            outlined
+            height="44"
+            depressed
+            dense
+            @click="handleClickSales"
+          >
+            Sales
+          </v-btn>
+        </v-col>
+        <v-col class="px-0 pl-1">
+          <v-btn
+            block
+            depressed
+            height="44"
+            color="primary"
+            @click="handleClickRetail"
+          >
+            Retail
+          </v-btn>
+        </v-col>
+      </template>
+    </Modal>
+    <!-- Cart -->
+    <Cart
+      title="Cart"
+      subtitle="Add product to cart to checkout"
+      :customer-status="price"
+      :modal-prop="modalCart"
+      :error-message="''"
+      :datas="cart"
+      @cancel="modalCart = false"
+    />
   </v-container>
 </template>
 
 <script>
-import Product from '~/components/Card/Product.vue'
+import Empty from '~/components/Layout/Empty.vue'
+import Loading from '~/components/Layout/Loading'
 import Search from '~/components/Input/Search.vue'
+import Product from '~/components/Card/Product.vue'
+import Modal from '~/components/Dialog/Modal.vue'
+import Cart from '~/components/Dialog/Cart.vue'
 
 export default {
   name: 'IndexPage',
-  components: { Product, Search },
+  components: { Product, Search, Empty, Modal, Loading, Cart },
   layout: 'dashboard',
   data() {
     return {
       loadingSelected: false,
       search: '',
+      price: '',
+      modalPrice: true,
+      loading: false,
     }
   },
   computed: {
     datas() {
       return this.$store.get('product/product')
+    },
+    cart() {
+      return this.$store.get('order/cart')
+    },
+    modalCart: {
+      get() {
+        return this.$store.get('order/modalCart')
+      },
+      set(event) {
+        this.$store.set('order/modalCart', event)
+      },
     },
   },
   mounted() {
@@ -65,6 +153,7 @@ export default {
       }
     },
     async getProduct() {
+      this.loading = true
       const params = {
         q: this.search,
         category: this.category,
@@ -92,7 +181,24 @@ export default {
           return '2'
       }
     },
-    handleSearch() {},
+    handleSearch() {
+      this.getProduct()
+    },
+    handleClickSales() {
+      this.price = 'wholesalerPrice'
+      this.modalPrice = false
+    },
+    handleClickRetail() {
+      this.price = 'retailPrice'
+      this.modalPrice = false
+    },
+    handleClickSelect(item) {
+      const payload = {
+        ...item,
+        qty: 1,
+      }
+      this.$store.dispatch('order/addCart', payload)
+    },
   },
 }
 </script>

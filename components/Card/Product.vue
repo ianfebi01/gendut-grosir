@@ -7,7 +7,7 @@
     style="overflow: hidden"
     :loading="loading === item?.id"
     :disabled="loading === item?.id"
-    @click="$emit('handleClick', item.id)"
+    @click="$emit('handleClick', item)"
   >
     <template #progress>
       <v-progress-circular
@@ -32,21 +32,15 @@
             active-class="color:primary !important"
             class="pa-2"
             depressed
-            :style="{
-              color: favorite ? 'white !important' : '#F9F9F8',
-            }"
-            @click="$emit('handleClickFavorite', item?.id)"
+            color="primary"
           >
-            <v-icon v-if="!item?.favorited" color="primary">
-              mdi-heart-outline
-            </v-icon>
-            <v-icon v-else color="red">mdi-heart</v-icon>
+            <span class="white--text font-weight-bold">{{ item?.stock }}</span>
           </v-btn>
         </v-card-actions>
       </v-img>
 
       <v-list-item-title
-        class="text-title mt-2 font-weight-bold text-body-2 px-0 green-darken-1--text mx-3"
+        class="text-title mt-2 font-weight-medium letter-spacing-normal text-14 px-0 gray_900--text mx-3"
       >
         {{ item?.name }}
       </v-list-item-title>
@@ -58,7 +52,7 @@
         >
           <div class="d-flex flex-column justify-center">
             <span class="text-secondary text-subtitle-2">Price:</span>
-            <span class="black--text font-weight-bold">
+            <span class="gray_900--text font-weight-bold">
               {{
                 customerStatus === 'retailPrice'
                   ? formatRupiah(item?.retailPrice)
@@ -76,7 +70,7 @@
 import { formatRupiah } from '~/utils/formatRupiah'
 
 export default {
-  name: 'CardColumnBarista',
+  name: 'Product',
   props: {
     item: { type: Object, default: () => {} },
     loading: {

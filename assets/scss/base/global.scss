@@ -84,7 +84,7 @@ $font-sizes: (
 );
 @each $font-size, $size in $font-sizes {
   .text-#{$font-size} {
-    font-size: $size;
+    font-size: $size !important;
   }
 }
 

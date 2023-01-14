@@ -72,6 +72,7 @@ export default {
           primary: '#7F56D9',
           primary_50: '#f9f5ff',
           primary_100: '#f4ebff',
+          primary_300: '#d6bbfb',
           secondary: '#667085',
           accent: '#D0D5DD',
           info: '#2881E9',
@@ -89,6 +90,7 @@ export default {
           error_100: '#FEE4E2',
           error_600: '#D92D20',
           success: '#32D583',
+          neutral_80: '#6F7173',
         },
       },
     },
@@ -100,5 +102,6 @@ export default {
   // Port Dev
   server: {
     port: 3001,
+    // host: '0.0.0.0',
   },
 }

@@ -46,6 +46,7 @@
               depressed
               small
               color="gray_500"
+              :loading="item?.item._id === loadingEdit"
               @click="openEditModal(item?.item)"
               ><v-icon small>$edit</v-icon></v-btn
             >
@@ -103,7 +104,7 @@
       @cancel="clearAll"
       @modalProp="modal = false"
       @save="handleAdd"
-      @clearErrorMessage="$store.set('category/errorMessage', '')"
+      @clearErrorMessage="$store.set('product/errorMessage', '')"
     >
       <template #content>
         <v-row class="mt-2">
@@ -139,7 +140,7 @@
                 v-if="!imageFile"
                 class="d-flex flex-column align-center justify-center"
                 style="width: 100%; height: 100%"
-                @click="$refs.inputImage.$refs.input.click()"
+                @click="$refs.inputImage.click()"
               >
                 <div class="icon">
                   <v-icon size="18">$upload</v-icon>
@@ -159,18 +160,20 @@
                 height="123"
               ></v-img>
             </v-card>
-            <v-file-input
+            <input
               ref="inputImage"
               accept="image/*"
               class="d-none"
               type="file"
+              capture="user"
               @change="imageInput"
-            ></v-file-input>
+            />
             <div
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
               Name
+              <span style="color: red !important">*</span>
             </div>
             <v-text-field
               v-model="form.name"
@@ -206,6 +209,7 @@
               style="font-size: 14px"
             >
               Category
+              <span style="color: red !important">*</span>
             </div>
             <v-autocomplete
               v-model="form.category"
@@ -254,32 +258,15 @@
               flat
               height="44"
               placeholder="Enter Buy Price"
-              :hide-details="$v.form.stock.$error ? false : true"
-              :error-messages="
-                !$v.form.stock.required && $v.form.stock.$dirty
-                  ? 'Buy Price is required'
-                  : !$v.form.stock.maxLength && $v.form.stock.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : !$v.form.stock.Number && $v.form.stock.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="$v.form.stock.$touch()"
+              hide-details
             >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.form.stock.$invalid && $v.form.stock.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
             </v-text-field>
             <div
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
               Buy Price
+              <span style="color: red !important">*</span>
             </div>
             <v-text-field
               v-model="form.buyPrice"
@@ -316,6 +303,7 @@
               style="font-size: 14px"
             >
               Sales Price
+              <span style="color: red !important">*</span>
             </div>
             <v-text-field
               v-model="form.wholesalerPrice"
@@ -358,6 +346,7 @@
               style="font-size: 14px"
             >
               Retail Price
+              <span style="color: red !important">*</span>
             </div>
             <v-text-field
               v-model="form.retailPrice"
@@ -415,34 +404,310 @@
 
     <!-- Edit -->
     <Modal
-      title="Edit Category"
-      subtitle="Enter new Category name"
-      :loading="loadingEdit"
+      title="Edit Product"
+      width="800px"
+      subtitle="Edit Product on your store"
+      :loading="loadingAdd"
       :error-message="errorMessage"
       :modal-prop="editModal"
-      @cancel="name = ''"
+      :disable="$v.form.$invalid"
+      @cancel="clearAll"
       @modalProp="editModal = false"
-      @save="handleEdit()"
-      @clearErrorMessage="$store.set('category/errorMessage', '')"
+      @save="handleEdit"
+      @clearErrorMessage="$store.set('product/errorMessage', '')"
     >
       <template #content>
-        <div
-          class="font-weight-medium mb-1 gray_700--text"
-          style="font-size: 14px"
-        >
-          Name
-        </div>
-        <v-text-field
-          v-model="name"
-          background-color="#fff"
-          outlined
-          dense
-          flat
-          height="44"
-          hide-details
-          placeholder="Enter new category name"
-        >
-        </v-text-field>
+        <v-row class="mt-2">
+          <v-col cols="6">
+            <div
+              class="font-weight-medium mb-1 gray_700--text"
+              style="font-size: 14px"
+            >
+              Image
+            </div>
+            <v-card
+              class="input-image"
+              outlined
+              flat
+              width="432"
+              height="201"
+              style="overflow: hidden"
+              @click="''"
+            >
+              <v-btn
+                v-if="imageFile"
+                dense
+                small
+                fab
+                text
+                class="clear-image"
+                @click="clearImageEdit"
+              >
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+
+              <div
+                v-if="!imageFile"
+                class="d-flex flex-column align-center justify-center"
+                style="width: 100%; height: 100%"
+                @click="$refs.inputImage.$refs.input.click()"
+              >
+                <div class="icon">
+                  <v-icon size="18">$upload</v-icon>
+                </div>
+
+                <span class="primary--text font-weight-bold pa-0">
+                  Click to upload
+                </span>
+                <span class="gray_500--text text-12 font-weight-normal pa-0">
+                  SVG, PNG, JPG or GIF (max. 800x400px)
+                </span>
+              </div>
+              <v-img
+                v-else-if="imageFile"
+                :src="imageFile"
+                width="432"
+                height="123"
+              ></v-img>
+            </v-card>
+            <v-file-input
+              ref="inputImage"
+              accept="image/*"
+              class="d-none"
+              type="file"
+              @change="imageInput"
+            ></v-file-input>
+            <div
+              class="font-weight-medium mb-1 gray_700--text mt-2"
+              style="font-size: 14px"
+            >
+              Name
+              <span style="color: red !important">*</span>
+            </div>
+            <v-text-field
+              v-model="form.name"
+              background-color="#fff"
+              outlined
+              dense
+              flat
+              height="44"
+              placeholder="Enter Product name"
+              :hide-details="$v.form.name.$error ? false : true"
+              :error-messages="
+                !$v.form.name.required && $v.form.name.$dirty
+                  ? 'Name is required'
+                  : !$v.form.name.minLength && $v.form.name.$dirty
+                  ? 'Minimum length is 2 characters'
+                  : !$v.form.name.maxLength && $v.form.name.$dirty
+                  ? 'Maximum length is 20 characters'
+                  : []
+              "
+              @blur="$v.form.name.$touch()"
+            >
+              <template slot="append">
+                <v-icon
+                  v-if="$v.form.name.$invalid && $v.form.name.$dirty"
+                  color="red"
+                >
+                  mdi-alert-circle-outline
+                </v-icon>
+              </template>
+            </v-text-field>
+            <div
+              class="font-weight-medium mb-1 gray_700--text mt-2"
+              style="font-size: 14px"
+            >
+              Category
+              <span style="color: red !important">*</span>
+            </div>
+            <v-autocomplete
+              v-model="form.category"
+              :items="category"
+              item-text="name"
+              item-value="_id"
+              background-color="#fff"
+              outlined
+              dense
+              flat
+              height="44"
+              :hide-details="$v.form.category.$error ? false : true"
+              placeholder="Select Category"
+              :error-messages="
+                !$v.form.category.required && $v.form.category.$dirty
+                  ? 'Category is required'
+                  : []
+              "
+              @keyup="autocompleteCategories($event)"
+              @focus="getCategory()"
+              @blur="$v.form.category.$touch()"
+            >
+              <template slot="append">
+                <v-icon
+                  v-if="$v.form.category.$invalid && $v.form.category.$dirty"
+                  color="red"
+                >
+                  mdi-alert-circle-outline
+                </v-icon>
+              </template>
+            </v-autocomplete>
+          </v-col>
+          <v-col cols="6">
+            <div
+              class="font-weight-medium mb-1 gray_700--text"
+              style="font-size: 14px"
+            >
+              Stock
+            </div>
+            <v-text-field
+              v-model="form.stock"
+              background-color="#fff"
+              outlined
+              type="number"
+              dense
+              flat
+              height="44"
+              placeholder="Enter Buy Price"
+              hide-details
+            >
+            </v-text-field>
+            <div
+              class="font-weight-medium mb-1 gray_700--text mt-2"
+              style="font-size: 14px"
+            >
+              Buy Price
+              <span style="color: red !important">*</span>
+            </div>
+            <v-text-field
+              v-model="form.buyPrice"
+              background-color="#fff"
+              outlined
+              type="number"
+              dense
+              flat
+              height="44"
+              placeholder="Enter Buy Price"
+              :hide-details="$v.form.buyPrice.$error ? false : true"
+              :error-messages="
+                !$v.form.buyPrice.required && $v.form.buyPrice.$dirty
+                  ? 'Buy Price is required'
+                  : !$v.form.buyPrice.maxLength && $v.form.buyPrice.$dirty
+                  ? 'Maximum length is 20 characters'
+                  : !$v.form.buyPrice.Number && $v.form.buyPrice.$dirty
+                  ? 'Must be a number'
+                  : []
+              "
+              @blur="$v.form.buyPrice.$touch()"
+            >
+              <template slot="append">
+                <v-icon
+                  v-if="$v.form.buyPrice.$invalid && $v.form.buyPrice.$dirty"
+                  color="red"
+                >
+                  mdi-alert-circle-outline
+                </v-icon>
+              </template>
+            </v-text-field>
+            <div
+              class="font-weight-medium mb-1 gray_700--text mt-2"
+              style="font-size: 14px"
+            >
+              Sales Price
+              <span style="color: red !important">*</span>
+            </div>
+            <v-text-field
+              v-model="form.wholesalerPrice"
+              type="number"
+              background-color="#fff"
+              outlined
+              dense
+              flat
+              height="44"
+              placeholder="Enter Sales Price"
+              :hide-details="$v.form.wholesalerPrice.$error ? false : true"
+              :error-messages="
+                !$v.form.wholesalerPrice.required &&
+                $v.form.wholesalerPrice.$dirty
+                  ? 'Sales Price is required'
+                  : !$v.form.wholesalerPrice.maxLength &&
+                    $v.form.wholesalerPrice.$dirty
+                  ? 'Maximum length is 20 characters'
+                  : !$v.form.wholesalerPrice.Number &&
+                    $v.form.wholesalerPrice.$dirty
+                  ? 'Must be a number'
+                  : []
+              "
+              @blur="$v.form.wholesalerPrice.$touch()"
+            >
+              <template slot="append">
+                <v-icon
+                  v-if="
+                    $v.form.wholesalerPrice.$invalid &&
+                    $v.form.wholesalerPrice.$dirty
+                  "
+                  color="red"
+                >
+                  mdi-alert-circle-outline
+                </v-icon>
+              </template>
+            </v-text-field>
+            <div
+              class="font-weight-medium mb-1 gray_700--text mt-2"
+              style="font-size: 14px"
+            >
+              Retail Price
+              <span style="color: red !important">*</span>
+            </div>
+            <v-text-field
+              v-model="form.retailPrice"
+              type="number"
+              background-color="#fff"
+              outlined
+              dense
+              flat
+              height="44"
+              placeholder="Enter Retail Price"
+              :hide-details="$v.form.retailPrice.$error ? false : true"
+              :error-messages="
+                !$v.form.retailPrice.required && $v.form.retailPrice.$dirty
+                  ? 'Retail Price is required'
+                  : !$v.form.retailPrice.maxLength && $v.form.retailPrice.$dirty
+                  ? 'Maximum length is 20 characters'
+                  : !$v.form.retailPrice.Number && $v.form.retailPrice.$dirty
+                  ? 'Must be a number'
+                  : []
+              "
+              @blur="$v.form.retailPrice.$touch()"
+            >
+              <template slot="append">
+                <v-icon
+                  v-if="
+                    $v.form.retailPrice.$invalid && $v.form.retailPrice.$dirty
+                  "
+                  color="red"
+                >
+                  mdi-alert-circle-outline
+                </v-icon>
+              </template>
+            </v-text-field>
+            <div
+              class="font-weight-medium mb-1 gray_700--text mt-2"
+              style="font-size: 14px"
+            >
+              Barcode
+            </div>
+            <v-text-field
+              v-model="form.barcode"
+              type="number"
+              background-color="#fff"
+              outlined
+              dense
+              flat
+              height="44"
+              placeholder="Enter Barcode"
+            >
+            </v-text-field>
+          </v-col>
+        </v-row>
       </template>
     </Modal>
     <Delete
@@ -471,6 +736,7 @@ export default {
       imageFile: null,
       loadingCategory: false,
       form: {
+        id: null,
         name: '',
         category: '',
         stock: null,
@@ -529,6 +795,9 @@ export default {
     },
     imageUrl() {
       return this.$store.get('uploadImages/imageUrl')
+    },
+    productDetails() {
+      return this.$store.get('product/productDetails')
     },
   },
   watch: {
@@ -602,23 +871,55 @@ export default {
         this.loadingDelete = false
       }
     },
-    openEditModal(item) {
-      this.editModal = true
-      this.id = item?._id
-      this.name = item?.name
+    async openEditModal(item) {
+      this.loadingEdit = item?._id
+      const res = await this.$store.dispatch(
+        'product/getProductById',
+        item?._id
+      )
+
+      if (res) {
+        this.imageFile = this.productDetails.image
+        this.form = {
+          ...this.productDetails,
+          category: this.productDetails.category._id,
+        }
+        await this.getCategory(this.productDetails.category.name)
+        this.editModal = true
+        this.loadingEdit = ''
+        console.log('form: ', this.form)
+      } else {
+        this.loadingEdit = ''
+      }
     },
     async handleEdit() {
-      this.loadingEdit = true
-      const params = {
-        id: this.id,
-        name: this.name,
+      this.loadingAdd = true
+      await this.$store.dispatch('uploadImages/deleteImages', this.publicId)
+
+      // Upload Image
+      if (this.image) {
+        const formData = new FormData()
+        formData.append('image', this.image)
+        formData.append('path', 'gendut-grosir')
+        const res = await this.$store.dispatch(
+          'uploadImages/uploadImages',
+          formData
+        )
+        if (res) {
+          this.form.image = this.imageUrl[0].url
+        }
       }
-      const res = await this.$store.dispatch('category/editCategory', params)
+      // Make body
+      const body = {
+        ...this.form,
+      }
+      const res = await this.$store.dispatch('product/editProduct', body)
       if (res) {
-        this.loadingEdit = false
+        this.loadingAdd = false
         this.editModal = false
+        this.clearAll()
       } else {
-        this.loadingEdit = false
+        this.loadingAdd = false
       }
     },
     async getCategory(q) {
@@ -649,8 +950,16 @@ export default {
       this.imageFile = null
       this.image = null
     },
+    async clearImageEdit() {
+      this.publicId = this.productDetails.image.match(
+        /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
+      )[0]
+      this.imageFile = null
+      this.image = null
+    },
     clearAll() {
       this.clearImage()
+      this.publicId = ''
       this.form = {
         name: '',
         category: '',
@@ -673,11 +982,6 @@ export default {
         },
         category: {
           required,
-        },
-        stock: {
-          required,
-          maxLength: maxLength(20),
-          Number,
         },
         buyPrice: {
           required,

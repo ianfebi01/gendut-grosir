@@ -16,9 +16,26 @@
           <!-- Place your own logo here -->
           <img src="/logo.svg" alt="Logo GG" />
         </v-layout>
-        <v-btn v-if="router == '/'" fab dense small depressed text
-          ><v-icon color="gray_700" size="20">$cart</v-icon></v-btn
+
+        <v-badge
+          bordered
+          color="primary"
+          :value="cart?.length"
+          :content="cart?.length"
+          overlap
         >
+          <v-btn
+            v-if="router == '/'"
+            fab
+            dense
+            small
+            depressed
+            text
+            @click="$store.set('order/modalCart', true)"
+          >
+            <v-icon color="gray_700" size="20">$cart</v-icon>
+          </v-btn>
+        </v-badge>
       </div>
       <!-- <div class="d-flex align-center" style="width: 100%">gg</div> -->
     </v-app-bar>
@@ -47,6 +64,9 @@ export default {
     },
     router() {
       return this.$route.path
+    },
+    cart() {
+      return this.$store.get('order/cart')
     },
   },
   mounted() {},
