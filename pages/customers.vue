@@ -1,16 +1,16 @@
 <template>
   <v-container fluid class="full-width-height gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text"> Product </span>
+      <span class="text-30 font-weight-medium gray_900--text"> Customer </span>
       <v-spacer></v-spacer>
       <v-btn color="primary" height="44" dense depressed @click="modal = true">
         <v-icon size="13" class="mr-2">$plus</v-icon>
-        Add Product
+        Tambah Customer
       </v-btn>
     </v-row>
     <v-row class="px-6">
       <span class="text-14 font-weight-normal gray_500--text">
-        Manage all your prroducts
+        Kelola Customer Anda
       </span>
     </v-row>
     <v-row class="px-6 pt-4">
@@ -30,13 +30,23 @@
         no-data-text="No Data"
         class="data-table"
       >
-        <template #[`item.image`]="item">
-          <v-img
-            lazy-src="lazy-loader.svg"
-            height="40"
-            width="40"
-            :src="item?.item?.image"
-          />
+        <template #[`item.status`]="item">
+          <span>{{
+            item?.item?.status == 'retail'
+              ? 'Retail'
+              : item?.item?.status == 'wholesaler'
+              ? 'Sales'
+              : '-'
+          }}</span>
+        </template>
+        <template #[`item.profilePicture`]="item">
+          <v-avatar size="40px">
+            <v-img
+              alt="avatar"
+              lazy-src="lazy-loader.svg"
+              :src="item?.item?.profilePicture"
+            />
+          </v-avatar>
         </template>
         <template #[`item.action`]="item">
           <div>
@@ -65,7 +75,7 @@
         <template #footer>
           <div class="d-flex align-center text-14 my-4 mx-4">
             <span class="gray_700--text font-weight-medium">
-              {{ 'Page ' + page + ' of ' + paginator?.totalPages }}
+              {{ 'Halaman ' + page + ' dari ' + paginator?.totalPages }}
             </span>
 
             <v-spacer></v-spacer>
@@ -76,7 +86,7 @@
               dense
               :disabled="!paginator.hasPrevPage"
               @click="page--"
-              >Previous</v-btn
+              >Sebelumnya</v-btn
             >
             <v-btn
               class="ml-2"
@@ -86,7 +96,7 @@
               dense
               :disabled="!paginator.hasNextPage"
               @click="page++"
-              >Next</v-btn
+              >Selanjutnya</v-btn
             >
           </div>
         </template>
@@ -389,14 +399,14 @@
     </Modal>
 
     <!-- Edit -->
-    <!-- <Modal
+    <Modal
       title="Edit Product"
       width="800px"
       subtitle="Edit Product on your store"
       :loading="loadingAdd"
       :error-message="errorMessage"
       :modal-prop="editModal"
-      :disable="$v.form.$invalid"
+      :disable="$v.editForm.$invalid"
       @cancel="clearAll"
       @modalProp="editModal = false"
       @save="handleEdit"
@@ -416,7 +426,7 @@
               outlined
               flat
               width="432"
-              height="201"
+              height="208"
               style="overflow: hidden"
               @click="''"
             >
@@ -427,7 +437,7 @@
                 fab
                 text
                 class="clear-image"
-                @click="clearImageEdit"
+                @click="clearImage"
               >
                 <v-icon>mdi-close</v-icon>
               </v-btn>
@@ -449,6 +459,7 @@
                   SVG, PNG, JPG or GIF (max. 800x400px)
                 </span>
               </div>
+
               <v-img
                 v-else-if="imageFile"
                 :src="imageFile"
@@ -467,32 +478,30 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Name
+              Nama
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
-              v-model="form.name"
+              v-model="editForm.name"
               background-color="#fff"
               outlined
               dense
               flat
               height="44"
-              placeholder="Enter Product name"
-              :hide-details="$v.form.name.$error ? false : true"
+              placeholder="Masukkan nama"
+              :hide-details="$v.editForm.name.$error ? false : true"
               :error-messages="
-                !$v.form.name.required && $v.form.name.$dirty
-                  ? 'Name is required'
-                  : !$v.form.name.minLength && $v.form.name.$dirty
-                  ? 'Minimum length is 2 characters'
-                  : !$v.form.name.maxLength && $v.form.name.$dirty
-                  ? 'Maximum length is 20 characters'
+                !$v.editForm.name.required && $v.editForm.name.$dirty
+                  ? 'Nama tidak boleh kosong'
+                  : !$v.editForm.name.maxLength && $v.editForm.name.$dirty
+                  ? 'Maximal 20 karakter'
                   : []
               "
-              @blur="$v.form.name.$touch()"
+              @blur="$v.editForm.name.$touch()"
             >
               <template slot="append">
                 <v-icon
-                  v-if="$v.form.name.$invalid && $v.form.name.$dirty"
+                  v-if="$v.editForm.name.$invalid && $v.editForm.name.$dirty"
                   color="red"
                 >
                   mdi-alert-circle-outline
@@ -503,199 +512,111 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Category
+              Email
               <span style="color: red !important">*</span>
             </div>
-            <v-autocomplete
-              v-model="form.category"
-              :items="category"
-              item-text="name"
-              item-value="_id"
+            <v-text-field
+              v-model="editForm.email"
               background-color="#fff"
               outlined
+              type="text"
               dense
               flat
               height="44"
-              :hide-details="$v.form.category.$error ? false : true"
-              placeholder="Select Category"
+              placeholder="Masukkan alamat email"
+              :hide-details="$v.editForm.email.$error ? false : true"
               :error-messages="
-                !$v.form.category.required && $v.form.category.$dirty
-                  ? 'Category is required'
+                !$v.editForm.email.required && $v.editForm.email.$dirty
+                  ? 'Email tidak boleh kosong'
+                  : !$v.editForm.email.email && $v.editForm.email.$dirty
+                  ? 'Format email salah'
                   : []
               "
-              @keyup="autocompleteCategories($event)"
-              @focus="getCategory()"
-              @blur="$v.form.category.$touch()"
+              @blur="$v.editForm.email.$touch()"
             >
               <template slot="append">
                 <v-icon
-                  v-if="$v.form.category.$invalid && $v.form.category.$dirty"
+                  v-if="$v.editForm.email.$invalid && $v.editForm.email.$dirty"
                   color="red"
                 >
                   mdi-alert-circle-outline
                 </v-icon>
               </template>
-            </v-autocomplete>
+            </v-text-field>
           </v-col>
           <v-col cols="6">
             <div
-              class="font-weight-medium mb-1 gray_700--text"
+              class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Stock
+              Role
+              <span style="color: red !important">*</span>
             </div>
-            <v-text-field
-              v-model="form.stock"
+            <v-select
+              v-model="editForm.role"
+              :items="role"
+              item-text="name"
+              item-value="value"
               background-color="#fff"
               outlined
-              type="number"
               dense
               flat
               height="44"
-              placeholder="Enter Buy Price"
+              placeholder="Pilih Role"
+              :hide-details="$v.editForm.role.$error ? false : true"
+              :error-messages="
+                !$v.editForm.role.required && $v.editForm.role.$dirty
+                  ? 'Role tidak boleh kosong'
+                  : []
+              "
+              @blur="$v.editForm.role.$touch()"
+            >
+              <template slot="append">
+                <v-icon
+                  v-if="$v.editForm.role.$invalid && $v.editForm.role.$dirty"
+                  color="red"
+                >
+                  mdi-alert-circle-outline
+                </v-icon>
+              </template>
+            </v-select>
+            <div
+              class="font-weight-medium mb-1 gray_700--text mt-2"
+              style="font-size: 14px"
+            >
+              Status
+            </div>
+            <v-select
+              v-model="editForm.status"
+              :items="status"
+              item-text="name"
+              item-value="value"
+              background-color="#fff"
+              outlined
+              dense
+              flat
+              height="44"
+              placeholder="Pilih Status"
               hide-details
             >
-            </v-text-field>
+            </v-select>
+
             <div
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Buy Price
-              <span style="color: red !important">*</span>
+              Aktifkan Akun?
             </div>
-            <v-text-field
-              v-model="form.buyPrice"
-              background-color="#fff"
-              outlined
-              type="number"
-              dense
-              flat
-              height="44"
-              placeholder="Enter Buy Price"
-              :hide-details="$v.form.buyPrice.$error ? false : true"
-              :error-messages="
-                !$v.form.buyPrice.required && $v.form.buyPrice.$dirty
-                  ? 'Buy Price is required'
-                  : !$v.form.buyPrice.maxLength && $v.form.buyPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : !$v.form.buyPrice.Number && $v.form.buyPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="$v.form.buyPrice.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.form.buyPrice.$invalid && $v.form.buyPrice.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Sales Price
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.wholesalerPrice"
-              type="number"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Enter Sales Price"
-              :hide-details="$v.form.wholesalerPrice.$error ? false : true"
-              :error-messages="
-                !$v.form.wholesalerPrice.required &&
-                $v.form.wholesalerPrice.$dirty
-                  ? 'Sales Price is required'
-                  : !$v.form.wholesalerPrice.maxLength &&
-                    $v.form.wholesalerPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : !$v.form.wholesalerPrice.Number &&
-                    $v.form.wholesalerPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="$v.form.wholesalerPrice.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="
-                    $v.form.wholesalerPrice.$invalid &&
-                    $v.form.wholesalerPrice.$dirty
-                  "
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Retail Price
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.retailPrice"
-              type="number"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Enter Retail Price"
-              :hide-details="$v.form.retailPrice.$error ? false : true"
-              :error-messages="
-                !$v.form.retailPrice.required && $v.form.retailPrice.$dirty
-                  ? 'Retail Price is required'
-                  : !$v.form.retailPrice.maxLength && $v.form.retailPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : !$v.form.retailPrice.Number && $v.form.retailPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="$v.form.retailPrice.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="
-                    $v.form.retailPrice.$invalid && $v.form.retailPrice.$dirty
-                  "
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Barcode
-            </div>
-            <v-text-field
-              v-model="form.barcode"
-              type="number"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Enter Barcode"
-            >
-            </v-text-field>
+            <v-switch
+              v-model="editForm.activate"
+              class="mt-3 ml-1"
+              inset
+              :label="editForm.activate ? 'Aktif' : 'Tidak Aktif'"
+            ></v-switch>
           </v-col>
         </v-row>
       </template>
-    </Modal> -->
+    </Modal>
     <Delete
       icon="$warning_delete"
       :loading="loadingDelete"
@@ -745,11 +666,22 @@ export default {
         status: '',
         activate: false,
         profilePicture: null,
+        password: '',
+        confirmPassword: '',
+      },
+      editForm: {
+        id: null,
+        name: '',
+        email: '',
+        role: '',
+        status: '',
+        activate: false,
+        profilePicture: null,
       },
       headers: [
         {
           text: 'Image',
-          value: 'image',
+          value: 'profilePicture',
         },
         {
           text: 'Name',
@@ -792,8 +724,8 @@ export default {
     imageUrl() {
       return this.$store.get('uploadImages/imageUrl')
     },
-    productDetails() {
-      return this.$store.get('product/productDetails')
+    userDetail() {
+      return this.$store.get('user/userDetail')
     },
   },
   watch: {
@@ -839,7 +771,7 @@ export default {
       }
       const body = { ...this.form }
 
-      const res = await this.$store.dispatch('user/register', body)
+      const res = await this.$store.dispatch('user/addUser', body)
       if (res) {
         this.loadingAdd = false
         this.modal = false
@@ -866,28 +798,26 @@ export default {
     },
     async openEditModal(item) {
       this.loadingEdit = item?._id
-      const res = await this.$store.dispatch(
-        'product/getAllUserById',
-        item?._id
-      )
+      const res = await this.$store.dispatch('user/getUserbyId', item?._id)
 
       if (res) {
-        this.imageFile = this.productDetails.image
-        this.form = {
-          ...this.productDetails,
-          category: this.productDetails.category._id,
+        this.imageFile = this.userDetail.profilePicture
+        this.editForm = {
+          ...this.userDetail,
+          id: this.userDetail._id,
         }
-        await this.getCategory(this.productDetails.category.name)
         this.editModal = true
         this.loadingEdit = ''
-        console.log('form: ', this.form)
       } else {
         this.loadingEdit = ''
       }
     },
     async handleEdit() {
       this.loadingAdd = true
-      await this.$store.dispatch('uploadImages/deleteImages', this.publicId)
+      // delete Images
+      if (this.publicId) {
+        await this.$store.dispatch('uploadImages/deleteImages', this.publicId)
+      }
 
       // Upload Image
       if (this.image) {
@@ -899,14 +829,14 @@ export default {
           formData
         )
         if (res) {
-          this.form.image = this.imageUrl[0].url
+          this.editForm.profilePicture = this.imageUrl[0].url
         }
       }
       // Make body
       const body = {
-        ...this.form,
+        ...this.editForm,
       }
-      const res = await this.$store.dispatch('product/editProduct', body)
+      const res = await this.$store.dispatch('user/editUser', body)
       if (res) {
         this.loadingAdd = false
         this.editModal = false
@@ -934,7 +864,7 @@ export default {
       this.image = null
     },
     async clearImageEdit() {
-      this.publicId = this.productDetails.image.match(
+      this.publicId = this.userDetail.image.match(
         /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
       )[0]
       this.imageFile = null
@@ -942,7 +872,7 @@ export default {
     },
     async imageInput(event) {
       this.image = event
-      console.log(event)
+
       if (event) {
         this.imageFile = event ? URL.createObjectURL(event) : undefined // untuk nampilin di frontend
       }
@@ -960,6 +890,11 @@ export default {
           minLength: minLength(6),
           sameAsPassword: sameAs('password'),
         },
+      },
+      editForm: {
+        name: { required, maxLength: maxLength(20) },
+        email: { required, email },
+        role: { required },
       },
     }
   },

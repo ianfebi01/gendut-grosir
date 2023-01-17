@@ -140,7 +140,7 @@
                 v-if="!imageFile"
                 class="d-flex flex-column align-center justify-center"
                 style="width: 100%; height: 100%"
-                @click="$refs.inputImage.click()"
+                @click="$refs.inputImage.$refs.input.click()"
               >
                 <div class="icon">
                   <v-icon size="18">$upload</v-icon>
@@ -160,14 +160,13 @@
                 height="123"
               ></v-img>
             </v-card>
-            <input
+            <v-file-input
               ref="inputImage"
               accept="image/*"
               class="d-none"
               type="file"
-              capture="user"
               @change="imageInput"
-            />
+            ></v-file-input>
             <div
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"

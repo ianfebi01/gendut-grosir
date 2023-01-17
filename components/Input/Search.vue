@@ -1,7 +1,7 @@
 <template>
   <v-text-field
     :value="value"
-    placeholder="Search"
+    placeholder="Cari"
     background-color="#fff"
     hide-details
     outlined

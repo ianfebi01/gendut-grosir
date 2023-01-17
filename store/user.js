@@ -3,6 +3,7 @@ import EasyAccess, { defaultMutations } from 'vuex-easy-access'
 export const state = () => ({
   profile: {},
   user: [],
+  userDetail: {},
   paginator: {},
   errorMessage: '',
 })
@@ -17,6 +18,40 @@ export const actions = {
       .get(`api/me`)
       .then((res) => {
         dispatch('set/profile', res.data)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  getUserbyId({ dispatch }, id) {
+    return this.$axios
+      .get(`api/getUserById/${id}`)
+      .then((res) => {
+        dispatch('set/userDetail', res.data)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  editUser({ dispatch, state }, body) {
+    return this.$axios
+      .put(`api/editUser/${body.id}`, {
+        ...body,
+      })
+      .then((res) => {
+        const tmp = JSON.parse(JSON.stringify(state.user))
+        const index = tmp.findIndex((item) => item._id === body.id)
+        if (index != -1) {
+          tmp[index] = res.data
+          dispatch('set/user', tmp)
+          dispatch('set/userDetail', {})
+        }
         return true
       })
       .catch((err) => {
@@ -48,6 +83,21 @@ export const actions = {
       })
       .then((res) => {
         dispatch('set/profile', res.data)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  addUser({ dispatch }, body) {
+    return this.$axios
+      .post(`api/register`, {
+        ...body,
+      })
+      .then((res) => {
+        dispatch('set/user.push', res.data?.data)
         return true
       })
       .catch((err) => {
