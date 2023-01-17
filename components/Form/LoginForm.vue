@@ -71,6 +71,7 @@
           outlined
           dense
           flat
+          type="password"
           height="44"
           placeholder="Enter your Password"
           :error-messages="
@@ -92,7 +93,6 @@
           </template>
         </v-text-field>
         <v-btn
-          href="http://localhost:8000/auth/facebook"
           :class="
             $vuetify.breakpoint.smAndDown
               ? 'white--text rounded-lg mb-4'
@@ -105,7 +105,7 @@
           type="submit"
           :disabled="$v.form.$invalid"
           :loading="loading"
-          @click="loading = true"
+          @click="$emit('handleLogin', form)"
         >
           Sign In
         </v-btn>
@@ -127,6 +127,12 @@
           <v-icon class="mr-2">mdi-facebook</v-icon>
           Sign In With Facebook
         </v-btn>
+        <v-list-item>
+          <v-list-item-title class="text-center"
+            >Not have account?
+            <nuxt-link to="/register" class="primary--text">Register</nuxt-link>
+          </v-list-item-title>
+        </v-list-item>
       </v-col>
     </v-row>
   </v-container>
@@ -136,7 +142,7 @@
 import { required, minLength, email } from 'vuelidate/lib/validators'
 export default {
   props: {
-    loading: {
+    loadingProps: {
       type: Boolean,
       default: false,
     },
@@ -148,6 +154,16 @@ export default {
         password: '',
       },
     }
+  },
+  computed: {
+    loading: {
+      get() {
+        return this.loadingProps
+      },
+      set(newVal) {
+        this.$emit('setLoading', newVal)
+      },
+    },
   },
   validations() {
     return {

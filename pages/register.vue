@@ -17,11 +17,7 @@
         :class="$vuetify.breakpoint.xs ? 'px-2' : 'px-16'"
         style="max-height:50vh,max-width:50vh"
       >
-        <LoginForm
-          :loading-props="loading"
-          @setLoading="loading = $event"
-          @handleLogin="handleLogin($event)"
-        />
+        <RegisterForm :loading="loading" />
       </v-col>
       <v-col
         v-if="$vuetify.breakpoint.mdAndUp"
@@ -35,10 +31,10 @@
   </v-container>
 </template>
 <script>
-import LoginForm from '~/components/Form/LoginForm.vue'
+import RegisterForm from '~/components/Form/RegisterForm.vue'
 export default {
   name: 'LoginPage',
-  components: { LoginForm },
+  components: { RegisterForm },
   layout: 'default',
   data() {
     return {
@@ -61,18 +57,6 @@ export default {
       this.$cookiz.set('access_token', this.accessToken)
       this.$router.push('/')
     }
-  },
-  methods: {
-    async handleLogin(body) {
-      this.loading = true
-      const res = await this.$store.dispatch('user/login', body)
-      if (res) {
-        this.loading = false
-        this.$router.push('/')
-      } else {
-        this.loading = false
-      }
-    },
   },
 }
 </script>

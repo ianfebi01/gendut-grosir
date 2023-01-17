@@ -72,7 +72,7 @@ export default [
   // },
   {
     name: 'Customers',
-    url: '/admin/customers',
+    url: '/customers',
     icon: '$customers',
     access: ['super_admin'],
   },
