@@ -53,7 +53,7 @@ export default {
           fieldType: 'textField',
           type: 'text',
           label: 'Name',
-          placeholder: 'Enter Name',
+          placeholder: 'Masukkan Nama',
           validations: {
             required: true,
             minLength: 6,
@@ -64,11 +64,42 @@ export default {
           fieldType: 'textField',
           type: 'email',
           label: 'Email',
-          placeholder: 'Enter Email',
+          placeholder: 'Masukkan Email',
           validations: {
             required: true,
             minLength: 6,
             email: true,
+          },
+        },
+        {
+          valueName: 'noHp',
+          fieldType: 'textField',
+          type: 'number',
+          label: 'Nomor Hp',
+          placeholder: 'Masukkan Nomor Hp Anda',
+          validations: {
+            required: true,
+            minLength: 9,
+            numeric: true,
+          },
+        },
+        {
+          valueName: 'gender',
+          fieldType: 'select',
+          label: 'Gender',
+          placeholder: 'Pilih Gender',
+          items: [
+            {
+              name: 'Pria',
+              value: 'pria',
+            },
+            {
+              name: 'Wanita',
+              value: 'wanita',
+            },
+          ],
+          validations: {
+            required: true,
           },
         },
         {
@@ -100,12 +131,32 @@ export default {
           label: 'Activate Acount',
           placeholder: ['Active', 'Not Active'],
         },
+        {
+          valueName: 'followUpdate',
+          fieldType: 'checkbox',
+          label: 'Pilih Layanan',
+          checkboxItem: [
+            {
+              name: 'Pinjaman',
+              value: 'pinjaman',
+            },
+            {
+              name: 'Pinjol',
+              value: 'pinjol',
+            },
+            {
+              name: 'Kredit',
+              value: 'kredit',
+            },
+          ],
+        },
       ],
     }
   },
   methods: {
     handleSubmit(form) {
       this.form = form
+      console.log('submit')
     },
   },
 }

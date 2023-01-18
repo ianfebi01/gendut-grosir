@@ -1,72 +1,75 @@
 <template>
   <form @submit.prevent>
     <v-row class="px-6 mt-6">
-      <template v-for="(item, i) in datas">
-        <v-col :key="i" cols="12" sm="6" class="py-0">
-          <div
-            style="font-size: 14px"
-            class="font-weight-medium mb-1 gray_700--text mt-2"
+      <v-col v-for="(item, i) in datas" :key="i" cols="12" sm="6" class="py-0">
+        <div
+          style="font-size: 14px"
+          class="font-weight-medium mb-1 gray_700--text mt-2"
+        >
+          {{ item.label }}
+          <span v-if="item.validations?.required" style="color: red !important"
+            >*</span
           >
-            {{ item.label }}
-            <span
-              v-if="item.validations?.required"
-              style="color: red !important"
-              >*</span
-            >
-          </div>
-          <v-text-field
-            v-if="item.fieldType === 'textField'"
-            v-model="form[item.valueName]"
-            :type="item.type"
-            outlined
-            dense
-            flat
-            background-color="#fff"
-            height="44"
-            :placeholder="item.placeholder"
-            :error-messages="error_message(item?.valueName)"
-            @blur="$v.form[item.valueName].$touch()"
-          ></v-text-field>
-          <v-select
-            v-else-if="item.fieldType === 'select'"
-            v-model="form[item.valueName]"
-            :items="item.items"
-            item-text="name"
-            item-value="value"
-            outlined
-            dense
-            flat
-            background-color="#fff"
-            height="44"
-            :placeholder="item.placeholder"
-            hide-details
-          ></v-select>
-          <v-switch
-            v-else-if="item.fieldType === 'switch'"
-            v-model="form[item.valueName]"
-            class="mt-3 ml-1"
-            inset
-            :label="
-              item.validations?.required
-                ? item.placeholder[0]
-                : item.placeholder[1]
-            "
-          ></v-switch>
+        </div>
+        <v-text-field
+          v-if="item.fieldType === 'textField'"
+          v-model="form[item.valueName]"
+          :type="item.type"
+          outlined
+          dense
+          flat
+          background-color="#fff"
+          height="44"
+          :placeholder="item.placeholder"
+          :error-messages="error_message(item?.valueName)"
+          @blur="$v.form[item.valueName].$touch()"
+        ></v-text-field>
+        <v-select
+          v-else-if="item.fieldType === 'select'"
+          v-model="form[item.valueName]"
+          :items="item.items"
+          item-text="name"
+          item-value="value"
+          outlined
+          dense
+          flat
+          background-color="#fff"
+          height="44"
+          :placeholder="item.placeholder"
+          hide-details
+        ></v-select>
+        <v-switch
+          v-else-if="item.fieldType === 'switch'"
+          v-model="form[item.valueName]"
+          class="mt-3 ml-1"
+          inset
+          :label="
+            item.validations?.required
+              ? item.placeholder[0]
+              : item.placeholder[1]
+          "
+        ></v-switch>
 
-          <v-row v-else-if="item.fieldType === 'checkbox'">
-            <v-col cols="12" sm="4" md="4">
-              <v-checkbox
-                v-model="form[item.valueName]"
-                class="mt-0"
-                label="red"
-                color="red"
-                value="red"
-                hide-details
-              ></v-checkbox>
-            </v-col>
-          </v-row>
-        </v-col>
-      </template>
+        <v-row v-else-if="item.fieldType === 'checkbox'">
+          <v-col
+            v-for="(item2, index) in item.checkboxItem"
+            :key="index"
+            cols="12"
+            sm="4"
+            md="4"
+          >
+            <v-checkbox
+              v-model="form[item.valueName]"
+              class="mt-0"
+              :label="item2.name"
+              color="primary"
+              :value="item2.value"
+              hide-details
+            ></v-checkbox>
+          </v-col>
+        </v-row>
+      </v-col>
+
       <!-- <pre>{{ form }}</pre> -->
       <v-col>
         <v-btn
@@ -85,6 +88,7 @@
   </form>
 </template>
 <script>
+import directive from '@/utils/directive'
 import {
   required,
   minLength,
@@ -94,6 +98,7 @@ import {
 } from 'vuelidate/lib/validators'
 export default {
   name: 'CustomField',
+  mixins: [directive],
   props: {
     datas: {
       type: Array,
@@ -104,11 +109,6 @@ export default {
     return {
       form: {},
     }
-  },
-  watch: {
-    '$v.form'(newVal) {
-      console.log(newVal)
-    },
   },
   methods: {
     error_message(param) {
