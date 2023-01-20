@@ -16,13 +16,10 @@
             height="44"
             dense
             style="background-color: #fff"
-            @click="modalPrice = true"
+            @click="modalCustomer = true"
           >
-            <v-icon size="15">$money</v-icon>
-            <span v-if="price === 'wholesalerPrice'" class="ml-2"> Sales </span>
-            <span v-else-if="price === 'retailPrice'" class="ml-2">
-              Retail
-            </span>
+            <v-icon size="15">$customers</v-icon>
+            <span class="ml-2"> Pilih Pelanggan </span>
           </v-btn>
         </v-list-item-group>
       </v-list></v-row
@@ -57,11 +54,29 @@
       </v-col>
     </v-row>
     <Modal
-      title="Who's your Customer?"
-      subtitle="Select Sales or Retail"
-      :modal-prop="modalPrice"
+      title="Siapa Pelanggan Anda?"
+      subtitle="Pilih salah satu pelanggan Anda"
+      :modal-prop="modalCustomer"
       :error-message="''"
     >
+      <template #content>
+        <v-list>
+          <v-list-item-group>
+            <v-list-item>
+              <v-list-item-avatar height="50" width="50">
+                <v-img
+                  lazy-src="lazy-loader.svg"
+                  src="https://res.cloudinary.com/djyp9rr7s/image/upload/v1673944202/gendut-grosir/nkzypz2phreipqeo1axj.jpg"
+                />
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title> Ian Febi Sastrataruna </v-list-item-title>
+                <v-list-item-subtitle> Sales </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </template>
       <template #action>
         <v-col class="px-0 pr-1">
           <v-btn
@@ -72,7 +87,7 @@
             dense
             @click="handleClickSales"
           >
-            Sales
+            Batal
           </v-btn>
         </v-col>
         <v-col class="px-0 pl-1">
@@ -83,7 +98,7 @@
             color="primary"
             @click="handleClickRetail"
           >
-            Retail
+            Pilih
           </v-btn>
         </v-col>
       </template>
@@ -118,7 +133,7 @@ export default {
       loadingSelected: false,
       search: '',
       price: '',
-      modalPrice: true,
+      modalCustomer: false,
       loading: false,
     }
   },
@@ -186,11 +201,11 @@ export default {
     },
     handleClickSales() {
       this.price = 'wholesalerPrice'
-      this.modalPrice = false
+      this.modalCustomer = false
     },
     handleClickRetail() {
       this.price = 'retailPrice'
-      this.modalPrice = false
+      this.modalCustomer = false
     },
     handleClickSelect(item) {
       const payload = {
