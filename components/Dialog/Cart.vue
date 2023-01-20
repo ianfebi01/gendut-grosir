@@ -26,76 +26,78 @@
       <v-card-text>
         <slot name="content">
           <v-list v-if="datas.length" two-line>
-            <template v-for="(item, index) in datas">
-              <v-list-item :key="item?._id" class="border mb-2">
-                <v-list-item-avatar
-                  height="50"
-                  width="50"
-                  style="border-radius: 8px"
+            <v-list-item
+              v-for="item in datas"
+              :key="item?._id"
+              class="border mb-2"
+            >
+              <v-list-item-avatar
+                height="50"
+                width="50"
+                style="border-radius: 8px"
+              >
+                <v-img lazy-src="lazy-loader.svg" :src="item?.image"></v-img>
+              </v-list-item-avatar>
+
+              <v-list-item-content>
+                <v-list-item-title
+                  class="gray_900--text text-16 font-weight-medium mb-2"
+                  >{{ item?.name }}</v-list-item-title
                 >
-                  <v-img :src="item?.image"></v-img>
-                </v-list-item-avatar>
-
-                <v-list-item-content>
-                  <v-list-item-title
-                    class="gray_900--text text-16 font-weight-medium mb-2"
-                    v-html="item?.name"
-                  ></v-list-item-title>
-                  <div class="action">
-                    <v-btn
-                      small
-                      fab
-                      depressed
-                      color="primary_300"
-                      outlined
-                      @click="handleMinus(item?._id)"
-                    >
-                      <v-icon class="qty" size="15">mdi-minus</v-icon>
-                    </v-btn>
-
-                    <span class="font-weight-bold mx-2 text-16">{{
-                      item?.qty
-                    }}</span>
-
-                    <v-btn
-                      small
-                      fab
-                      depressed
-                      color="primary_300"
-                      outlined
-                      @click="handlePlus(item?._id)"
-                    >
-                      <v-icon class="qty" size="15">mdi-plus</v-icon>
-                    </v-btn>
-                  </div>
-                </v-list-item-content>
-                <v-list-item-action>
+                <div class="action">
                   <v-btn
-                    depressed
                     small
                     fab
-                    text
-                    @click="handleDelete(item?._id)"
+                    depressed
+                    color="primary_300"
+                    outlined
+                    @click="handleMinus(item?._id)"
                   >
-                    <v-icon size="15">$trash</v-icon>
+                    <v-icon class="qty" size="15">mdi-minus</v-icon>
                   </v-btn>
-                  <v-list-item-title class="font-weight-bold text-14">
-                    {{
-                      customerStatus === 'retailPrice'
-                        ? formatRupiah(item?.retailPrice)
-                        : formatRupiah(item?.wholesalerPrice)
-                    }}
-                  </v-list-item-title>
-                </v-list-item-action>
-              </v-list-item>
-            </template>
+
+                  <span class="font-weight-bold mx-2 text-16">{{
+                    item?.qty
+                  }}</span>
+
+                  <v-btn
+                    small
+                    fab
+                    depressed
+                    color="primary_300"
+                    outlined
+                    @click="handlePlus(item?._id)"
+                  >
+                    <v-icon class="qty" size="15">mdi-plus</v-icon>
+                  </v-btn>
+                </div>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn
+                  depressed
+                  small
+                  fab
+                  text
+                  @click="handleDelete(item?._id)"
+                >
+                  <v-icon size="15">$trash</v-icon>
+                </v-btn>
+                <v-list-item-title class="font-weight-bold text-14">
+                  {{
+                    customerStatus === 'retailPrice'
+                      ? formatRupiah(item?.retailPrice)
+                      : formatRupiah(item?.wholesalerPrice)
+                  }}
+                </v-list-item-title>
+              </v-list-item-action>
+            </v-list-item>
           </v-list>
           <Empty
             v-else
             img="/girl-shop.svg"
             title="Cart is Empty"
             description="Please add Product to cart first!"
-            padding="px-8"
+            padding="px-0"
             gap-bottom="mb-0"
           />
         </slot>

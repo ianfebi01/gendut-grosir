@@ -15,7 +15,27 @@
         Membuat multiple row dengan object
       </span>
     </v-row>
-    <CustomField :datas="defaultFields" />
+    <CustomField :datas="defaultFields" @handleSubmit="handleSubmit($event)" />
+    <v-row class="px-6 pt-4">
+      <v-col cols="6"
+        ><div
+          style="font-size: 14px"
+          class="font-weight-medium mb-1 gray_700--text mt-2"
+        >
+          Object field
+        </div>
+        <pre>{{ defaultFields }}</pre>
+      </v-col>
+      <v-col cols="6">
+        <div
+          style="font-size: 14px"
+          class="font-weight-medium mb-1 gray_700--text mt-2"
+        >
+          Hasil Form
+        </div>
+        <pre>{{ form }}</pre>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 <script>
@@ -26,79 +46,118 @@ export default {
   layout: 'dashboard',
   data() {
     return {
+      form: {},
       defaultFields: [
         {
-          valueName: 'valueName',
+          valueName: 'name',
           fieldType: 'textField',
           type: 'text',
-          label: 'Value Name',
-          placeholder: 'Enter Value Name',
-        },
-        {
-          valueName: 'type',
-          fieldType: 'textField',
-          type: 'text',
-          label: 'Type',
-          placeholder: 'Enter Field Type',
-        },
-        {
-          valueName: 'placeholder',
-          fieldType: 'textField',
-          type: 'text',
-          label: 'Placeholder',
-          placeholder: 'Enter Placeholder',
-        },
-        {
-          valueName: 'textField',
-          fieldType: 'textField',
-          type: 'text',
-          label: 'Label',
-          placeholder: 'Enter Label',
-        },
-        {
-          valueName: 'required',
-          fieldType: 'switch',
-          label: 'Required',
-
-          placeholder: ['Required', 'Not Required'],
+          label: 'Name',
+          placeholder: 'Masukkan Nama',
+          validations: {
+            required: true,
+            minLength: 6,
+          },
         },
         {
           valueName: 'email',
+          fieldType: 'textField',
+          type: 'email',
+          label: 'Email',
+          placeholder: 'Masukkan Email',
+          validations: {
+            required: true,
+            minLength: 6,
+            email: true,
+          },
+        },
+        {
+          valueName: 'noHp',
+          fieldType: 'textField',
+          type: 'number',
+          label: 'Nomor Hp',
+          placeholder: 'Masukkan Nomor Hp Anda',
+          validations: {
+            required: true,
+            minLength: 9,
+            numeric: true,
+          },
+        },
+        {
+          valueName: 'gender',
+          fieldType: 'select',
+          label: 'Gender',
+          placeholder: 'Pilih Gender',
+          items: [
+            {
+              name: 'Pria',
+              value: 'pria',
+            },
+            {
+              name: 'Wanita',
+              value: 'wanita',
+            },
+          ],
+          validations: {
+            required: true,
+          },
+        },
+        {
+          valueName: 'password',
+          fieldType: 'textField',
+          type: 'password',
+          label: 'Password',
+          placeholder: 'Enter Password',
+          validations: {
+            required: true,
+            minLength: 6,
+          },
+        },
+        {
+          valueName: 'confirmPassword',
+          fieldType: 'textField',
+          type: 'password',
+          label: 'Confirm Password',
+          placeholder: 'Enter Confirm Password',
+          validations: {
+            required: true,
+            minLength: 6,
+            sameAs: 'password',
+          },
+        },
+        {
+          valueName: 'activate',
           fieldType: 'switch',
-          label: 'Email Validation',
+          label: 'Activate Acount',
           placeholder: ['Active', 'Not Active'],
         },
         {
-          valueName: 'minLength',
-          fieldType: 'textField',
-          type: 'number',
-          label: 'Min Length',
-          placeholder: 'Enter Min Length',
-          minLength: 6,
-        },
-        {
-          valueName: 'fieldType',
-          fieldType: 'select',
-          items: [
+          valueName: 'followUpdate',
+          fieldType: 'checkbox',
+          label: 'Pilih Layanan',
+          checkboxItem: [
             {
-              name: 'Text Field',
-              value: 'textField',
+              name: 'Pinjaman',
+              value: 'pinjaman',
             },
             {
-              name: 'Selector',
-              value: 'select',
+              name: 'Pinjol',
+              value: 'pinjol',
             },
             {
-              name: 'Switch',
-              value: 'switch',
+              name: 'Kredit',
+              value: 'kredit',
             },
           ],
-          type: 'text',
-          label: 'Field Type',
-          placeholder: 'Enter Field Type',
         },
       ],
     }
+  },
+  methods: {
+    handleSubmit(form) {
+      this.form = form
+      console.log('submit')
+    },
   },
 }
 </script>

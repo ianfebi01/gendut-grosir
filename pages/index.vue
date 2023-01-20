@@ -9,25 +9,23 @@
           class="d-flex align-center"
           style="gap: 8px; width: 100%; max-width: 800px"
         >
-          <Search v-model="search" @input="handleSearch($event)" />
+          <Search v-model="params.q" @input="handleSearch($event)" />
           <v-btn
             color="gray_500"
             outlined
             height="44"
             dense
             style="background-color: #fff"
-            @click="modalPrice = true"
+            :loading="loading.loadingUsers"
+            @click="handleClickUsers"
           >
-            <v-icon size="15">$money</v-icon>
-            <span v-if="price === 'wholesalerPrice'" class="ml-2"> Sales </span>
-            <span v-else-if="price === 'retailPrice'" class="ml-2">
-              Retail
-            </span>
+            <v-icon size="15">$customers</v-icon>
+            <span class="ml-2"> Pilih Pelanggan </span>
           </v-btn>
         </v-list-item-group>
       </v-list></v-row
     >
-    <v-row v-if="datas?.length && !loading" class="px-6 pt-4">
+    <v-row v-if="datas?.length && !loading.loadingProduct" class="px-6 pt-4">
       <v-col
         v-for="item in datas"
         :key="item?.id"
@@ -36,18 +34,21 @@
       >
         <Product
           :item="item"
-          :loading="loadingSelected"
+          :loading="loading.loadingSelected"
           :customer-status="price"
           @handleClick="handleClickSelect($event)"
         />
       </v-col>
     </v-row>
-    <v-row v-else-if="!datas?.length && !loading" style="height: 90%">
+    <v-row
+      v-else-if="!datas?.length && !loading.loadingProduct"
+      style="height: 90%"
+    >
       <v-col align-self="center" style="height: 100%">
         <Empty />
       </v-col>
     </v-row>
-    <v-row v-else-if="loading" style="height: 90%">
+    <v-row v-else-if="loading.loadingProduct" style="height: 90%">
       <v-col
         align-self="center"
         style="height: 100%"
@@ -56,12 +57,63 @@
         <Loading />
       </v-col>
     </v-row>
+
     <Modal
-      title="Who's your Customer?"
-      subtitle="Select Sales or Retail"
-      :modal-prop="modalPrice"
+      v-model="modalCustomer"
+      title="Siapa Pelanggan Anda?"
+      subtitle="Pilih salah satu pelanggan Anda"
       :error-message="''"
+      min-height="642"
     >
+      <template #content>
+        <Search
+          v-model="paramsUser.q"
+          class="my-2"
+          @input="handleUserSearch($event)"
+        />
+        <v-list v-if="loading.searchUser">
+          <v-skeleton-loader
+            v-for="item in 5"
+            :key="item"
+            type="list-item-avatar"
+            class="border mb-2 py-2"
+          ></v-skeleton-loader>
+        </v-list>
+        <v-list v-else-if="users?.length && !loading.searchUser">
+          <v-list-item-group v-model="selectedUser">
+            <v-list-item
+              v-for="item in users"
+              :key="item?._id"
+              :value="item._id"
+              active-class=" border-active "
+              class="border mb-2"
+            >
+              <v-list-item-avatar height="50" width="50">
+                <v-img lazy-src="lazy-loader.svg" :src="item?.profilePicture" />
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title
+                  class="font-weight-medium letter-spacing-normal"
+                >
+                  {{ item?.name }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ item?.status === 'wholesaler' ? 'Sales' : 'Retail' }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+        <Empty
+          v-else
+          img="/girl-shop.svg"
+          title="Cart is Empty"
+          description="Please add Product to cart first!"
+          padding="px-0"
+          gap-bottom="mb-0"
+          max-height-image="200"
+        />
+      </template>
       <template #action>
         <v-col class="px-0 pr-1">
           <v-btn
@@ -72,7 +124,7 @@
             dense
             @click="handleClickSales"
           >
-            Sales
+            Batal
           </v-btn>
         </v-col>
         <v-col class="px-0 pl-1">
@@ -83,7 +135,7 @@
             color="primary"
             @click="handleClickRetail"
           >
-            Retail
+            Pilih
           </v-btn>
         </v-col>
       </template>
@@ -115,11 +167,28 @@ export default {
   layout: 'dashboard',
   data() {
     return {
-      loadingSelected: false,
       search: '',
       price: '',
-      modalPrice: true,
-      loading: false,
+      modalCustomer: false,
+      selectedUser: '',
+      loading: {
+        loadingSelected: false,
+        loadingProduct: false,
+        loadingUsers: false,
+        searchUser: false,
+      },
+      params: {
+        q: '',
+        category: '',
+        page: 1,
+        limit: 24,
+      },
+      paramsUser: {
+        q: '',
+        category: '',
+        page: 1,
+        limit: 25,
+      },
     }
   },
   computed: {
@@ -137,34 +206,40 @@ export default {
         this.$store.set('order/modalCart', event)
       },
     },
+    users() {
+      return this.$store.get('user/user')
+    },
   },
+  // watch: {
+  //   selectedUser(newVal) {
+  //     console.log('selectedUser', newVal)
+  //   },
+  // },
   mounted() {
     this.loginSuccess()
-    this.getProduct()
   },
   methods: {
-    async loginSuccess() {
-      this.loading = true
-      const res = await this.$store.dispatch('user/getMe')
-      if (res) {
-        this.loading = false
-      } else {
-        this.loading = false
-      }
+    loginSuccess() {
+      this.loading.loadingProduct = true
+      Promise.all([
+        this.$store.dispatch('user/getMe'),
+        this.$store.dispatch('product/getProduct', this.params),
+      ])
+        .then(() => {
+          this.loading.loadingProduct = false
+        })
+        .catch(() => {
+          this.loading.loadingProduct = false
+        })
     },
     async getProduct() {
-      this.loading = true
-      const params = {
-        q: this.search,
-        category: this.category,
-        page: 1,
-        limit: 24,
-      }
-      const res = await this.$store.dispatch('product/getProduct', params)
+      this.loading.loadingProduct = true
+
+      const res = await this.$store.dispatch('product/getProduct', this.params)
       if (res) {
-        this.loading = false
+        this.loading.loadingProduct = false
       } else {
-        this.loading = false
+        this.loading.loadingProduct = false
       }
     },
     cardPerPage(vss) {
@@ -186,11 +261,11 @@ export default {
     },
     handleClickSales() {
       this.price = 'wholesalerPrice'
-      this.modalPrice = false
+      this.modalCustomer = false
     },
     handleClickRetail() {
       this.price = 'retailPrice'
-      this.modalPrice = false
+      this.modalCustomer = false
     },
     handleClickSelect(item) {
       const payload = {
@@ -199,12 +274,36 @@ export default {
       }
       this.$store.dispatch('order/addCart', payload)
     },
+    async getAllUser() {
+      this.loading.loadingUsers = true
+      const res = await this.$store.dispatch('user/getAllUser', this.paramsUser)
+      if (res) {
+        this.loading.loadingUsers = false
+      } else {
+        this.loading.loadingUsers = false
+      }
+    },
+    async handleClickUsers() {
+      await this.getAllUser()
+      this.modalCustomer = true
+    },
+    async handleUserSearch() {
+      this.paramsUser.page = 1
+      this.loading.searchUser = true
+      await this.$store.dispatch('user/getAllUser', this.paramsUser)
+      this.loading.searchUser = false
+    },
   },
 }
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/scss/abstracts/variables.scss' as v;
 :deep(.theme--light.v-list) {
   background: transparent;
+}
+:deep(.v-list-item--active::before) {
+  border-radius: 8px;
+  background-color: v.$primary_50;
 }
 </style>

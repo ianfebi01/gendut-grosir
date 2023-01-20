@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="modal" persistent :width="width" scrollable>
-    <v-card style="border-radius: 12px !important">
+    <v-card style="border-radius: 12px !important" :min-height="minHeight">
       <v-card-title
         class="d-flex flex-column justify-center letter-spacing-normal"
         style="width: 100%"
@@ -67,10 +67,6 @@ export default {
   name: 'Modal',
   components: { Snackbar },
   props: {
-    modalProp: {
-      type: Boolean,
-      default: false,
-    },
     icon: {
       type: String,
       default: '$category_primary',
@@ -99,14 +95,22 @@ export default {
       type: String,
       default: '408px',
     },
+    value: {
+      type: Boolean,
+      default: false,
+    },
+    minHeight: {
+      type: String,
+      default: '',
+    },
   },
   computed: {
     modal: {
       get: function () {
-        return this.modalProp
+        return this.value
       },
       set: function (newValue) {
-        this.$emit('modalProp', newValue)
+        this.$emit('input', newValue)
       },
     },
   },

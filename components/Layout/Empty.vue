@@ -3,7 +3,7 @@
     :class="`d-flex flex-column justify-center align-center ${padding}`"
     style="width: 100%; height: 100%"
   >
-    <v-img :src="img" max-height="305" max-width="355" />
+    <v-img :src="img" :max-height="maxHeightImage" :max-width="maxWidthImage" />
     <span class="gray_900--text mt-4 font-weight-medium text-18">{{
       title
     }}</span>
@@ -36,6 +36,14 @@ export default {
     gapBottom: {
       type: String,
       default: 'mb-6',
+    },
+    maxHeightImage: {
+      type: String,
+      default: '305',
+    },
+    maxWidthImage: {
+      type: String,
+      default: '355',
     },
   },
 }
