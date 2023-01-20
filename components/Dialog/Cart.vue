@@ -97,7 +97,7 @@
             img="/girl-shop.svg"
             title="Cart is Empty"
             description="Please add Product to cart first!"
-            padding="px-8"
+            padding="px-0"
             gap-bottom="mb-0"
           />
         </slot>

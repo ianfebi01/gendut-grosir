@@ -109,7 +109,7 @@
         >
           Sign In
         </v-btn>
-        <v-divider class="mb-4"></v-divider>
+        <!-- <v-divider class="mb-4"></v-divider>
         <v-btn
           href="http://localhost:8000/auth/facebook"
           :class="
@@ -126,7 +126,7 @@
         >
           <v-icon class="mr-2">mdi-facebook</v-icon>
           Sign In With Facebook
-        </v-btn>
+        </v-btn> -->
         <v-list-item>
           <v-list-item-title class="text-center"
             >Not have account?
