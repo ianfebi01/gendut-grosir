@@ -70,7 +70,6 @@
         </v-row>
       </v-col>
 
-      <!-- <pre>{{ form }}</pre> -->
       <v-col>
         <v-btn
           type="submit"

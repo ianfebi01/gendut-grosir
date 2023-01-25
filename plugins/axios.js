@@ -3,7 +3,6 @@ import { set } from '@/utils'
 const AxiosPlugin = ({ $axios, app, route, redirect }) => {
   // Handle Axios onRequest
   $axios.onRequest((config) => {
-    console.log(app)
     // if (route.name.includes('admin') || route.name.includes('auth')) {
 
     const token = app.$cookiz.get('access_token')
