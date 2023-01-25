@@ -3,6 +3,7 @@ import { set } from '@/utils'
 const AxiosPlugin = ({ $axios, app, route, redirect }) => {
   // Handle Axios onRequest
   $axios.onRequest((config) => {
+    console.log(app)
     // if (route.name.includes('admin') || route.name.includes('auth')) {
 
     const token = app.$cookiz.get('access_token')
@@ -25,8 +26,8 @@ const AxiosPlugin = ({ $axios, app, route, redirect }) => {
       app.$cookiz.removeAll()
       return
     } else if (code === 403 && route.name !== '/') {
-      // app.$cookiz.removeAll()
-      app.$logout('/403')
+      app.$cookiz.removeAll()
+      // app.$logout('/403')
 
       return
     }

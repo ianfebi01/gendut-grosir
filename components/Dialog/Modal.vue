@@ -38,7 +38,7 @@
               dense
               @click="cancel"
             >
-              Cancel
+              {{ cancelText }}
             </v-btn>
           </v-col>
           <v-col class="px-0 pl-1">
@@ -51,7 +51,7 @@
               :disabled="disable"
               @click="save"
             >
-              Save
+              {{ saveText }}
             </v-btn>
           </v-col>
         </slot>
@@ -102,6 +102,14 @@ export default {
     minHeight: {
       type: String,
       default: '',
+    },
+    saveText: {
+      type: String,
+      default: 'Simpan',
+    },
+    cancelText: {
+      type: String,
+      default: 'Batal',
     },
   },
   computed: {

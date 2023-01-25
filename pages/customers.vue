@@ -105,15 +105,14 @@
 
     <!-- Add -->
     <Modal
+      v-model="modal"
       title="Add Product"
       width="800px"
       subtitle="Add new Product for your store"
       :loading="loadingAdd"
       :error-message="errorMessage"
-      :modal-prop="modal"
       :disable="$v.form.$invalid"
       @cancel="clearAll"
-      @modalProp="modal = false"
       @save="handleAdd"
       @clearErrorMessage="$store.set('user/errorMessage', '')"
     >

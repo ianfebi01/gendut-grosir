@@ -20,7 +20,8 @@
             @click="handleClickUsers"
           >
             <v-icon size="15">$customers</v-icon>
-            <span class="ml-2"> Pilih Pelanggan </span>
+            <span v-if="!customer?.name" class="ml-2"> Pilih Pelanggan </span>
+            <span v-else class="ml-2"> {{ customer?.name }} </span>
           </v-btn>
         </v-list-item-group>
       </v-list></v-row
@@ -35,7 +36,7 @@
         <Product
           :item="item"
           :loading="loading.loadingSelected"
-          :customer-status="price"
+          :customer-status="customer?.status"
           @handleClick="handleClickSelect($event)"
         />
       </v-col>
@@ -57,13 +58,14 @@
         <Loading />
       </v-col>
     </v-row>
-
+    <!-- Customer -->
     <Modal
       v-model="modalCustomer"
       title="Siapa Pelanggan Anda?"
       subtitle="Pilih salah satu pelanggan Anda"
       :error-message="''"
       min-height="642"
+      icon="$customers"
     >
       <template #content>
         <Search
@@ -84,7 +86,7 @@
             <v-list-item
               v-for="item in users"
               :key="item?._id"
-              :value="item._id"
+              :value="item"
               active-class=" border-active "
               class="border mb-2"
             >
@@ -102,6 +104,13 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+            <div
+              v-if="userPaginator.hasNextPage"
+              v-intersect.quiet="onIntersect"
+              class="pa-4 primary--text"
+            >
+              Sedang memuat ...
+            </div>
           </v-list-item-group>
         </v-list>
         <Empty
@@ -122,7 +131,7 @@
             height="44"
             depressed
             dense
-            @click="handleClickSales"
+            @click="handleClickCancel"
           >
             Batal
           </v-btn>
@@ -133,7 +142,7 @@
             depressed
             height="44"
             color="primary"
-            @click="handleClickRetail"
+            @click="handleClickSelectUser"
           >
             Pilih
           </v-btn>
@@ -141,15 +150,7 @@
       </template>
     </Modal>
     <!-- Cart -->
-    <Cart
-      title="Cart"
-      subtitle="Add product to cart to checkout"
-      :customer-status="price"
-      :modal-prop="modalCart"
-      :error-message="''"
-      :datas="cart"
-      @cancel="modalCart = false"
-    />
+    <Cart v-model="modalCart" :customer="customer" />
   </v-container>
 </template>
 
@@ -160,6 +161,7 @@ import Search from '~/components/Input/Search.vue'
 import Product from '~/components/Card/Product.vue'
 import Modal from '~/components/Dialog/Modal.vue'
 import Cart from '~/components/Dialog/Cart.vue'
+import debounce from 'lodash/debounce'
 
 export default {
   name: 'IndexPage',
@@ -170,7 +172,7 @@ export default {
       search: '',
       price: '',
       modalCustomer: false,
-      selectedUser: '',
+      selectedUser: {},
       loading: {
         loadingSelected: false,
         loadingProduct: false,
@@ -187,16 +189,13 @@ export default {
         q: '',
         category: '',
         page: 1,
-        limit: 25,
+        limit: 8,
       },
     }
   },
   computed: {
     datas() {
       return this.$store.get('product/product')
-    },
-    cart() {
-      return this.$store.get('order/cart')
     },
     modalCart: {
       get() {
@@ -209,12 +208,13 @@ export default {
     users() {
       return this.$store.get('user/user')
     },
+    userPaginator() {
+      return this.$store.get('user/paginator')
+    },
+    customer() {
+      return this.$store.get('user/selectedUser')
+    },
   },
-  // watch: {
-  //   selectedUser(newVal) {
-  //     console.log('selectedUser', newVal)
-  //   },
-  // },
   mounted() {
     this.loginSuccess()
   },
@@ -259,12 +259,26 @@ export default {
     handleSearch() {
       this.getProduct()
     },
-    handleClickSales() {
-      this.price = 'wholesalerPrice'
+    handleClickCancel() {
+      this.$store.set('user/user', [])
+      this.paramsUser = {
+        q: '',
+        category: '',
+        page: 1,
+        limit: 8,
+      }
       this.modalCustomer = false
     },
-    handleClickRetail() {
-      this.price = 'retailPrice'
+    handleClickSelectUser() {
+      this.$store.set('user/selectedUser', this.selectedUser)
+      this.$store.set('user/user', [])
+
+      this.paramsUser = {
+        q: '',
+        category: '',
+        page: 1,
+        limit: 8,
+      }
       this.modalCustomer = false
     },
     handleClickSelect(item) {
@@ -276,7 +290,10 @@ export default {
     },
     async getAllUser() {
       this.loading.loadingUsers = true
-      const res = await this.$store.dispatch('user/getAllUser', this.paramsUser)
+      const res = await this.$store.dispatch(
+        'user/getAllUser2',
+        this.paramsUser
+      )
       if (res) {
         this.loading.loadingUsers = false
       } else {
@@ -293,6 +310,11 @@ export default {
       await this.$store.dispatch('user/getAllUser', this.paramsUser)
       this.loading.searchUser = false
     },
+    onIntersect: debounce(async function () {
+      this.paramsUser.page++
+      console.log(this.paramsUser.page)
+      await this.getAllUser()
+    }, 500),
   },
 }
 </script>

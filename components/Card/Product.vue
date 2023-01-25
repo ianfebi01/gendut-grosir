@@ -54,7 +54,7 @@
             <span class="text-secondary text-subtitle-2">Price:</span>
             <span class="gray_900--text font-weight-bold">
               {{
-                customerStatus === 'retailPrice'
+                customerStatus === 'retail'
                   ? formatRupiah(item?.retailPrice)
                   : formatRupiah(item?.wholesalerPrice)
               }}

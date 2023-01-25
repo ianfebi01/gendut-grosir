@@ -6,6 +6,7 @@ export const state = () => ({
   userDetail: {},
   paginator: {},
   errorMessage: '',
+  selectedUser: {},
 })
 
 export const mutations = { ...defaultMutations(state()) }
@@ -76,6 +77,26 @@ export const actions = {
         return false
       })
   },
+  getAllUser2({ dispatch }, params) {
+    return this.$axios
+      .get(`api/getAllUser`, {
+        params,
+      })
+      .then((res) => {
+        const tmp = res.data?.data?.data
+        tmp.forEach((item) => {
+          dispatch('set/user.push', item)
+        })
+
+        dispatch('set/paginator', res?.data?.data?.paginator)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
   register({ dispatch }, body) {
     return this.$axios
       .post(`api/register`, {
@@ -102,7 +123,7 @@ export const actions = {
       })
       .catch((err) => {
         console.log(err)
-        dispatch('set/errorMessage', err)
+        dispatch('set/errorMessage', err?.response?.data?.message)
         return false
       })
   },
