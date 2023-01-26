@@ -121,6 +121,9 @@ export default {
         this.$store.set('order/cart', newValue)
       },
     },
+    detailOrder() {
+      return this.$store.get('order/detailOrder')
+    },
   },
   methods: {
     formatRupiah(item) {
@@ -152,6 +155,8 @@ export default {
       const res = await this.$store.dispatch('order/postOrder', this.params)
       if (res) {
         this.datas = []
+        // const
+        this.$store.dispatch('product/orderSuccess', this.detailOrder?.details)
         this.loading.loadingCheckout = false
         this.model = false
       } else {

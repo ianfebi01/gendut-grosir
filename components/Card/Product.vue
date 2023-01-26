@@ -1,6 +1,6 @@
 <template>
   <v-card
-    class="card-collumn-barista-card"
+    class="card"
     text
     outlined
     height="auto"
@@ -48,7 +48,7 @@
       <v-card-actions class="px-0 text-body-2 mx-3 mb-3">
         <div
           style="width: 100%"
-          class="px-0 d-flex align-center justify-space-between card-collumn-barista-btn"
+          class="px-0 d-flex align-center justify-space-between"
         >
           <div class="d-flex flex-column justify-center">
             <span class="text-secondary text-subtitle-2">Price:</span>
@@ -117,7 +117,7 @@ export default {
   border-radius: 8px !important;
 }
 
-.card-collumn-barista-card {
+.card {
   border: 1px solid #eaecf0;
 
   box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1),

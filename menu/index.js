@@ -40,7 +40,7 @@ export default [
   },
   {
     name: 'Orders',
-    url: '/admin/orders',
+    url: '/orders',
     icon: '$orders',
     access: ['super_admin', 'admin'],
   },

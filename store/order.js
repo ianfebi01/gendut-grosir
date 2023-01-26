@@ -4,6 +4,9 @@ export const state = () => ({
   cart: [],
   modalCart: false,
   errorMessage: '',
+  detailOrder: {},
+  order: [],
+  paginator: {},
 })
 
 export const mutations = { ...defaultMutations(state()) }
@@ -52,12 +55,28 @@ export const actions = {
       .post(`api/order`, {
         ...body,
       })
-      .then(() => {
+      .then((res) => {
+        dispatch('set/detailOrder', res?.data?.data)
+
         return true
       })
       .catch((err) => {
         console.log(err)
         dispatch('set/errorMessage', err?.response?.data?.message)
+        return false
+      })
+  },
+  getOrder({ dispatch }, params) {
+    return this.$axios
+      .get(`api/order`, { params })
+      .then((res) => {
+        dispatch('set/order', res.data?.data?.data)
+        dispatch('set/paginator', res?.data?.data?.paginator)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
         return false
       })
   },

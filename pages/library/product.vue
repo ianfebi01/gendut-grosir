@@ -94,6 +94,7 @@
 
     <!-- Add -->
     <Modal
+      v-model="modal"
       title="Add Product"
       width="800px"
       subtitle="Add new Product for your store"
@@ -102,7 +103,6 @@
       :modal-prop="modal"
       :disable="$v.form.$invalid"
       @cancel="clearAll"
-      @modalProp="modal = false"
       @save="handleAdd"
       @clearErrorMessage="$store.set('product/errorMessage', '')"
     >
@@ -403,6 +403,7 @@
 
     <!-- Edit -->
     <Modal
+      v-model="editModal"
       title="Edit Product"
       width="800px"
       subtitle="Edit Product on your store"
@@ -411,7 +412,6 @@
       :modal-prop="editModal"
       :disable="$v.form.$invalid"
       @cancel="clearAll"
-      @modalProp="editModal = false"
       @save="handleEdit"
       @clearErrorMessage="$store.set('product/errorMessage', '')"
     >
