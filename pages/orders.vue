@@ -9,11 +9,11 @@
       </span>
     </v-row>
     <v-row class="px-6 pt-4">
-      <Search
+      <!-- <Search
         v-model="params.q"
         style="max-width: 400px"
         @input="handleSearch($event)"
-      />
+      /> -->
     </v-row>
     <v-row class="px-6 pt-4">
       <v-data-table
@@ -43,27 +43,21 @@
             />
           </v-avatar>
         </template>
-        <template #[`item.action`]="item">
+
+        <template #[`item.createdAt`]="item">
+          <span>
+            {{ $moment(item?.item?.createdAt).format('DD MMM YYYY') }}
+          </span>
+        </template>
+        <template #[`item.details.length`]="item">
           <div>
             <v-btn
-              fab
-              text
+              outlined
               depressed
               small
-              color="gray_500"
-              :loading="item?.item._id === loadingEdit"
-              @click="openEditModal(item?.item)"
-              ><v-icon small>$edit</v-icon></v-btn
-            >
-            <v-btn
-              fab
-              text
-              depressed
-              small
-              color="gray_500"
               @click="openDeleteModal(item?.item)"
             >
-              <v-icon small>$trash</v-icon>
+              {{ item?.item?.details?.length + ' Produk' }}
             </v-btn>
           </div>
         </template>
@@ -110,11 +104,10 @@
 
 <script>
 import Delete from '~/components/Dialog/Delete.vue'
-import Search from '~/components/Input/Search.vue'
 
 export default {
   name: 'Customers',
-  components: { Search, Delete },
+  components: { Delete },
   layout: 'dashboard',
   data() {
     return {
@@ -148,16 +141,6 @@ export default {
         { text: 'Total Order', value: 'details.length' },
         { text: 'Status', value: 'user.status' },
         { text: 'Tanggal', value: 'createdAt' },
-        { text: 'Action', value: 'action' },
-      ],
-      role: [
-        { name: 'Super Admin', value: 'super_admin' },
-        { name: 'Admin', value: 'admin' },
-        { name: 'Customer', value: 'customer' },
-      ],
-      status: [
-        { name: 'Sales', value: 'wholesaler' },
-        { name: 'Retail', value: 'retail' },
       ],
       loading: false,
       page: 1,

@@ -1,5 +1,9 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container
+    fluid
+    class="full-width-height gray_100"
+    style="width: 100% !important"
+  >
     <v-row class="px-6 pt-4">
       <span class="text-30 font-weight-medium gray_900--text">
         Dynamic Form
@@ -18,7 +22,20 @@
     <!-- Form -->
     <form @submit.prevent>
       <v-row class="px-6 mt-6">
-        <v-col
+        <div class="containere">
+          <div v-for="(field, i) in datas" :key="i" class="column">
+            <div v-for="(item, j) in field" :key="j" class="post">
+              <DynamicField
+                v-model="form[item.valueName]"
+                style="width: 100%"
+                :item="item"
+                :error-messages="error_message(item?.valueName)"
+                @blur="$v.form[item.valueName].$touch()"
+              />
+            </div>
+          </div>
+        </div>
+        <!-- <v-col
           v-for="(item, i) in defaultFields"
           :key="i"
           cols="12"
@@ -31,7 +48,7 @@
             :error-messages="error_message(item?.valueName)"
             @blur="$v.form[item.valueName].$touch()"
           />
-        </v-col>
+        </v-col> -->
         <v-col>
           <v-btn
             type="submit"
@@ -65,7 +82,7 @@
         >
           Hasil Form
         </div>
-        <pre>{{ form }}</pre>
+        <pre>{{ datas }}</pre>
       </v-col>
     </v-row>
   </v-container>
@@ -124,6 +141,25 @@ export default {
           },
         },
         {
+          valueName: 'followUpdate',
+          fieldType: 'checkbox',
+          label: 'Pilih Layanan',
+          checkboxItem: [
+            {
+              name: 'Pinjaman',
+              value: 'pinjaman',
+            },
+            {
+              name: 'Pinjol',
+              value: 'pinjol',
+            },
+            {
+              name: 'Kredit',
+              value: 'kredit',
+            },
+          ],
+        },
+        {
           valueName: 'gender',
           fieldType: 'select',
           label: 'Gender',
@@ -141,6 +177,25 @@ export default {
           validations: {
             required: true,
           },
+        },
+        {
+          valueName: 'status',
+          fieldType: 'checkbox',
+          label: 'Pilih Status',
+          checkboxItem: [
+            {
+              name: 'Member',
+              value: 'member',
+            },
+            {
+              name: 'Bukan Member',
+              value: 'bukanMember',
+            },
+            {
+              name: 'Karyawan',
+              value: 'karyawan',
+            },
+          ],
         },
         {
           valueName: 'password',
@@ -171,28 +226,25 @@ export default {
           label: 'Activate Acount',
           placeholder: ['Active', 'Not Active'],
         },
-        {
-          valueName: 'followUpdate',
-          fieldType: 'checkbox',
-          label: 'Pilih Layanan',
-          checkboxItem: [
-            {
-              name: 'Pinjaman',
-              value: 'pinjaman',
-            },
-            {
-              name: 'Pinjol',
-              value: 'pinjol',
-            },
-            {
-              name: 'Kredit',
-              value: 'kredit',
-            },
-          ],
-        },
       ],
     }
   },
+  computed: {
+    datas() {
+      let col = this.$vuetify.breakpoint.xs
+        ? 1
+        : this.$vuetify.breakpoint.sm
+        ? 2
+        : this.$vuetify.breakpoint.md
+        ? 2
+        : this.$vuetify.breakpoint.lg
+        ? 3
+        : 5
+
+      return this.generateMansory(col, this.defaultFields)
+    },
+  },
+
   methods: {
     handleSubmit(form) {
       this.form = form
@@ -229,6 +281,18 @@ export default {
       })
       return errors
     },
+    generateMansory(columns, posts) {
+      let columnWrapper = {}
+      for (let i = 0; i < columns; i++) {
+        columnWrapper[`column${i}`] = []
+      }
+
+      for (let i = 0; i < posts.length; i++) {
+        const column = i % columns
+        columnWrapper[`column${column}`].push(posts[i])
+      }
+      return columnWrapper
+    },
   },
   validations() {
     const form = {}
@@ -254,3 +318,57 @@ export default {
   components: { DynamicField },
 }
 </script>
+<style lang="scss" scoped>
+@use '@/assets/scss/abstracts/variables.scss' as v;
+.containere {
+  position: relative;
+  width: 100%;
+  display: flex;
+  color: white;
+  gap: 10px;
+  padding: 100px 2vw;
+}
+.column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.post {
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+}
+img {
+  width: 100%;
+  min-height: 100%;
+  filter: grayscale(50%);
+}
+.random {
+  content: '';
+  width: 100%;
+  height: 200px;
+  background: v.$primary;
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #161616;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: 0.5s;
+}
+.post:hover .overlay {
+  opacity: 0.95;
+  cursor: pointer;
+  border: 1px solid red;
+}
+</style>

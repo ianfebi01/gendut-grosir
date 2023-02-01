@@ -12,6 +12,7 @@
     <v-text-field
       v-if="item.fieldType === 'textField'"
       v-model="model"
+      v-types="item.type"
       :type="item.type"
       outlined
       dense
@@ -59,11 +60,9 @@
       >
         <v-checkbox
           v-model="model"
-          class="mt-0"
           :label="item2.name"
           color="primary"
           :value="item2.value"
-          hide-details
         ></v-checkbox>
       </v-col>
     </v-row>

@@ -85,6 +85,7 @@
           <v-list-item-group v-model="selectedUser">
             <v-list-item
               v-for="item in users"
+              :id="`scroll-${item?._id}`"
               :key="item?._id"
               :value="item"
               active-class=" border-active "

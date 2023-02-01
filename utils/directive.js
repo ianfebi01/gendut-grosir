@@ -1,27 +1,67 @@
 export default {
   directives: {
-    // types: {
-    //   bind(el, binding) {
-    //     // this two prevent from copy&paste non-number text, including "e".
-    //     // need to have both together to take effect.
-    //     console.log('binding', binding)
-    //     const { value: type } = binding
-    //     el.type = ['tel', 'number'].includes(type) ? 'tel' : type
-    //     el.addEventListener('input', () => {
-    //       return el.validity?.valid || (el.value = '')
-    //     })
+    // grabscroll: {
+    //   bind(el) {
+    //     el.scrollTop = 100
+    //     el.scrollLeft = 150
 
-    //     // this prevents from typing non-number text, including "e".
-    //     el.addEventListener('keypress', (evt) => {
-    //       evt = evt || window.event
-    //       console.log('KUE', evt)
-    //       const charCode = evt.which ? evt.which : evt.keyCode
-    //       if (['tel', 'number'].includes(type)) {
-    //         if (charCode < 48 || charCode > 57) evt.preventDefault()
-    //       } else return true
-    //     })
+    //     let pos = { top: 0, left: 0, x: 0, y: 0 }
+
+    //     const mouseDownHandler = function (e) {
+    //       el.style.cursor = 'grabbing'
+    //       el.style.userSelect = 'none'
+
+    //       pos = {
+    //         // The current scroll
+    //         left: el.scrollLeft,
+    //         top: el.scrollTop,
+    //         // Get the current mouse position
+    //         x: e.clientX,
+    //         y: e.clientY,
+    //       }
+
+    //       el.addEventListener('mousemove', mouseMoveHandler)
+    //       el.addEventListener('mouseup', mouseUpHandler)
+    //     }
+    //     const mouseMoveHandler = function (e) {
+    //       const dx = e.clientX - pos.x
+    //       const dy = e.clientY - pos.y
+
+    //       // Scroll the element
+    //       el.scrollTop = pos.top - dy
+    //       el.scrollLeft = pos.left - dx
+    //     }
+    //     const mouseUpHandler = function () {
+    //       document.removeEventListener('mousemove', mouseMoveHandler)
+    //       document.removeEventListener('mouseup', mouseUpHandler)
+
+    //       el.style.cursor = 'grab'
+    //       el.style.removeProperty('user-select')
+    //     }
     //   },
     // },
+    types: {
+      bind(el, binding) {
+        // this two prevent from copy&paste non-number text, including "e".
+        // need to have both together to take effect.
+
+        const { value: type } = binding
+        el.type = ['tel', 'number'].includes(type) ? 'tel' : type
+        el.addEventListener('input', () => {
+          return el.validity?.valid || (el.value = '')
+        })
+
+        // this prevents from typing non-number text, including "e".
+        el.addEventListener('keypress', (evt) => {
+          evt = evt || window.event
+          console.log('KUE', evt)
+          const charCode = evt.which ? evt.which : evt.keyCode
+          if (['tel', 'number'].includes(type)) {
+            if (charCode < 48 || charCode > 57) evt.preventDefault()
+          } else return true
+        })
+      },
+    },
     numeric: {
       bind(el) {
         // this two prevent from copy&paste non-number text, including "e".
