@@ -49,9 +49,7 @@ export default {
     accessToken() {
       return this.$route.query.access_token
     },
-    errorMessageUrl() {
-      return this.$route.query.error_message
-    },
+
     tes() {
       return this.$store.get('user/name')
     },

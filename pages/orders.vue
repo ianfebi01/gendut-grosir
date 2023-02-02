@@ -19,29 +19,26 @@
       <v-data-table
         :headers="headers"
         :items="datas"
-        :loading="loading"
+        :loading="loading.data"
         :items-per-page="paginator?.perPage"
         hide-default-footer
         no-data-text="No Data"
         class="data-table"
       >
-        <template #[`item.status`]="item">
+        <template #[`item._id`]="index">
+          <span>{{ index?.index + 1 }}</span>
+        </template>
+        <template #[`item.user.status`]="item">
           <span>{{
-            item?.item?.status == 'retail'
+            item?.item?.user?.status == 'retail'
               ? 'Retail'
-              : item?.item?.status == 'wholesaler'
+              : item?.item?.user?.status == 'wholesaler'
               ? 'Sales'
               : '-'
           }}</span>
         </template>
-        <template #[`item.profilePicture`]="item">
-          <v-avatar size="40px">
-            <v-img
-              alt="avatar"
-              lazy-src="lazy-loader.svg"
-              :src="item?.item?.profilePicture"
-            />
-          </v-avatar>
+        <template #[`item.total`]="item">
+          <span>{{ formatRupiah(item?.item?.total) }}</span>
         </template>
 
         <template #[`item.createdAt`]="item">
@@ -55,7 +52,7 @@
               outlined
               depressed
               small
-              @click="openDeleteModal(item?.item)"
+              @click="openDetailProductModal(item?.item)"
             >
               {{ item?.item?.details?.length + ' Produk' }}
             </v-btn>
@@ -91,39 +88,81 @@
         </template>
       </v-data-table>
     </v-row>
-
-    <Delete
-      icon="$warning_delete"
-      :loading="loadingDelete"
-      :modal-prop="deleteModal"
-      @modalProp="deleteModal = false"
-      @ok="handleDelete()"
-    />
+    <Modal
+      v-model="modal.product"
+      error-message=""
+      title="Detail Produk"
+      subtitle="Detail produk yang di pesan"
+    >
+      <template #content>
+        <v-list>
+          <v-list-item
+            v-for="item in detailsProduct"
+            :key="item?._id"
+            class="border mb-2"
+          >
+            <v-list-item-avatar height="50" width="50" class="border-radius-8">
+              <v-img lazy-src="lazy-loader.svg" :src="item?.product?.image" />
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title
+                class="font-weight-medium letter-spacing-normal"
+              >
+                {{ item?.product?.name }}
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-list-item-action-text
+                class="font-weight-bold text-14 gray_900--text"
+              >
+                {{ formatRupiah(item?.price) }}
+              </v-list-item-action-text>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+        <v-list>
+          <v-list-item class="border">
+            <v-list-item-content>
+              <v-list-item-title class="font-weight-bold text-14">
+                Total
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-list-item-action-text
+                class="font-weight-bold text-14 gray_900--text"
+              >
+                {{
+                  formatRupiah(detailsProduct.reduce((a, c) => a + c.price, 0))
+                }}
+              </v-list-item-action-text>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </template>
+    </Modal>
   </v-container>
 </template>
 
 <script>
-import Delete from '~/components/Dialog/Delete.vue'
+import Modal from '~/components/Dialog/Modal.vue'
+import { formatRupiah } from '~/utils/formatRupiah'
 
 export default {
   name: 'Customers',
-  components: { Delete },
+  components: { Modal },
   layout: 'dashboard',
   data() {
     return {
-      image: null,
-      imageFile: null,
-      loadingCategory: false,
-      loadingEdit: false,
-      id: '',
-      editModal: false,
-      publicId: null,
-      deleteModal: false,
-      modal: false,
-      loadingDelete: false,
-      loadingAdd: false,
-      search: '',
-      name: '',
+      modal: {
+        product: false,
+      },
+      detailsProduct: [],
+      loading: {
+        delete: false,
+        add: false,
+        edit: false,
+        data: false,
+      },
       params: {
         q: '',
         page: 1,
@@ -131,19 +170,22 @@ export default {
       },
       headers: [
         {
-          text: 'ID Order',
+          text: 'No.',
           value: '_id',
+        },
+        {
+          text: 'ID Order',
+          value: 'orderId',
         },
         {
           text: 'Nama',
           value: 'user.name',
         },
         { text: 'Total Order', value: 'details.length' },
+        { text: 'Total Harga', value: 'total' },
         { text: 'Status', value: 'user.status' },
         { text: 'Tanggal', value: 'createdAt' },
       ],
-      loading: false,
-      page: 1,
     }
   },
   head() {
@@ -159,13 +201,7 @@ export default {
       return this.$store.get('order/paginator')
     },
     errorMessage() {
-      return this.$store.get('user/errorMessage')
-    },
-    imageUrl() {
-      return this.$store.get('uploadImages/imageUrl')
-    },
-    userDetail() {
-      return this.$store.get('user/userDetail')
+      return this.$store.get('order/errorMessage')
     },
   },
   watch: {
@@ -181,137 +217,22 @@ export default {
       await this.getAllUser()
     },
     async getOrder() {
-      this.loading = true
+      this.loading.data = true
 
       const res = await this.$store.dispatch('order/getOrder', this.params)
       if (res) {
-        this.loading = false
+        this.loading.data = false
       } else {
-        this.loading = false
+        this.loading.data = false
       }
     },
-    async handleAdd() {
-      this.loadingAdd = true
-
-      if (this.image) {
-        const formData = new FormData()
-        formData.append('image', this.image)
-        formData.append('path', 'gendut-grosir/profile-picture')
-        const res = await this.$store.dispatch(
-          'uploadImages/uploadImages',
-          formData
-        )
-        if (res) {
-          this.form.profilePicture = this.imageUrl[0].url
-        }
-      }
-      const body = { ...this.form }
-
-      const res = await this.$store.dispatch('user/addUser', body)
-      if (res) {
-        this.loadingAdd = false
-        this.modal = false
-        this.clearAll()
-      } else {
-        this.loadingAdd = false
-      }
+    formatRupiah(item) {
+      return formatRupiah(item)
     },
-    openDeleteModal(item) {
-      this.id = item._id
-      this.deleteModal = true
-    },
-    async handleDelete() {
-      this.loadingDelete = true
-
-      let res = await this.$store.dispatch('user/deleteUser', this.id)
-      if (res) {
-        this.loadingDelete = false
-        this.deleteModal = false
-        this.id = ''
-      } else {
-        this.loadingDelete = false
-      }
-    },
-    async openEditModal(item) {
-      this.loadingEdit = item?._id
-      const res = await this.$store.dispatch('user/getUserbyId', item?._id)
-
-      if (res) {
-        this.imageFile = this.userDetail.profilePicture
-        this.editForm = {
-          ...this.userDetail,
-          id: this.userDetail._id,
-        }
-        this.editModal = true
-        this.loadingEdit = ''
-      } else {
-        this.loadingEdit = ''
-      }
-    },
-    async handleEdit() {
-      this.loadingAdd = true
-      // delete Images
-      if (this.publicId) {
-        await this.$store.dispatch('uploadImages/deleteImages', this.publicId)
-      }
-
-      // Upload Image
-      if (this.image) {
-        const formData = new FormData()
-        formData.append('image', this.image)
-        formData.append('path', 'gendut-grosir')
-        const res = await this.$store.dispatch(
-          'uploadImages/uploadImages',
-          formData
-        )
-        if (res) {
-          this.editForm.profilePicture = this.imageUrl[0].url
-        }
-      }
-      // Make body
-      const body = {
-        ...this.editForm,
-      }
-      const res = await this.$store.dispatch('user/editUser', body)
-      if (res) {
-        this.loadingAdd = false
-        this.editModal = false
-        this.clearAll()
-      } else {
-        this.loadingAdd = false
-      }
-    },
-    clearAll() {
-      this.clearImage()
-      this.publicId = ''
-      this.form = {
-        id: null,
-        name: '',
-        email: '',
-        role: '',
-        status: '',
-        activate: false,
-        image: null,
-      }
-      this.$v.form.$reset()
-    },
-    clearImage() {
-      this.imageFile = null
-      this.image = null
-    },
-    async clearImageEdit() {
-      this.publicId = this.userDetail.image.match(
-        /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
-      )[0]
-      this.imageFile = null
-      this.image = null
-    },
-    async imageInput(event) {
-      this.image = event
-
-      if (event) {
-        this.imageFile = event ? URL.createObjectURL(event) : undefined // untuk nampilin di frontend
-      }
+    openDetailProductModal(item) {
+      this.modal.product = true
+      this.detailsProduct = item?.details
+      console.log(this.detailsProduct)
     },
   },
 }
@@ -344,5 +265,9 @@ export default {
   right: 5px;
   top: 5px;
   z-index: 1;
+}
+.border {
+  border: 1px solid v.$primary_300;
+  border-radius: 8px !important;
 }
 </style>

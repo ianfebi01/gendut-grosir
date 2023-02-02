@@ -399,6 +399,7 @@
 
     <!-- Edit -->
     <Modal
+      v-model="editModal"
       title="Edit Product"
       width="800px"
       subtitle="Edit Product on your store"
@@ -407,7 +408,6 @@
       :modal-prop="editModal"
       :disable="$v.editForm.$invalid"
       @cancel="clearAll"
-      @modalProp="editModal = false"
       @save="handleEdit"
       @clearErrorMessage="$store.set('product/errorMessage', '')"
     >

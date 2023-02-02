@@ -140,7 +140,7 @@ export const actions = {
       })
       .catch((err) => {
         console.log(err)
-        dispatch('set/errorMessage', err)
+        dispatch('set/errorMessage', err?.response?.data?.message)
         return false
       })
   },

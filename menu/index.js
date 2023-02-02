@@ -30,11 +30,11 @@ export default [
     name: 'Point Of Sales',
     url: '/',
     icon: '$shoping_bag',
-    access: ['super_admin', 'admin'],
+    access: ['super_admin', 'admin', 'customer'],
   },
   {
     name: 'Dashboard',
-    url: '/admin/analytic',
+    url: '/dashboard',
     icon: '$dashboard',
     access: ['super_admin'],
   },

@@ -15,7 +15,7 @@
               class="font-weight-light text-neutral-70"
               style="font-size: 14px"
             >
-              Sign In with Your account and enjoy shopping!
+              Daftar untuk membuat akun!
             </div>
           </v-col>
         </v-row>
@@ -33,7 +33,7 @@
           class="font-weight-medium mb-1 gray_700--text"
           style="font-size: 14px"
         >
-          Name
+          Nama
           <span style="color: red !important">*</span>
         </div>
         <v-text-field
@@ -145,7 +145,7 @@
           class="font-weight-medium mb-1 gray_700--text"
           style="font-size: 14px"
         >
-          Confirm Password
+          Konfirmasi Password
           <span style="color: red !important">*</span>
         </div>
         <v-text-field
@@ -197,13 +197,25 @@
           :loading="loading"
           @click="handleRegister"
         >
-          Sign Up
+          Daftar
         </v-btn>
       </v-col>
       <v-col v-else cols="auto">
         <span class="font-weight-medium primary--text"
-          >Regiter success, please confirm your email.</span
+          >Proses pendaftaran berhasil, hubungi admin untuk mengaktifkan
+          akun.</span
         >
+        <v-btn
+          class="white--text rounded-lg mt-4"
+          color="primary"
+          large
+          block
+          depressed
+          type="submit"
+          to="/login"
+        >
+          Masuk
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>

@@ -18,6 +18,7 @@
         </v-layout>
 
         <v-badge
+          v-if="router == '/'"
           bordered
           color="primary"
           :value="cart?.length"

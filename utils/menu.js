@@ -64,11 +64,13 @@ export const filterMenu = (role, menus, url) => {
         res = res + '/' + arr[i]
       }
     }
+
     return res
   }
 
   const activeMenu = flattenArray.find((item) => item.url === getUrl())
     ? flattenArray.find((item) => item.url === getUrl()).name
     : 'Dashboard'
+  console.log('filteredMenu', filteredMenu)
   return { filteredMenu, activeMenu }
 }

@@ -11,57 +11,91 @@
     @save="handleCheckout"
   >
     <template #content>
-      <v-list v-if="datas.length" two-line>
-        <v-list-item v-for="item in datas" :key="item?._id" class="border mb-2">
-          <v-list-item-avatar height="50" width="50" style="border-radius: 8px">
-            <v-img lazy-src="lazy-loader.svg" :src="item?.image"></v-img>
-          </v-list-item-avatar>
-
-          <v-list-item-content>
-            <v-list-item-title
-              class="gray_900--text text-16 font-weight-medium mb-2"
-              >{{ item?.name }}</v-list-item-title
+      <template v-if="datas.length">
+        <v-list two-line>
+          <v-list-item
+            v-for="item in datas"
+            :key="item?._id"
+            class="border mb-2"
+          >
+            <v-list-item-avatar
+              height="50"
+              width="50"
+              style="border-radius: 8px"
             >
-            <div class="action">
-              <v-btn
-                small
-                fab
-                depressed
-                color="primary_300"
-                outlined
-                @click="handleMinus(item?._id)"
-              >
-                <v-icon class="qty" size="15">mdi-minus</v-icon>
-              </v-btn>
+              <v-img lazy-src="lazy-loader.svg" :src="item?.image"></v-img>
+            </v-list-item-avatar>
 
-              <span class="font-weight-bold mx-2 text-16">{{ item?.qty }}</span>
-
-              <v-btn
-                small
-                fab
-                depressed
-                color="primary_300"
-                outlined
-                @click="handlePlus(item?._id)"
+            <v-list-item-content>
+              <v-list-item-title
+                class="gray_900--text text-16 font-weight-medium mb-2"
+                >{{ item?.name }}</v-list-item-title
               >
-                <v-icon class="qty" size="15">mdi-plus</v-icon>
+              <div class="action">
+                <v-btn
+                  small
+                  fab
+                  depressed
+                  color="primary_300"
+                  outlined
+                  @click="handleMinus(item?._id)"
+                >
+                  <v-icon class="qty" size="15">mdi-minus</v-icon>
+                </v-btn>
+
+                <span class="font-weight-bold mx-2 text-16">{{
+                  item?.qty
+                }}</span>
+
+                <v-btn
+                  small
+                  fab
+                  depressed
+                  color="primary_300"
+                  outlined
+                  @click="handlePlus(item?._id)"
+                >
+                  <v-icon class="qty" size="15">mdi-plus</v-icon>
+                </v-btn>
+              </div>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn depressed small fab text @click="handleDelete(item?._id)">
+                <v-icon size="15">$trash</v-icon>
               </v-btn>
-            </div>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn depressed small fab text @click="handleDelete(item?._id)">
-              <v-icon size="15">$trash</v-icon>
-            </v-btn>
-            <v-list-item-title class="font-weight-bold text-14">
-              {{
-                customer?.status === 'retail'
-                  ? formatRupiah(item?.retailPrice)
-                  : formatRupiah(item?.wholesalerPrice)
-              }}
-            </v-list-item-title>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
+              <v-list-item-title class="font-weight-bold text-14">
+                {{
+                  customer?.status === 'retail'
+                    ? formatRupiah(item?.retailPrice)
+                    : formatRupiah(item?.wholesalerPrice)
+                }}
+              </v-list-item-title>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+        <v-list>
+          <v-list-item class="border">
+            <v-list-item-content>
+              <v-list-item-title class="font-weight-bold text-14">
+                Total
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-list-item-action-text
+                class="font-weight-bold text-14 gray_900--text"
+              >
+                {{
+                  customer?.status === 'retail'
+                    ? formatRupiah(datas.reduce((a, c) => a + c.retailPrice, 0))
+                    : formatRupiah(
+                        datas.reduce((a, c) => a + c.wholesalerPrice, 0)
+                      )
+                }}
+              </v-list-item-action-text>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </template>
       <Empty
         v-else
         img="/girl-shop.svg"
@@ -139,12 +173,13 @@ export default {
       this.$store.dispatch('order/delete', id)
     },
     async handleCheckout() {
+      console.log(this.datas)
       this.loading.loadingCheckout = true
       const details = this.datas.map((item) => ({
         product: item?._id,
         qty: item?.qty,
         price:
-          item.status === 'retail'
+          this.customer?.status === 'retail'
             ? item?.qty * item?.retailPrice
             : item?.qty * item?.wholesalerPrice,
       }))

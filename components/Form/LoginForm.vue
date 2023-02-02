@@ -15,7 +15,14 @@
               class="font-weight-light text-neutral-70"
               style="font-size: 14px"
             >
-              Sign In with Your account and enjoy shopping!
+              Masuk dengan akun Anda dan selamat berbelanja!
+            </div>
+            <div
+              v-if="errorMessage"
+              class="font-weight-medium mt-2 error--text"
+              style="font-size: 14px"
+            >
+              {{ 'Error: ' + errorMessage }}
             </div>
           </v-col>
         </v-row>
@@ -107,7 +114,7 @@
           :loading="loading"
           @click="$emit('handleLogin', form)"
         >
-          Sign In
+          Masuk
         </v-btn>
         <!-- <v-divider class="mb-4"></v-divider>
         <v-btn
@@ -129,8 +136,8 @@
         </v-btn> -->
         <v-list-item>
           <v-list-item-title class="text-center"
-            >Not have account?
-            <nuxt-link to="/register" class="primary--text">Register</nuxt-link>
+            >Tidak punya akun?
+            <nuxt-link to="/register" class="primary--text">Daftar</nuxt-link>
           </v-list-item-title>
         </v-list-item>
       </v-col>
@@ -163,6 +170,9 @@ export default {
       set(newVal) {
         this.$emit('setLoading', newVal)
       },
+    },
+    errorMessage() {
+      return this.$store.get('user/errorMessage')
     },
   },
   validations() {
