@@ -143,3 +143,13 @@ $font-sizes: (
 .border-radius-8 {
   border-radius: 8px !important;
 }
+
+.row-content {
+  border-radius: 8px !important;
+  border: 1px solid #eaecf0 !important;
+  box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1),
+    0px 1px 2px rgba(16, 24, 40, 0.06);
+  background-color: #ffff;
+  width: 100%;
+  height: 100%;
+}

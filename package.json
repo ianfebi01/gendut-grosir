@@ -27,6 +27,7 @@
     "event-source-polyfill": "^1.0.31",
     "nuxt": "^2.15.8",
     "sass-loader": "10.1.1",
+    "v-calendar": "^2.4.1",
     "vue": "^2.7.10",
     "vue-chartjs": "4.1.2",
     "vue-server-renderer": "^2.7.10",

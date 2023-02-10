@@ -154,7 +154,6 @@ export default {
 .post {
   position: relative;
   overflow: hidden;
-
   display: flex;
   align-items: center;
 }
@@ -176,7 +175,6 @@ img {
   width: 100%;
   height: 100%;
   background: #161616;
-
   display: flex;
   align-items: center;
   justify-content: center;
