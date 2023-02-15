@@ -20,12 +20,13 @@
         @input="handleSearch($event)"
       />
     </v-row>
+
     <v-row class="px-6 pt-4">
       <v-data-table
         :headers="headers"
         :items="datas"
         :loading="loading"
-        :items-per-page="paginator?.perPage"
+        :items-per-page="paginator?.limit"
         hide-default-footer
         no-data-text="No Data"
         class="data-table"
@@ -710,10 +711,9 @@
       </template>
     </Modal>
     <Delete
+      v-model="deleteModal"
       icon="$warning_delete"
       :loading="loadingDelete"
-      :modal-prop="deleteModal"
-      @modalProp="deleteModal = false"
       @ok="handleDelete()"
     />
   </v-container>
@@ -853,16 +853,16 @@ export default {
     },
     openDeleteModal(item) {
       this.id = item._id
-      this.publicId = item.image.match(/(gendut-grosir)\/([a-zA-Z0-9]*)/gm)[0]
+      this.publicId = item.image?.match(
+        /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
+      )?.[0]
+      console.log(item.image)
       this.deleteModal = true
     },
     async handleDelete() {
       this.loadingDelete = true
-      let res = await this.$store.dispatch('product/deleteProduct', this.id)
-      res = await this.$store.dispatch(
-        'uploadImages/deleteImages',
-        this.publicId
-      )
+      const res = await this.$store.dispatch('product/deleteProduct', this.id)
+      await this.$store.dispatch('uploadImages/deleteImages', this.publicId)
       if (res) {
         this.loadingDelete = false
         this.deleteModal = false
@@ -886,7 +886,6 @@ export default {
         await this.getCategory(this.productDetails.category.name)
         this.editModal = true
         this.loadingEdit = ''
-        console.log('form: ', this.form)
       } else {
         this.loadingEdit = ''
       }
@@ -923,7 +922,6 @@ export default {
     },
     async getCategory(q) {
       this.loadingCategory = true
-      console.log('gg', this.form.category)
       const params = {
         q: q,
         page: this.page,
@@ -952,7 +950,7 @@ export default {
     async clearImageEdit() {
       this.publicId = this.productDetails.image.match(
         /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
-      )[0]
+      )?.[0]
       this.imageFile = null
       this.image = null
     },

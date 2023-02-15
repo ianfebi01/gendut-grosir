@@ -85,13 +85,12 @@
 
     <!-- Add -->
     <Modal
+      v-model="modal"
       title="Add Category"
       subtitle="Enter new Category name"
       :loading="loadingCategory"
       :error-message="errorMessage"
-      :modal-prop="modal"
       @cancel="name = ''"
-      @modalProp="modal = false"
       @save="handleAddCategory"
       @clearErrorMessage="$store.set('category/errorMessage', '')"
     >
@@ -118,13 +117,12 @@
 
     <!-- Edit -->
     <Modal
+      v-model="editModal"
       title="Edit Category"
       subtitle="Enter new Category name"
       :loading="loadingEdit"
       :error-message="errorMessage"
-      :modal-prop="editModal"
       @cancel="name = ''"
-      @modalProp="editModal = false"
       @save="handleEdit()"
       @clearErrorMessage="$store.set('category/errorMessage', '')"
     >

@@ -26,6 +26,7 @@ const AxiosPlugin = ({ $axios, app, route, redirect }) => {
       return
     } else if (code === 403 && route.name !== '/') {
       app.$cookiz.removeAll()
+      redirect('/login')
       // app.$logout('/403')
 
       return

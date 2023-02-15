@@ -74,7 +74,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    modalProp: {
+    value: {
       type: Boolean,
       default: false,
     },
@@ -86,10 +86,10 @@ export default {
   computed: {
     modal: {
       get: function () {
-        return this.modalProp
+        return this.value
       },
       set: function (newValue) {
-        this.$emit('modalProp', newValue)
+        this.$emit('input', newValue)
       },
     },
   },

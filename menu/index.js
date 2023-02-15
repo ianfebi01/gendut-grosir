@@ -19,13 +19,6 @@
  * If you want to find more icons for the `icon` field, see https://materialdesignicons.com.
  */
 export default [
-  // {
-  //   name: 'POS',
-  //   text: 'Point of Sales',
-  //   type: 'title',
-  //   url: '/outlet',
-  //   icon: 'mdi-shopping-outline',
-  // },
   {
     name: 'Point Of Sales',
     url: '/',
@@ -64,12 +57,6 @@ export default [
       },
     ],
   },
-  // {
-  //   name: 'Discounts',
-  //   url: '/admin/discounts',
-  //   icon: '$discounts',
-  //   access: ['super_admin', 'admin'],
-  // },
   {
     name: 'Customers',
     url: '/customers',
@@ -82,10 +69,4 @@ export default [
     icon: '$role',
     access: ['super_admin'],
   },
-  // {
-  //   name: 'Sign Out',
-  //   url: '/login',
-  //   icon: '$signout',
-  //   access: ['super_admin', 'admin'],
-  // },
 ]

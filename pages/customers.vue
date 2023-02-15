@@ -25,7 +25,7 @@
         :headers="headers"
         :items="datas"
         :loading="loading"
-        :items-per-page="paginator?.perPage"
+        :items-per-page="paginator?.limit"
         hide-default-footer
         no-data-text="No Data"
         class="data-table"
@@ -118,7 +118,7 @@
     >
       <template #content>
         <v-row class="mt-2">
-          <v-col cols="6">
+          <v-col cols="12" class="py-0">
             <div
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
@@ -129,7 +129,7 @@
               class="input-image"
               outlined
               flat
-              width="432"
+              width="100%"
               height="208"
               style="overflow: hidden"
               @click="''"
@@ -163,13 +163,18 @@
                   SVG, PNG, JPG or GIF (max. 800x400px)
                 </span>
               </div>
-
-              <v-img
+              <div
                 v-else-if="imageFile"
-                :src="imageFile"
-                width="432"
-                height="123"
-              ></v-img>
+                class="border"
+                style="width: 200px; height: 200px; overflow: hidden"
+              >
+                <v-img
+                  :src="imageFile"
+                  aspect-ratio="1/1"
+                  height="200"
+                  width="200"
+                ></v-img>
+              </div>
             </v-card>
             <v-file-input
               ref="inputImage"
@@ -178,220 +183,24 @@
               type="file"
               @change="imageInput"
             ></v-file-input>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Nama
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.name"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Masukkan nama"
-              :hide-details="$v.form.name.$error ? false : true"
-              :error-messages="
-                !$v.form.name.required && $v.form.name.$dirty
-                  ? 'Nama tidak boleh kosong'
-                  : !$v.form.name.maxLength && $v.form.name.$dirty
-                  ? 'Maximal 20 karakter'
-                  : []
-              "
-              @blur="$v.form.name.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.form.name.$invalid && $v.form.name.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Email
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.email"
-              background-color="#fff"
-              outlined
-              type="text"
-              dense
-              flat
-              height="44"
-              placeholder="Masukkan alamat email"
-              :hide-details="$v.form.email.$error ? false : true"
-              :error-messages="
-                !$v.form.email.required && $v.form.email.$dirty
-                  ? 'Email tidak boleh kosong'
-                  : !$v.form.email.email && $v.form.email.$dirty
-                  ? 'Format email salah'
-                  : []
-              "
-              @blur="$v.form.email.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.form.email.$invalid && $v.form.email.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
           </v-col>
-          <v-col cols="6">
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Role
-              <span style="color: red !important">*</span>
-            </div>
-            <v-select
-              v-model="form.role"
-              :items="role"
-              item-text="name"
-              item-value="value"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Pilih Role"
-              :hide-details="$v.form.role.$error ? false : true"
-              :error-messages="
-                !$v.form.role.required && $v.form.role.$dirty
-                  ? 'Role tidak boleh kosong'
-                  : []
-              "
-              @blur="$v.form.role.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.form.role.$invalid && $v.form.role.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-select>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Status
-            </div>
-            <v-select
-              v-model="form.status"
-              :items="status"
-              item-text="name"
-              item-value="value"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Pilih Status"
-              hide-details
-            >
-            </v-select>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Password
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.password"
-              outlined
-              type="password"
-              dense
-              flat
-              height="44"
-              placeholder="Masukkan Password"
-              :hide-details="$v.form.password.$error ? false : true"
-              :error-messages="
-                !$v.form.password.required && $v.form.password.$dirty
-                  ? 'Password tidak boleh kosong'
-                  : !$v.form.password.minLength && $v.form.password.$dirty
-                  ? 'Minimum 6 karakter'
-                  : []
-              "
-              @blur="$v.form.password.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.form.password.$invalid && $v.form.password.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Konfirmasi Password
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.confirmPassword"
-              outlined
-              type="password"
-              dense
-              flat
-              height="44"
-              placeholder="Masukkan Konfirmasi Password"
-              :hide-details="$v.form.confirmPassword.$error ? false : true"
-              :error-messages="
-                !$v.form.confirmPassword.required &&
-                $v.form.confirmPassword.$dirty
-                  ? 'Password tidak boleh kosong'
-                  : !$v.form.confirmPassword.minLength &&
-                    $v.form.confirmPassword.$dirty
-                  ? 'Minimum 6 karakter'
-                  : !$v.form.confirmPassword.sameAsPassword &&
-                    $v.form.confirmPassword.$dirty
-                  ? 'Konfirmasi Password harus sama'
-                  : []
-              "
-              @blur="$v.form.confirmPassword.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="
-                    $v.form.confirmPassword.$invalid &&
-                    $v.form.confirmPassword.$dirty
-                  "
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Aktifkan Akun?
-            </div>
-            <v-switch
-              v-model="form.activate"
-              class="mt-3 ml-1"
-              inset
-              :label="form.activate ? 'Aktif' : 'Tidak Aktif'"
-            ></v-switch>
+
+          <v-col
+            v-for="(item, i) in addCustomer"
+            :key="i"
+            class="py-0"
+            cols="12"
+            md="6"
+            lg="6"
+            xl="6"
+            sm="12"
+          >
+            <DynamicField
+              v-model="form[item.valueName]"
+              :item="item"
+              :error-messages="error_message(item?.valueName)"
+              @blur="$v.form[item.valueName].$touch()"
+            />
           </v-col>
         </v-row>
       </template>
@@ -413,7 +222,7 @@
     >
       <template #content>
         <v-row class="mt-2">
-          <v-col cols="6">
+          <v-col cols="12" class="py-0">
             <div
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
@@ -424,7 +233,7 @@
               class="input-image"
               outlined
               flat
-              width="432"
+              width="100%"
               height="208"
               style="overflow: hidden"
               @click="''"
@@ -454,17 +263,25 @@
                 <span class="primary--text font-weight-bold pa-0">
                   Click to upload
                 </span>
-                <span class="gray_500--text text-12 font-weight-normal pa-0">
+
+                <span
+                  class="text-center gray_500--text text-12 font-weight-normal pa-0"
+                >
                   SVG, PNG, JPG or GIF (max. 800x400px)
                 </span>
               </div>
-
-              <v-img
+              <div
                 v-else-if="imageFile"
-                :src="imageFile"
-                width="432"
-                height="123"
-              ></v-img>
+                class="border"
+                style="width: 200px; height: 200px; overflow: hidden"
+              >
+                <v-img
+                  :src="imageFile"
+                  aspect-ratio="1/1"
+                  height="200"
+                  width="200"
+                ></v-img>
+              </div>
             </v-card>
             <v-file-input
               ref="inputImage"
@@ -473,145 +290,24 @@
               type="file"
               @change="imageInput"
             ></v-file-input>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Nama
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="editForm.name"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Masukkan nama"
-              :hide-details="$v.editForm.name.$error ? false : true"
-              :error-messages="
-                !$v.editForm.name.required && $v.editForm.name.$dirty
-                  ? 'Nama tidak boleh kosong'
-                  : !$v.editForm.name.maxLength && $v.editForm.name.$dirty
-                  ? 'Maximal 20 karakter'
-                  : []
-              "
-              @blur="$v.editForm.name.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.editForm.name.$invalid && $v.editForm.name.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Email
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="editForm.email"
-              background-color="#fff"
-              outlined
-              type="text"
-              dense
-              flat
-              height="44"
-              placeholder="Masukkan alamat email"
-              :hide-details="$v.editForm.email.$error ? false : true"
-              :error-messages="
-                !$v.editForm.email.required && $v.editForm.email.$dirty
-                  ? 'Email tidak boleh kosong'
-                  : !$v.editForm.email.email && $v.editForm.email.$dirty
-                  ? 'Format email salah'
-                  : []
-              "
-              @blur="$v.editForm.email.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.editForm.email.$invalid && $v.editForm.email.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
           </v-col>
-          <v-col cols="6">
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Role
-              <span style="color: red !important">*</span>
-            </div>
-            <v-select
-              v-model="editForm.role"
-              :items="role"
-              item-text="name"
-              item-value="value"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Pilih Role"
-              :hide-details="$v.editForm.role.$error ? false : true"
-              :error-messages="
-                !$v.editForm.role.required && $v.editForm.role.$dirty
-                  ? 'Role tidak boleh kosong'
-                  : []
-              "
-              @blur="$v.editForm.role.$touch()"
-            >
-              <template slot="append">
-                <v-icon
-                  v-if="$v.editForm.role.$invalid && $v.editForm.role.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-select>
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Status
-            </div>
-            <v-select
-              v-model="editForm.status"
-              :items="status"
-              item-text="name"
-              item-value="value"
-              background-color="#fff"
-              outlined
-              dense
-              flat
-              height="44"
-              placeholder="Pilih Status"
-              hide-details
-            >
-            </v-select>
 
-            <div
-              class="font-weight-medium mb-1 gray_700--text mt-2"
-              style="font-size: 14px"
-            >
-              Aktifkan Akun?
-            </div>
-            <v-switch
-              v-model="editForm.activate"
-              class="mt-3 ml-1"
-              inset
-              :label="editForm.activate ? 'Aktif' : 'Tidak Aktif'"
-            ></v-switch>
+          <v-col
+            v-for="(item, i) in editCustomer"
+            :key="i"
+            class="py-0"
+            cols="12"
+            md="6"
+            lg="6"
+            xl="6"
+            sm="12"
+          >
+            <DynamicField
+              v-model="editForm[item.valueName]"
+              :item="item"
+              :error-messages="error_message(item?.valueName)"
+              @blur="$v.editForm[item.valueName].$touch()"
+            />
           </v-col>
         </v-row>
       </template>
@@ -633,14 +329,16 @@ import Search from '~/components/Input/Search.vue'
 import {
   required,
   minLength,
-  maxLength,
+  numeric,
   email,
   sameAs,
 } from 'vuelidate/lib/validators'
+import DynamicField from '~/components/DynamicField.vue'
+import { addCustomer, editCustomer } from '~/utils/fields'
 
 export default {
   name: 'Customers',
-  components: { Search, Modal, Delete },
+  components: { Search, Modal, Delete, DynamicField },
   layout: 'dashboard',
   data() {
     return {
@@ -657,26 +355,8 @@ export default {
       loadingAdd: false,
       search: '',
       name: '',
-      form: {
-        id: null,
-        name: '',
-        email: '',
-        role: '',
-        status: '',
-        activate: false,
-        profilePicture: null,
-        password: '',
-        confirmPassword: '',
-      },
-      editForm: {
-        id: null,
-        name: '',
-        email: '',
-        role: '',
-        status: '',
-        activate: false,
-        profilePicture: null,
-      },
+      form: {},
+      editForm: {},
       headers: [
         {
           text: 'Image',
@@ -691,15 +371,6 @@ export default {
         { text: 'Status', value: 'status' },
         { text: 'Activate', value: 'activate' },
         { text: 'Action', value: 'action' },
-      ],
-      role: [
-        { name: 'Super Admin', value: 'super_admin' },
-        { name: 'Admin', value: 'admin' },
-        { name: 'Customer', value: 'customer' },
-      ],
-      status: [
-        { name: 'Sales', value: 'wholesaler' },
-        { name: 'Retail', value: 'retail' },
       ],
       loading: false,
       page: 1,
@@ -725,6 +396,12 @@ export default {
     },
     userDetail() {
       return this.$store.get('user/userDetail')
+    },
+    addCustomer() {
+      return addCustomer
+    },
+    editCustomer() {
+      return editCustomer
     },
   },
   watch: {
@@ -876,26 +553,78 @@ export default {
         this.imageFile = event ? URL.createObjectURL(event) : undefined // untuk nampilin di frontend
       }
     },
+    error_message(param) {
+      const errors = []
+
+      Object.entries(this.editModal ? this.$v.editForm : this.$v.form).forEach(
+        (entry) => {
+          const [key] = entry
+          if (key === param) {
+            const {
+              $dirty,
+              $params,
+              required,
+              email,
+              minLength,
+              numeric,
+              sameAs,
+            } = this.editModal ? this.$v.editForm[key] : this.$v.form[key]
+            if (!$dirty) return errors
+            // required
+            required === false && errors.push('Field Tidak Boleh Kosong')
+            // email
+            email === false && errors.push(`Format email tidak valid`)
+            // minLength
+            minLength === false &&
+              errors.push(`Input minimal ${$params.minLength.min} karakter`)
+            // minLength
+            numeric === false && errors.push(`Input hanya boleh angka`)
+            // sameAs
+            sameAs === false &&
+              errors.push(`Input harus sama dengan ${$params?.sameAs?.eq}`)
+          }
+        }
+      )
+      return errors
+    },
   },
   validations() {
-    return {
-      form: {
-        name: { required, maxLength: maxLength(20) },
-        email: { required, email },
-        role: { required },
-        password: { required, minLength: minLength(6) },
-        confirmPassword: {
-          required,
-          minLength: minLength(6),
-          sameAsPassword: sameAs('password'),
-        },
-      },
-      editForm: {
-        name: { required, maxLength: maxLength(20) },
-        email: { required, email },
-        role: { required },
-      },
-    }
+    const form = {}
+    const editForm = {}
+    let rule = {}
+    this.addCustomer.forEach((item) => {
+      rule = {}
+      const { validations, valueName } = item
+      if (validations?.required === true) rule.required = required
+      if (validations?.email) rule.email = email
+      if (validations?.minLength) {
+        rule.minLength = minLength(validations.minLength)
+      }
+      if (validations?.numeric) {
+        rule.numeric = numeric
+      }
+      if (validations?.sameAs) {
+        rule.sameAs = sameAs(validations?.sameAs)
+      }
+      form[valueName] = rule
+    })
+    this.editCustomer.forEach((item) => {
+      rule = {}
+      const { validations, valueName } = item
+      if (validations?.required === true) rule.required = required
+      if (validations?.email) rule.email = email
+      if (validations?.minLength) {
+        rule.minLength = minLength(validations.minLength)
+      }
+      if (validations?.numeric) {
+        rule.numeric = numeric
+      }
+      if (validations?.sameAs) {
+        rule.sameAs = sameAs(validations?.sameAs)
+      }
+      editForm[valueName] = rule
+    })
+    return { form, editForm }
   },
 }
 </script>

@@ -26,6 +26,23 @@ export const actions = {
         return false
       })
   },
+  getProductIntersect({ dispatch }, params) {
+    return this.$axios
+      .get(`api/product`, { params })
+      .then((res) => {
+        const tmp = res.data?.data?.data
+        tmp.forEach((item) => {
+          dispatch('set/product.push', item)
+        })
+        dispatch('set/paginator', res?.data?.data?.paginator)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
   deleteProduct({ dispatch, state }, id) {
     return this.$axios
       .delete(`api/product/${id}`)

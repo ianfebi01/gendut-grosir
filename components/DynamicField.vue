@@ -4,29 +4,30 @@
       style="font-size: 14px"
       class="font-weight-medium mb-1 gray_700--text mt-2"
     >
-      {{ item.label }}
-      <span v-if="item.validations?.required" style="color: red !important"
+      {{ item?.label }}
+      <span v-if="item?.validations?.required" style="color: red !important"
         >*</span
       >
     </div>
     <v-text-field
-      v-if="item.fieldType === 'textField'"
+      v-if="item?.fieldType === 'textField'"
       v-model="model"
-      v-types="item.type"
-      :type="item.type"
+      v-types="item?.type"
+      :type="item?.type"
       outlined
       dense
       flat
       background-color="#fff"
       height="44"
-      :placeholder="item.placeholder"
+      :hide-details="errorMessages == ''"
+      :placeholder="item?.placeholder"
       :error-messages="errorMessages"
       @blur="$emit('blur')"
     ></v-text-field>
     <v-select
-      v-else-if="item.fieldType === 'select'"
+      v-else-if="item?.fieldType === 'select'"
       v-model="model"
-      :items="item.items"
+      :items="item?.items"
       item-text="name"
       item-value="value"
       outlined
@@ -34,25 +35,27 @@
       flat
       background-color="#fff"
       height="44"
-      :placeholder="item.placeholder"
+      :placeholder="item?.placeholder"
       :error-messages="errorMessages"
       @blur="$emit('blur')"
     ></v-select>
     <v-switch
-      v-else-if="item.fieldType === 'switch'"
+      v-else-if="item?.fieldType === 'switch'"
       v-model="model"
       class="mt-3 ml-1"
       inset
       :label="
-        item.validations?.required ? item.placeholder[0] : item.placeholder[1]
+        item?.validations?.required
+          ? item?.placeholder[0]
+          : item?.placeholder[1]
       "
       :error-messages="errorMessages"
       @blur="$emit('blur')"
     ></v-switch>
 
-    <v-row v-else-if="item.fieldType === 'checkbox'">
+    <v-row v-else-if="item?.fieldType === 'checkbox'">
       <v-col
-        v-for="(item2, index) in item.checkboxItem"
+        v-for="(item2, index) in item?.checkboxitem"
         :key="index"
         cols="12"
         sm="4"
@@ -80,7 +83,7 @@ export default {
       default: () => {},
     },
     value: {
-      type: String || Number,
+      type: [String, Number, Boolean],
       default: null,
     },
     errorMessages: {

@@ -26,7 +26,11 @@
         </v-list-item-group>
       </v-list></v-row
     >
-    <v-row v-if="datas?.length && !loading.loadingProduct" class="px-6 pt-4">
+    <v-row
+      v-if="datas?.length && !loading.loadingProduct"
+      class="px-6 pt-4"
+      justify="center"
+    >
       <v-col
         v-for="item in datas"
         :key="item?.id"
@@ -40,6 +44,13 @@
           @handleClick="handleClickSelect($event)"
         />
       </v-col>
+      <div
+        v-if="paginator.hasNextPage"
+        v-intersect.quiet="productOnIntersect"
+        class="pa-4 primary--text"
+      >
+        Sedang memuat ...
+      </div>
     </v-row>
     <v-row
       v-else-if="!datas?.length && !loading.loadingProduct"
@@ -215,6 +226,9 @@ export default {
     customer() {
       return this.$store.get('user/selectedUser')
     },
+    paginator() {
+      return this.$store.get('product/paginator')
+    },
   },
   mounted() {
     this.loginSuccess()
@@ -242,6 +256,9 @@ export default {
       } else {
         this.loading.loadingProduct = false
       }
+    },
+    async getProductIntersect() {
+      await this.$store.dispatch('product/getProductIntersect', this.params)
     },
     cardPerPage(vss) {
       switch (true) {
@@ -315,6 +332,10 @@ export default {
       this.paramsUser.page++
       console.log(this.paramsUser.page)
       await this.getAllUser()
+    }, 500),
+    productOnIntersect: debounce(async function () {
+      this.params.page++
+      await this.getProductIntersect()
     }, 500),
   },
 }
