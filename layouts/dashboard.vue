@@ -25,19 +25,5 @@ export default {
     Sidebar: () => import('@/components/Layout/Sidebar'),
     HeaderApp: () => import('@/components/Layout/Header'),
   },
-  mounted() {
-    this.loginSuccess()
-  },
-  methods: {
-    async loginSuccess() {
-      this.loading = true
-      const res = await this.$store.dispatch('user/getMe')
-      if (res) {
-        this.loading = false
-      } else {
-        this.loading = false
-      }
-    },
-  },
 }
 </script>

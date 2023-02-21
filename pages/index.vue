@@ -1,5 +1,12 @@
 <template>
   <v-container fluid class="full-width-height gray_100">
+    <Snackbar
+      width="330px"
+      position="fixed"
+      text="Sukses menambahkan ke keranjang"
+      :visibility="successAddCart"
+      @set="successAddCart = false"
+    />
     <v-row class="px-6 pt-4">
       <v-list
         width="100%"
@@ -44,6 +51,7 @@
           @handleClick="handleClickSelect($event)"
         />
       </v-col>
+
       <div
         v-if="paginator.hasNextPage"
         v-intersect.quiet="productOnIntersect"
@@ -71,7 +79,7 @@
     </v-row>
     <!-- Customer -->
     <Modal
-      v-model="modalCustomer"
+      v-model="modal.customer"
       title="Siapa Pelanggan Anda?"
       subtitle="Pilih salah satu pelanggan Anda"
       :error-message="''"
@@ -162,7 +170,21 @@
       </template>
     </Modal>
     <!-- Cart -->
-    <Cart v-model="modalCart" :customer="customer" />
+    <Cart
+      v-model="modalCart"
+      :customer="customer"
+      @successCheckout="handleModalSumary(true)"
+    />
+    <!-- Sumary Modal -->
+    <Modal
+      v-model="modal.sumary"
+      icon="$success_600"
+      type="oke"
+      title="Order Sukses"
+      subtitle="Berikut adalah detail order Anda."
+      save-text="Print Invoice"
+      cancel-text="Tutup"
+    />
   </v-container>
 </template>
 
@@ -174,16 +196,21 @@ import Product from '~/components/Card/Product.vue'
 import Modal from '~/components/Dialog/Modal.vue'
 import Cart from '~/components/Dialog/Cart.vue'
 import debounce from 'lodash/debounce'
+import Snackbar from '~/components/Snackbar/Snackbar.vue'
 
 export default {
-  name: 'IndexPage',
-  components: { Product, Search, Empty, Modal, Loading, Cart },
+  name: 'HomePage',
+  components: { Product, Search, Empty, Modal, Loading, Cart, Snackbar },
   layout: 'dashboard',
   data() {
     return {
+      successAddCart: false,
       search: '',
       price: '',
-      modalCustomer: false,
+      modal: {
+        customer: false,
+        sumary: true,
+      },
       selectedUser: {},
       loading: {
         loadingSelected: false,
@@ -232,14 +259,13 @@ export default {
   },
   mounted() {
     this.loginSuccess()
+    // this.$axios.get('/api2/test')
   },
   methods: {
+    // First render
     loginSuccess() {
       this.loading.loadingProduct = true
-      Promise.all([
-        this.$store.dispatch('user/getMe'),
-        this.$store.dispatch('product/getProduct', this.params),
-      ])
+      Promise.all([this.$store.dispatch('product/getProduct', this.params)])
         .then(() => {
           this.loading.loadingProduct = false
         })
@@ -247,6 +273,7 @@ export default {
           this.loading.loadingProduct = false
         })
     },
+    // Get Product
     async getProduct() {
       this.loading.loadingProduct = true
 
@@ -257,9 +284,7 @@ export default {
         this.loading.loadingProduct = false
       }
     },
-    async getProductIntersect() {
-      await this.$store.dispatch('product/getProductIntersect', this.params)
-    },
+    // card per page
     cardPerPage(vss) {
       switch (true) {
         case vss.xs:
@@ -274,9 +299,11 @@ export default {
           return '2'
       }
     },
+    // Handle search product
     handleSearch() {
       this.getProduct()
     },
+    // Handle button cancel on customer Modal
     handleClickCancel() {
       this.$store.set('user/user', [])
       this.paramsUser = {
@@ -285,8 +312,9 @@ export default {
         page: 1,
         limit: 8,
       }
-      this.modalCustomer = false
+      this.modal.customer = false
     },
+    // Select user on Customer modal
     handleClickSelectUser() {
       this.$store.set('user/selectedUser', this.selectedUser)
       this.$store.set('user/user', [])
@@ -297,15 +325,24 @@ export default {
         page: 1,
         limit: 8,
       }
-      this.modalCustomer = false
+      this.modal.customer = false
     },
+    // Click product and add to chart
     handleClickSelect(item) {
       const payload = {
         ...item,
         qty: 1,
       }
       this.$store.dispatch('order/addCart', payload)
+      this.successAddCart = true
+      setTimeout(() => {
+        /**
+         * Close the Snackbar.
+         */
+        this.successAddCart = false
+      }, 3000)
     },
+    // Get Data User
     async getAllUser() {
       this.loading.loadingUsers = true
       const res = await this.$store.dispatch(
@@ -318,25 +355,35 @@ export default {
         this.loading.loadingUsers = false
       }
     },
+    // Open Modal Customers
     async handleClickUsers() {
       await this.getAllUser()
-      this.modalCustomer = true
+      this.modal.customer = true
     },
+    // Search User function
     async handleUserSearch() {
       this.paramsUser.page = 1
       this.loading.searchUser = true
       await this.$store.dispatch('user/getAllUser', this.paramsUser)
       this.loading.searchUser = false
     },
+    // When User intersect
     onIntersect: debounce(async function () {
       this.paramsUser.page++
-      console.log(this.paramsUser.page)
       await this.getAllUser()
     }, 500),
+    // When Product intersect
     productOnIntersect: debounce(async function () {
       this.params.page++
       await this.getProductIntersect()
     }, 500),
+    // Get Product when intersect
+    async getProductIntersect() {
+      await this.$store.dispatch('product/getProductIntersect', this.params)
+    },
+    handleModalSumary(val) {
+      this.modal.sumary = val
+    },
   },
 }
 </script>

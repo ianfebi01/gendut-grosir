@@ -6,7 +6,7 @@
     height="auto"
     style="overflow: hidden"
     :loading="loading === item?.id"
-    :disabled="loading === item?.id"
+    :disabled="loading === item?.id || item?.stock <= 0"
     @click="$emit('handleClick', item)"
   >
     <template #progress>

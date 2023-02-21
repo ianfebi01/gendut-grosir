@@ -173,15 +173,14 @@ export default {
       this.$store.dispatch('order/delete', id)
     },
     async handleCheckout() {
-      console.log(this.datas)
       this.loading.loadingCheckout = true
       const details = this.datas.map((item) => ({
         product: item?._id,
         qty: item?.qty,
         price:
           this.customer?.status === 'retail'
-            ? item?.qty * item?.retailPrice
-            : item?.qty * item?.wholesalerPrice,
+            ? item?.retailPrice
+            : item?.wholesalerPrice,
       }))
       this.params = {
         user: this.customer?._id || '',
@@ -194,6 +193,7 @@ export default {
         this.$store.dispatch('product/orderSuccess', this.detailOrder?.details)
         this.loading.loadingCheckout = false
         this.model = false
+        this.$emit('successCheckout')
       } else {
         this.loading.loadingCheckout = false
       }

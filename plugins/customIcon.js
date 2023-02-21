@@ -60,6 +60,9 @@ export default new Vuetify({
       money: {
         component: () => import('~/components/CustomIcons/Money.vue'),
       },
+      success_600: {
+        component: () => import('~/components/CustomIcons/Success600.vue'),
+      },
     },
   },
 })

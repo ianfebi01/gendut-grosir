@@ -1,7 +1,7 @@
 <template>
   <v-text-field
     :value="value"
-    placeholder="Cari"
+    :placeholder="placeholder"
     background-color="#fff"
     hide-details
     outlined
@@ -26,6 +26,10 @@ export default {
     value: {
       type: String,
       default: '',
+    },
+    placeholder: {
+      type: String,
+      default: 'Cari',
     },
   },
   methods: {

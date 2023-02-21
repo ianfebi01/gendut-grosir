@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="modal" persistent :width="width" scrollable>
-    <v-card style="border-radius: 12px !important" :min-height="minHeight">
+    <v-card style="border-radius: 12px !important">
       <v-card-title
         class="d-flex flex-column justify-center letter-spacing-normal"
         style="width: 100%"
@@ -12,7 +12,7 @@
           :text="errorMessage"
           @set="$emit('clearErrorMessage')"
         />
-        <div class="icon mt-2 mb-4">
+        <div :class="`${type === 'default' ? 'icon' : type} mt-2 mb-4`">
           <v-icon>{{ icon }}</v-icon>
         </div>
         <span
@@ -83,13 +83,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    type: {
+      type: String,
+      default: 'default',
+    },
     disable: {
       type: Boolean,
       default: false,
     },
     errorMessage: {
       type: String,
-      default: 'You should set the text props!',
+      default: '',
     },
     width: {
       type: String,
@@ -144,5 +148,15 @@ export default {
   width: 58px;
   height: 58px;
   border: 8px solid v.$primary_50;
+}
+.oke {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% !important;
+  background: v.$success_100;
+  width: 58px;
+  height: 58px;
+  border: 8px solid v.$success_50;
 }
 </style>

@@ -46,6 +46,7 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+
     ['cookie-universal-nuxt', { alias: 'cookiz', parseJSON: false }],
   ],
 
@@ -91,7 +92,9 @@ export default {
           error_50: '#FEF3F2',
           error_100: '#FEE4E2',
           error_600: '#D92D20',
-          success: '#32D583',
+          success_600: '#32D583',
+          success_100: '#d1fadf',
+          success_50: '#ECFDF3',
           neutral_80: '#6F7173',
         },
       },
@@ -105,5 +108,8 @@ export default {
   server: {
     port: 3001,
     host: '0.0.0.0',
+  },
+  serverMiddleware: {
+    '/api2': '~/api',
   },
 }

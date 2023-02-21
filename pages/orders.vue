@@ -9,13 +9,14 @@
       </span>
     </v-row>
     <v-row class="px-6 pt-4">
-      <!-- <Search
+      <Search
         v-model="params.q"
+        placeholder="Cari Id Order"
         style="max-width: 400px"
         @input="handleSearch($event)"
-      /> -->
+      />
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row class="px-6 pt-4 pb-4">
       <v-data-table
         :headers="headers"
         :items="datas"
@@ -97,7 +98,7 @@
       <template #content>
         <v-list>
           <v-list-item
-            v-for="item in detailsProduct"
+            v-for="item in detailsProduct?.details"
             :key="item?._id"
             class="border mb-2"
           >
@@ -110,6 +111,9 @@
               >
                 {{ item?.product?.name }}
               </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ 'Jumlah : ' + item?.qty }}
+              </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
               <v-list-item-action-text
@@ -131,9 +135,7 @@
               <v-list-item-action-text
                 class="font-weight-bold text-14 gray_900--text"
               >
-                {{
-                  formatRupiah(detailsProduct.reduce((a, c) => a + c.price, 0))
-                }}
+                {{ formatRupiah(detailsProduct.total) }}
               </v-list-item-action-text>
             </v-list-item-action>
           </v-list-item>
@@ -145,11 +147,12 @@
 
 <script>
 import Modal from '~/components/Dialog/Modal.vue'
+import Search from '~/components/Input/Search.vue'
 import { formatRupiah } from '~/utils/formatRupiah'
 
 export default {
-  name: 'Customers',
-  components: { Modal },
+  name: 'Orders',
+  components: { Modal, Search },
   layout: 'dashboard',
   data() {
     return {
@@ -172,10 +175,12 @@ export default {
         {
           text: 'No.',
           value: '_id',
+          width: '75px',
         },
         {
           text: 'ID Order',
           value: 'orderId',
+          width: '202px',
         },
         {
           text: 'Nama',
@@ -214,7 +219,11 @@ export default {
   },
   methods: {
     async handleSearch() {
-      await this.getAllUser()
+      this.params = {
+        ...this.params,
+        page: 1,
+      }
+      await this.getOrder()
     },
     async getOrder() {
       this.loading.data = true
@@ -231,8 +240,7 @@ export default {
     },
     openDetailProductModal(item) {
       this.modal.product = true
-      this.detailsProduct = item?.details
-      console.log(this.detailsProduct)
+      this.detailsProduct = item
     },
   },
 }

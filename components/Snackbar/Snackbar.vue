@@ -1,9 +1,11 @@
 <template>
   <v-card
-    class="d-flex align-center justify-space-between py-3 px-4"
+    :class="`d-flex align-center justify-space-between py-3 px-4 ${position} ${
+      visibility ? 'visible' : 'hidden'
+    }`"
     style="border-radius: 8px; box-shadow: 0px 2px #eaecf0"
     :color="color"
-    width="100%"
+    :width="width"
   >
     <div class="d-flex align-center font-weight-medium" style="color: #1bbf70">
       <span class="white--text text-14">{{ text }}</span>
@@ -20,6 +22,18 @@ export default {
   props: {
     text: { type: String, default: 'You should set the text props!' },
     color: { type: String, default: 'success' },
+    width: {
+      type: String,
+      default: '100%',
+    },
+    position: {
+      type: String,
+      default: '',
+    },
+    visibility: {
+      type: Boolean,
+      default: false,
+    },
   },
   created() {
     /**
@@ -35,4 +49,37 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.fixed {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  z-index: 10;
+}
+/*  opacity: 1;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s; */
+
+.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.5s ease-in;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.5s, opacity 0.5s ease-out;
+}
+
+@keyframes fadeInOpacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+</style>

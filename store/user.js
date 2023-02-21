@@ -9,21 +9,29 @@ export const state = () => ({
   selectedUser: {},
 })
 
-export const mutations = { ...defaultMutations(state()) }
+export const mutations = {
+  ...defaultMutations(state()),
+  profile(state, value) {
+    state.profile = value
+  },
+  errorMessage(state, value) {
+    state.errorMessage = value
+  },
+}
 
 export const plugins = [EasyAccess()]
 
 export const actions = {
-  getMe({ dispatch }) {
+  getMe({ commit }) {
     return this.$axios
       .get(`api/me`)
       .then((res) => {
-        dispatch('set/profile', res.data)
+        commit('profile', res.data)
         return true
       })
       .catch((err) => {
         console.log(err)
-        dispatch('set/errorMessage', err)
+        commit('errorMessage', err)
         return false
       })
   },
