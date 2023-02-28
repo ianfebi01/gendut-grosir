@@ -11,7 +11,7 @@ export const state = () => ({
 
 export const mutations = {
   ...defaultMutations(state()),
-  profile(state, value) {
+  profile: (state, value) => {
     state.profile = value
   },
   errorMessage(state, value) {
@@ -22,11 +22,11 @@ export const mutations = {
 export const plugins = [EasyAccess()]
 
 export const actions = {
-  getMe({ commit }) {
+  getMe({ commit, dispatch }) {
     return this.$axios
       .get(`api/me`)
       .then((res) => {
-        commit('profile', res.data)
+        dispatch('set/profile', res.data)
         return true
       })
       .catch((err) => {

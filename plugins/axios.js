@@ -27,19 +27,21 @@ const AxiosPlugin = ({ $axios, app, route, redirect }) => {
     } else if (code === 403 && route.name !== '/') {
       app.$cookiz.removeAll()
       redirect('/login')
-      // app.$logout('/403')
-
+      return
+    } else if (code === 504 && route.name !== '/') {
+      app.$cookiz.removeAll()
+      redirect('/login')
       return
     }
 
-    if (code === 404) {
-      if (route.name.includes('admin')) {
-        app.$logout('/404')
-      } else {
-        redirect('/404')
-      }
-      return
-    }
+    // if (code === 404) {
+    //   if (route.name.includes('admin')) {
+    //     app.$logout('/404')
+    //   } else {
+    //     redirect('/404')
+    //   }
+    //   return
+    // }
 
     if (code !== 401 && code !== 403 && route.name.includes('admin')) {
       console.error(err)
