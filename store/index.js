@@ -15,11 +15,7 @@ export const actions = {
   async nuxtServerInit({ dispatch }) {
     const accessToken = this.$cookiz.get('access_token')
     if (accessToken) {
-      const res = await dispatch('user/getMe')
-      // const rus = await this.$axios.get('/api2/test')
-      console.log(res)
-      // console.log('rus', rus)
+      await dispatch('user/getMe')
     }
-    // console.log(state.user.profile)
   },
 }
