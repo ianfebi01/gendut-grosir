@@ -21,7 +21,7 @@ export default {
   name: 'Snackbar',
   props: {
     text: { type: String, default: 'You should set the text props!' },
-    color: { type: String, default: 'success' },
+    color: { type: String, default: 'success_600' },
     width: {
       type: String,
       default: '100%',
@@ -52,8 +52,8 @@ export default {
 <style>
 .fixed {
   position: fixed;
-  top: 30px;
-  right: 30px;
+  top: 80px;
+  right: 20px;
   z-index: 10;
 }
 /*  opacity: 1;

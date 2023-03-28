@@ -1,5 +1,8 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container
+    fluid
+    class="full-width-height gray_100 d-flex flex-column align-center justify-center"
+  >
     <Snackbar
       width="330px"
       position="fixed"
@@ -7,16 +10,17 @@
       :visibility="successAddCart"
       @set="successAddCart = false"
     />
-    <v-row class="px-6 pt-4">
+    <v-row class="px-6 pt-4" style="width: 100%; max-width: 960px">
       <v-list
         width="100%"
         class="py-0 ml-2 d-flex flex-column justify-center align-center"
       >
         <v-list-item-group
           class="d-flex align-center"
-          style="gap: 8px; width: 100%; max-width: 800px"
+          style="gap: 8px; width: 100%"
         >
           <Search v-model="params.q" @input="handleSearch($event)" />
+
           <v-btn
             color="gray_500"
             outlined
@@ -31,12 +35,14 @@
             <span v-else class="ml-2"> {{ customer?.name }} </span>
           </v-btn>
         </v-list-item-group>
-      </v-list></v-row
-    >
+      </v-list>
+    </v-row>
+
     <v-row
       v-if="datas?.length && !loading.loadingProduct"
-      class="px-6 pt-4"
+      class="px-6 pt-4 align-self-center"
       justify="center"
+      style="width: 100%; max-width: 960px"
     >
       <v-col
         v-for="item in datas"
@@ -60,6 +66,7 @@
         Sedang memuat ...
       </div>
     </v-row>
+
     <v-row
       v-else-if="!datas?.length && !loading.loadingProduct"
       style="height: 90%"
@@ -184,7 +191,56 @@
       subtitle="Berikut adalah detail order Anda."
       save-text="Print Invoice"
       cancel-text="Tutup"
-    />
+      :loading="loading.downloadInvoice"
+      @save="downloadInvoice"
+    >
+      <template v-if="detailsProduct" #content>
+        <v-list>
+          <v-list-item
+            v-for="item in detailsProduct?.details"
+            :key="item?._id"
+            class="border mb-2"
+          >
+            <v-list-item-avatar height="50" width="50" class="border-radius-8">
+              <v-img lazy-src="lazy-loader.svg" :src="item?.product?.image" />
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title
+                class="font-weight-medium letter-spacing-normal"
+              >
+                {{ item?.product?.name }}
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ 'Jumlah : ' + item?.qty }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-list-item-action-text
+                class="font-weight-bold text-14 gray_900--text"
+              >
+                {{ formatRupiah(item?.price) }}
+              </v-list-item-action-text>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+        <v-list>
+          <v-list-item class="border">
+            <v-list-item-content>
+              <v-list-item-title class="font-weight-bold text-14">
+                Total
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-list-item-action-text
+                class="font-weight-bold text-14 gray_900--text"
+              >
+                {{ formatRupiah(detailsProduct.total) }}
+              </v-list-item-action-text>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </template>
+    </Modal>
   </v-container>
 </template>
 
@@ -197,6 +253,7 @@ import Modal from '~/components/Dialog/Modal.vue'
 import Cart from '~/components/Dialog/Cart.vue'
 import debounce from 'lodash/debounce'
 import Snackbar from '~/components/Snackbar/Snackbar.vue'
+import { formatRupiah } from '~/utils/formatRupiah'
 
 export default {
   name: 'HomePage',
@@ -209,7 +266,7 @@ export default {
       price: '',
       modal: {
         customer: false,
-        sumary: true,
+        sumary: false,
       },
       selectedUser: {},
       loading: {
@@ -217,6 +274,7 @@ export default {
         loadingProduct: false,
         loadingUsers: false,
         searchUser: false,
+        downloadInvoice: false,
       },
       params: {
         q: '',
@@ -229,6 +287,9 @@ export default {
         category: '',
         page: 1,
         limit: 8,
+      },
+      paramsDownloadInvoice: {
+        orderId: '',
       },
     }
   },
@@ -255,6 +316,9 @@ export default {
     },
     paginator() {
       return this.$store.get('product/paginator')
+    },
+    detailsProduct() {
+      return this.$store.get('order/detailOrder')
     },
   },
   mounted() {
@@ -294,9 +358,9 @@ export default {
         case vss.md:
           return '3'
         case vss.lg:
-          return '2'
+          return '3'
         default:
-          return '2'
+          return '3'
       }
     },
     // Handle search product
@@ -383,6 +447,18 @@ export default {
     },
     handleModalSumary(val) {
       this.modal.sumary = val
+    },
+    async downloadInvoice() {
+      this.loading.downloadInvoice = true
+      this.paramsDownloadInvoice.orderId = this.detailsProduct.orderId
+      await this.$store.dispatch(
+        'order/downloadInvoice',
+        this.paramsDownloadInvoice
+      )
+      this.loading.downloadInvoice = false
+    },
+    formatRupiah(item) {
+      return formatRupiah(item)
     },
   },
 }

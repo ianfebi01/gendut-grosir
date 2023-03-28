@@ -59,6 +59,43 @@
             </v-btn>
           </div>
         </template>
+        <template #[`item.status`]="item">
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                depressed
+                :color="statusOrderButtonColor(item)"
+                :class="`'text-12 rounded-full ${statusOrderButtonTextColor(
+                  item
+                )}`"
+                small
+                width="80px"
+                :loading="loading.status === item?.item?.orderId"
+                v-bind="attrs"
+                v-on="on"
+                @click="
+                  changeStatusOrder(item?.item?.orderId, item?.item?.status)
+                "
+              >
+                {{ capitalizeFirstLetter(item?.item?.status) }}
+              </v-btn>
+            </template>
+            <span>{{ statusOrderTooltips(item) }}</span>
+          </v-tooltip>
+        </template>
+        <template #[`item.action`]="item">
+          <v-btn
+            depressed
+            outlined
+            small
+            :disabled="item?.item?.status === 'complete'"
+            :class="`'text-12`"
+            :loading="loading.status === item?.item?.orderId"
+            @click="changeStatusOrder(item?.item?.orderId, item?.item?.status)"
+          >
+            Batalkan
+          </v-btn>
+        </template>
         <template #footer>
           <div class="d-flex align-center text-14 my-4 mx-4">
             <span class="gray_700--text font-weight-medium">
@@ -148,6 +185,7 @@
 <script>
 import Modal from '~/components/Dialog/Modal.vue'
 import Search from '~/components/Input/Search.vue'
+import { capitalizeFirstLetter } from '~/utils/capitalizeFirstLetter'
 import { formatRupiah } from '~/utils/formatRupiah'
 
 export default {
@@ -165,6 +203,7 @@ export default {
         add: false,
         edit: false,
         data: false,
+        status: '',
       },
       params: {
         q: '',
@@ -189,7 +228,9 @@ export default {
         { text: 'Total Order', value: 'details.length' },
         { text: 'Total Harga', value: 'total' },
         { text: 'Status', value: 'user.status' },
-        { text: 'Tanggal', value: 'createdAt' },
+        { text: 'Tanggal', value: 'createdAt', width: '150px' },
+        { text: 'Status Order', value: 'status' },
+        { text: 'Aksi', value: 'action' },
       ],
     }
   },
@@ -242,6 +283,30 @@ export default {
       this.modal.product = true
       this.detailsProduct = item
     },
+    capitalizeFirstLetter(string) {
+      return capitalizeFirstLetter(string)
+    },
+    statusOrderButtonColor(item) {
+      return item?.item?.status === 'complete' ? 'success_100' : 'blue-100'
+    },
+    statusOrderButtonTextColor(item) {
+      return item?.item?.status === 'complete'
+        ? 'success_600--text cursor-normal'
+        : 'blue-600--text'
+    },
+    statusOrderTooltips(item) {
+      return item?.item?.status === 'process'
+        ? 'Klik untuk menyelesaikan pesanan'
+        : 'Pesanan telah selesai'
+    },
+
+    async changeStatusOrder(orderId, status) {
+      if (status === 'complete') return
+
+      this.loading.status = orderId
+      await this.$store.dispatch('order/changeStatusOrder', orderId)
+      this.loading.status = ''
+    },
   },
 }
 </script>
@@ -277,5 +342,8 @@ export default {
 .border {
   border: 1px solid v.$primary_300;
   border-radius: 8px !important;
+}
+:deep(.v-btn:is(.rounded-full)) {
+  border-radius: 50px !important;
 }
 </style>

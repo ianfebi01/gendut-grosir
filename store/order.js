@@ -7,6 +7,7 @@ export const state = () => ({
   detailOrder: {},
   order: [],
   paginator: {},
+  invoice: '',
 })
 
 export const mutations = { ...defaultMutations(state()) }
@@ -66,6 +67,26 @@ export const actions = {
         return false
       })
   },
+  changeStatusOrder({ dispatch, state }, params) {
+    return this.$axios
+      .put(`api/changeStatusOrder/${params}`)
+      .then((res) => {
+        const tmp = JSON.parse(JSON.stringify(state.order))
+        const index = tmp.findIndex((item) => item._id === res?.data?.data?._id)
+        console.log(res.data.data)
+        if (index != -1) {
+          tmp[index] = res?.data?.data
+        }
+        dispatch('set/order', tmp)
+
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err?.response?.data?.message)
+        return false
+      })
+  },
   getOrder({ dispatch }, params) {
     return this.$axios
       .get(`api/order`, { params })
@@ -73,6 +94,36 @@ export const actions = {
         dispatch('set/order', res.data?.data?.data)
         dispatch('set/paginator', res?.data?.data?.paginator)
         return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  downloadInvoice({ dispatch }, params) {
+    return this.$axios
+      .get(`api/order/download`, {
+        params: {
+          ...params,
+        },
+        responseType: 'blob',
+      })
+      .then((response) => {
+        var FILE = window.URL.createObjectURL(new Blob([response.data]))
+        var docUrl = document.createElement('a')
+        docUrl.href = FILE
+        docUrl.setAttribute(
+          'download',
+          response.headers['content-disposition'].match(/[a-zA-Z]*\.pdf/)[0]
+        )
+
+        document.body.appendChild(docUrl)
+        docUrl.click()
+        return true
+        // dispatch('set/invoice', res.data)
+
+        // return res.data
       })
       .catch((err) => {
         console.log(err)

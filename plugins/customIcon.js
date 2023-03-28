@@ -63,6 +63,12 @@ export default new Vuetify({
       success_600: {
         component: () => import('~/components/CustomIcons/Success600.vue'),
       },
+      clock_600: {
+        component: () => import('~/components/CustomIcons/Clock600.vue'),
+      },
+      x_600: {
+        component: () => import('~/components/CustomIcons/X600.vue'),
+      },
     },
   },
 })
