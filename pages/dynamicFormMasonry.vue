@@ -96,7 +96,7 @@ import {
   email,
   sameAs,
 } from 'vuelidate/lib/validators'
-import DynamicField from '~/components/DynamicField.vue'
+import DynamicField from '~/components/Input/DynamicField.vue'
 export default {
   name: 'DynamicForm',
   mixins: [directive],

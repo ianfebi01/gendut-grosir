@@ -88,6 +88,12 @@ $font-sizes: (
   }
 }
 
+@each $symbol, $size in $font-sizes {
+  .border-#{$symbol} {
+    border-radius: $size !important;
+  }
+}
+
 // data table
 .data-table {
   width: 100%;

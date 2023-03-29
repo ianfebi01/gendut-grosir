@@ -14,10 +14,11 @@ export default {
         // this prevents from typing non-number text, including "e".
         el.addEventListener('keypress', (evt) => {
           evt = evt || window.event
-          console.log('KUE', evt)
-          const charCode = evt.which ? evt.which : evt.keyCode
+
           if (['tel', 'number'].includes(type)) {
-            if (charCode < 48 || charCode > 57) evt.preventDefault()
+            if (/^([0-9])/.test(evt.key)) {
+              return true
+            } else evt.preventDefault()
           } else return true
         })
       },

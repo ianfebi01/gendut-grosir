@@ -71,6 +71,6 @@ export const filterMenu = (role, menus, url) => {
   const activeMenu = flattenArray.find((item) => item.url === getUrl())
     ? flattenArray.find((item) => item.url === getUrl()).name
     : 'Dashboard'
-  console.log('filteredMenu', filteredMenu)
+
   return { filteredMenu, activeMenu }
 }
