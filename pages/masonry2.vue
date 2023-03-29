@@ -97,9 +97,6 @@ export default {
     scrollto() {
       document.getElementById('container').scrollTop = 400
     },
-    handleScroll(e) {
-      console.log(e)
-    },
     divideArray(length, array) {
       const newArray = [...array]
       const divideRes = Math.floor(newArray.length / length)

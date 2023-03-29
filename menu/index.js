@@ -55,6 +55,12 @@ export default [
         icon: '',
         access: ['super_admin', 'admin'],
       },
+      {
+        name: 'Stock Opname',
+        url: '/library/stockOpname',
+        icon: '',
+        access: ['super_admin', 'admin'],
+      },
     ],
   },
   {

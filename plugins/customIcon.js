@@ -69,6 +69,9 @@ export default new Vuetify({
       x_600: {
         component: () => import('~/components/CustomIcons/X600.vue'),
       },
+      date: {
+        component: () => import('~/components/CustomIcons/Date.vue'),
+      },
     },
   },
 })

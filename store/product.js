@@ -116,11 +116,7 @@ export const actions = {
       if (index != -1) {
         product[index].stock = item?.product?.stock
       }
-      console.log('item', item.product._id)
-      console.log('i', index)
     })
-
-    console.log('payload', payload)
 
     dispatch('set/product', product)
   },

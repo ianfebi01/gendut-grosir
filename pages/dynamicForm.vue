@@ -156,7 +156,6 @@ export default {
   methods: {
     handleSubmit(form) {
       this.form = form
-      console.log('submit')
     },
   },
 }

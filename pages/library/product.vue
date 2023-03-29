@@ -776,7 +776,7 @@ export default {
   },
   head() {
     return {
-      title: 'Gendut Grosir | Category',
+      title: 'Gendut Grosir | Product',
     }
   },
   computed: {

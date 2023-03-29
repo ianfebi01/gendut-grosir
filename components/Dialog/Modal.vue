@@ -2,7 +2,7 @@
   <v-dialog v-model="modal" persistent :width="width" scrollable>
     <v-card style="border-radius: 12px !important">
       <v-card-title
-        class="d-flex flex-column justify-center letter-spacing-normal"
+        class="d-flex flex-column justify-center letter-spacing-normal mb-2"
         style="width: 100%"
       >
         <Snackbar

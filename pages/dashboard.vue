@@ -130,6 +130,11 @@ export default {
       },
     }
   },
+  head() {
+    return {
+      title: 'Gendut Grosir | Dashboard',
+    }
+  },
   computed: {
     datas() {
       return this.$store.get('analytic/analytic')
@@ -162,6 +167,7 @@ export default {
       }
     },
   },
+
   mounted() {
     this.getAnalytic()
   },

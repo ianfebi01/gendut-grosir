@@ -333,7 +333,7 @@ import {
   email,
   sameAs,
 } from 'vuelidate/lib/validators'
-import DynamicField from '~/components/DynamicField.vue'
+import DynamicField from '~/components/Input/DynamicField.vue'
 import { addCustomer, editCustomer } from '~/utils/fields'
 
 export default {
@@ -378,7 +378,7 @@ export default {
   },
   head() {
     return {
-      title: 'Gendut Grosir | Category',
+      title: 'Gendut Grosir | Customers',
     }
   },
   computed: {
