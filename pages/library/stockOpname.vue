@@ -61,9 +61,12 @@
         :headers="headers"
         :paginator="paginator"
         :datas="datas"
+        :loading="loading.datas"
+        :loading-apply="loading.apply"
         @next="page++"
         @previous="page--"
         @clickProduct="handleOpenModalProduct($event)"
+        @apply="handleApplyStockOpname($event)"
       />
 
       <v-card v-else-if="mode.add" width="100%" outlined class="border-8">
@@ -262,7 +265,7 @@ export default {
       form: {},
       params: {
         q: '',
-        limit: 25,
+        limit: 5,
         page: 1,
       },
       paramsProduct: {
@@ -277,6 +280,7 @@ export default {
         save: false,
         product: false,
         datas: false,
+        apply: '',
       },
       modal: {
         detailProduct: false,
@@ -361,6 +365,7 @@ export default {
       this.loading.save = true
       await this.$store.dispatch('stockOpname/postStockOpname', this.payload)
       this.loading.save = false
+      this.mode.add = false
     },
     async getDatas() {
       this.loading.datas = true
@@ -377,6 +382,11 @@ export default {
     handleCancel() {
       this.payload = { product: [] }
       this.mode.add = false
+    },
+    async handleApplyStockOpname(id) {
+      this.loading.apply = id
+      await this.$store.dispatch('stockOpname/applyStockOpname', id)
+      this.loading.apply = ''
     },
   },
   validations() {

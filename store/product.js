@@ -13,6 +13,7 @@ export const plugins = [EasyAccess()]
 
 export const actions = {
   getProduct({ dispatch }, params) {
+    dispatch('set/errorMessage', '')
     return this.$axios
       .get(`api/product`, { params })
       .then((res) => {
@@ -27,6 +28,7 @@ export const actions = {
       })
   },
   getProductIntersect({ dispatch }, params) {
+    dispatch('set/errorMessage', '')
     return this.$axios
       .get(`api/product`, { params })
       .then((res) => {
@@ -44,6 +46,7 @@ export const actions = {
       })
   },
   deleteProduct({ dispatch, state }, id) {
+    dispatch('set/errorMessage', '')
     return this.$axios
       .delete(`api/product/${id}`)
       .then(() => {
@@ -63,6 +66,7 @@ export const actions = {
       })
   },
   addProduct({ dispatch }, body) {
+    dispatch('set/errorMessage', '')
     return this.$axios
       .post(`api/product`, { ...body })
       .then((res) => {
@@ -76,7 +80,28 @@ export const actions = {
         return false
       })
   },
+  addStockById({ dispatch, state }, id) {
+    dispatch('set/errorMessage', '')
+    return this.$axios
+      .put(`api/product/stockbarcode/${id}`)
+      .then((res) => {
+        const tmp = JSON.parse(JSON.stringify(state.product))
+        const index = tmp.findIndex((item) => item._id === res.data?.data?._id)
+        if (index != -1) {
+          tmp[index].stock = res.data?.data?.stock
+        }
+
+        dispatch('set/product', tmp)
+        return res.data?.data?.name
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err?.response?.data?.message)
+        return false
+      })
+  },
   editProduct({ dispatch, state }, body) {
+    dispatch('set/errorMessage', '')
     return this.$axios
       .put(`api/product/${body._id}`, { ...body })
       .then((res) => {
@@ -97,6 +122,7 @@ export const actions = {
       })
   },
   getProductById({ dispatch }, id) {
+    dispatch('set/errorMessage', '')
     return this.$axios
       .get(`api/product/${id}`)
       .then((res) => {
@@ -106,6 +132,20 @@ export const actions = {
       .catch((err) => {
         console.log(err)
         dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  getProductByBarcode({ dispatch }, barcode) {
+    dispatch('set/errorMessage', '')
+    return this.$axios
+      .get(`api/productByBarcode/${barcode}`)
+      .then((res) => {
+        dispatch('set/productDetails', res.data?.data)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err?.response?.data?.message)
         return false
       })
   },

@@ -3,6 +3,7 @@
     :headers="headers"
     :items="datas"
     :items-per-page="paginator?.limit"
+    :loading="loading"
     hide-default-footer
     no-data-text="No Data"
     class="data-table"
@@ -18,9 +19,18 @@
         >
       </div>
     </template>
-    <template #[`item.action`]>
+    <template #[`item.action`]="item">
       <div>
-        <v-btn depressed small color="primary"> Sesuaikan </v-btn>
+        <v-btn
+          depressed
+          small
+          color="primary"
+          :disabled="item?.item?.apply"
+          :loading="loadingApply === item?.item?._id"
+          @click="$emit('apply', item?.item?._id)"
+        >
+          Sesuaikan
+        </v-btn>
       </div>
     </template>
     <template #footer>
@@ -67,6 +77,14 @@ export default {
     paginator: {
       type: Object,
       default: () => {},
+    },
+    loadingApply: {
+      type: String,
+      default: '',
+    },
+    loading: {
+      type: Boolean,
+      default: false,
     },
   },
 }

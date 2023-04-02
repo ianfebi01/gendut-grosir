@@ -177,6 +177,7 @@ export default {
       return this.$store.get('user/errorMessage')
     },
   },
+
   validations() {
     return {
       form: {

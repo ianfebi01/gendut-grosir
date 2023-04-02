@@ -23,6 +23,20 @@ export default {
         })
       },
     },
+    barcode: {
+      bind(el) {
+        el.addEventListener('input', (e) => {
+          // this prevents from typing non-number text, including "e".
+          el.addEventListener('keypress', (evt) => {
+            evt = evt || window.event
+
+            if (/^([0-9])/.test(evt.key) && e.target.value.length < 13) {
+              return true
+            } else evt.preventDefault()
+          })
+        })
+      },
+    },
     numeric: {
       bind(el) {
         // this two prevent from copy&paste non-number text, including "e".

@@ -1,18 +1,29 @@
 <template>
   <v-container fluid class="full-width-height gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text"> Product </span>
+      <div class="d-flex flex-column">
+        <span class="text-30 font-weight-medium gray_900--text"> Product </span>
+        <span class="text-14 font-weight-normal gray_500--text">
+          Manage all your prroducts
+        </span>
+      </div>
       <v-spacer></v-spacer>
+      <barcode
+        v-model="barcode"
+        style="max-width: 200px"
+        class="mr-4"
+        placeholder="Tambah stock"
+        :success-message="successMessage.barcode"
+        :loading="loading.barcode"
+        :error-message="barcodeErrorMessage"
+        @handleBarcodeinput="handleBarcodeinput"
+      />
       <v-btn color="primary" height="44" dense depressed @click="modal = true">
         <v-icon size="13" class="mr-2">$plus</v-icon>
         Add Product
       </v-btn>
     </v-row>
-    <v-row class="px-6">
-      <span class="text-14 font-weight-normal gray_500--text">
-        Manage all your prroducts
-      </span>
-    </v-row>
+
     <v-row class="px-6 pt-4">
       <Search
         v-model="search"
@@ -25,7 +36,7 @@
       <v-data-table
         :headers="headers"
         :items="datas"
-        :loading="loading"
+        :loading="loading.datas"
         :items-per-page="paginator?.limit"
         hide-default-footer
         no-data-text="No Data"
@@ -47,7 +58,7 @@
               depressed
               small
               color="gray_500"
-              :loading="item?.item._id === loadingEdit"
+              :loading="item?.item._id === loading.edit"
               @click="openEditModal(item?.item)"
               ><v-icon small>$edit</v-icon></v-btn
             >
@@ -99,7 +110,7 @@
       title="Add Product"
       width="800px"
       subtitle="Add new Product for your store"
-      :loading="loadingAdd"
+      :loading="loading.add"
       :error-message="errorMessage"
       :modal-prop="modal"
       :disable="$v.form.$invalid"
@@ -388,7 +399,7 @@
             </div>
             <v-text-field
               v-model="form.barcode"
-              type="number"
+              v-barcode
               background-color="#fff"
               outlined
               dense
@@ -408,7 +419,7 @@
       title="Edit Product"
       width="800px"
       subtitle="Edit Product on your store"
-      :loading="loadingAdd"
+      :loading="loading.add"
       :error-message="errorMessage"
       :modal-prop="editModal"
       :disable="$v.form.$invalid"
@@ -697,7 +708,7 @@
             </div>
             <v-text-field
               v-model="form.barcode"
-              type="number"
+              v-barcode
               background-color="#fff"
               outlined
               dense
@@ -713,7 +724,7 @@
     <Delete
       v-model="deleteModal"
       icon="$warning_delete"
-      :loading="loadingDelete"
+      :loading="loading.delete"
       @ok="handleDelete()"
     />
   </v-container>
@@ -725,15 +736,18 @@ import Delete from '~/components/Dialog/Delete.vue'
 import Search from '~/components/Input/Search.vue'
 import { required, minLength, maxLength } from 'vuelidate/lib/validators'
 import debounce from 'lodash/debounce'
+import directive from '~/utils/directive'
+import replaceChar from '~/utils/mixins/replaceChar'
+import Barcode from '~/components/Input/Barcode.vue'
 
 export default {
   name: 'Product',
-  components: { Search, Modal, Delete },
+  components: { Search, Modal, Delete, Barcode },
+  mixins: [directive, replaceChar],
   layout: 'dashboard',
   data() {
     return {
       imageFile: null,
-      loadingCategory: false,
       form: {
         id: null,
         name: '',
@@ -745,14 +759,24 @@ export default {
         barcode: null,
         image: null,
       },
-      loadingEdit: false,
+      loading: {
+        barcode: false,
+        category: false,
+        edit: false,
+        add: false,
+        delete: false,
+        datas: false,
+      },
+      successMessage: {
+        barcode: '',
+      },
+      barcodeErrorMessage: '',
+      barcode: null,
       id: '',
       editModal: false,
       publicId: null,
       deleteModal: false,
       modal: false,
-      loadingDelete: false,
-      loadingAdd: false,
       search: '',
       name: '',
       headers: [
@@ -770,7 +794,6 @@ export default {
         { text: 'Sales Price', value: 'wholesalerPrice' },
         { text: 'Action', value: 'action' },
       ],
-      loading: false,
       page: 1,
     }
   },
@@ -812,7 +835,7 @@ export default {
       await this.getProduct()
     },
     async getProduct() {
-      this.loading = true
+      this.loading.datas = true
       const params = {
         q: this.search,
         page: this.page,
@@ -820,13 +843,13 @@ export default {
       }
       const res = await this.$store.dispatch('product/getProduct', params)
       if (res) {
-        this.loading = false
+        this.loading.datas = false
       } else {
-        this.loading = false
+        this.loading.datas = false
       }
     },
     async handleAdd() {
-      this.loadingAdd = true
+      this.loading.add = true
 
       if (this.image) {
         const formData = new FormData()
@@ -844,11 +867,11 @@ export default {
 
       const res = await this.$store.dispatch('product/addProduct', body)
       if (res) {
-        this.loadingAdd = false
+        this.loading.add = false
         this.modal = false
         this.clearAll()
       } else {
-        this.loadingAdd = false
+        this.loading.add = false
       }
     },
     openDeleteModal(item) {
@@ -860,18 +883,18 @@ export default {
       this.deleteModal = true
     },
     async handleDelete() {
-      this.loadingDelete = true
+      this.loading.delete = true
       const res = await this.$store.dispatch('product/deleteProduct', this.id)
       await this.$store.dispatch('uploadImages/deleteImages', this.publicId)
       if (res) {
-        this.loadingDelete = false
+        this.loading.delete = false
         this.deleteModal = false
       } else {
-        this.loadingDelete = false
+        this.loading.delete = false
       }
     },
     async openEditModal(item) {
-      this.loadingEdit = item?._id
+      this.loading.edit = item?._id
       const res = await this.$store.dispatch(
         'product/getProductById',
         item?._id
@@ -885,14 +908,13 @@ export default {
         }
         await this.getCategory(this.productDetails.category.name)
         this.editModal = true
-        this.loadingEdit = ''
+        this.loading.edit = ''
       } else {
-        this.loadingEdit = ''
+        this.loading.edit = ''
       }
     },
     async handleEdit() {
-      this.loadingAdd = true
-      await this.$store.dispatch('uploadImages/deleteImages', this.publicId)
+      this.loading.add = true
 
       // Upload Image
       if (this.image) {
@@ -913,15 +935,15 @@ export default {
       }
       const res = await this.$store.dispatch('product/editProduct', body)
       if (res) {
-        this.loadingAdd = false
+        this.loading.add = false
         this.editModal = false
         this.clearAll()
       } else {
-        this.loadingAdd = false
+        this.loading.add = false
       }
     },
     async getCategory(q) {
-      this.loadingCategory = true
+      this.loading.category = true
       const params = {
         q: q,
         page: this.page,
@@ -929,9 +951,9 @@ export default {
       }
       const res = await this.$store.dispatch('category/getCategory', params)
       if (res) {
-        this.loadingCategory = false
+        this.loading.category = false
       } else {
-        this.loadingCategory = false
+        this.loading.category = false
       }
     },
     autocompleteCategories: debounce(function (event) {
@@ -968,6 +990,24 @@ export default {
       }
       this.$v.form.$reset()
     },
+    handleBarcodeinput: debounce(async function () {
+      this.successMessage.barcode = ''
+      this.loading.barcode = true
+      this.barcode = this.onlyNumber(this.barcode)
+      const res = await this.$store.dispatch(
+        'product/addStockById',
+        this.barcode
+      )
+      // if success get product
+      if (res) {
+        this.successMessage.barcode = 'Stock produk ' + res + ' ditambahkan 1'
+        this.barcodeErrorMessage = ''
+        this.barcode = null
+      } else {
+        this.barcodeErrorMessage = this.$store.get('product/errorMessage')
+      }
+      this.loading.barcode = false
+    }, 500),
   },
   validations() {
     return {

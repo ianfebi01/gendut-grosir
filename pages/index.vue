@@ -42,7 +42,7 @@
       v-if="datas?.length && !loading.loadingProduct"
       class="px-6 pt-4 align-self-center"
       justify="center"
-      style="width: 100%; max-width: 960px"
+      style="width: 100%; max-width: 960px; height: 100%"
     >
       <v-col
         v-for="item in datas"
@@ -262,7 +262,6 @@ export default {
   data() {
     return {
       successAddCart: false,
-      search: '',
       price: '',
       modal: {
         customer: false,
@@ -325,6 +324,7 @@ export default {
     this.loginSuccess()
     // this.$axios.get('/api2/test')
   },
+
   methods: {
     // First render
     loginSuccess() {

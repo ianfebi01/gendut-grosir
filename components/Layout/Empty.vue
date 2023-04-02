@@ -1,8 +1,5 @@
 <template>
-  <v-layout
-    :class="`d-flex flex-column justify-center align-center ${padding}`"
-    style="width: 100%; height: 100%"
-  >
+  <v-layout :class="`d-flex flex-column justify-center align-center`">
     <v-img :src="img" :max-height="maxHeightImage" :max-width="maxWidthImage" />
     <span class="gray_900--text mt-4 font-weight-medium text-18">{{
       title

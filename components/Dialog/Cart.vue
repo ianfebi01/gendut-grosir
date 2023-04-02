@@ -1,16 +1,27 @@
 <template>
   <Modal
     v-model="model"
-    title="Cart"
-    subtitle="Add product to cart to checkout"
+    title="Keranjang"
+    subtitle="Tambahkan produk untuk membeli"
     :error-message="$store.get('order/errorMessage')"
     icon="$cart"
     min-height="542"
     save-text="Beli"
-    :loading="loading?.loadingCheckout"
+    :disable="!datas.length"
+    :loading="loading?.loadingCheckout || loading?.barcode"
     @save="handleCheckout"
   >
     <template #content>
+      <Barcode
+        ref="barcode"
+        v-model="barcode"
+        class="mt-2"
+        label="Barcode"
+        placeholder="Tambahkan dengan barcode"
+        :loading="loading.barcode"
+        :error-message="errorMessage.barcode"
+        @handleBarcodeinput="handleBarcodeinput"
+      />
       <template v-if="datas.length">
         <v-list two-line>
           <v-list-item
@@ -99,9 +110,8 @@
       <Empty
         v-else
         img="/girl-shop.svg"
-        title="Cart is Empty"
-        description="Please add Product to cart first!"
-        padding="px-0 pt-2"
+        title="Keranjang Kosong"
+        description="Tambahkan produk terlebih dahulu!"
         gap-bottom="mb-0"
       />
     </template>
@@ -109,13 +119,18 @@
 </template>
 
 <script>
+import debounce from 'lodash/debounce'
+import directive from '~/utils/directive'
+import replaceChar from '~/utils/mixins/replaceChar'
 import { formatRupiah } from '~/utils/formatRupiah'
 import Empty from '../Layout/Empty.vue'
 import Modal from './Modal.vue'
+import Barcode from '~/components/Input/Barcode.vue'
 
 export default {
   name: 'Cart',
-  components: { Empty, Modal },
+  components: { Empty, Modal, Barcode },
+  mixins: [directive, replaceChar],
   props: {
     value: {
       type: Boolean,
@@ -135,6 +150,11 @@ export default {
       },
       loading: {
         loadingCheckout: false,
+        barcode: false,
+      },
+      barcode: null,
+      errorMessage: {
+        barcode: '',
       },
     }
   },
@@ -159,7 +179,18 @@ export default {
       return this.$store.get('order/detailOrder')
     },
   },
+  watch: {
+    model(val) {
+      if (val) {
+        this.focusBarcode()
+      }
+    },
+  },
   methods: {
+    async focusBarcode() {
+      await this.$nextTick()
+      this.$refs.barcode.$refs.barcode.focus()
+    },
     formatRupiah(item) {
       return formatRupiah(item)
     },
@@ -198,6 +229,44 @@ export default {
         this.loading.loadingCheckout = false
       }
     },
+    handleBarcodeinput: debounce(async function () {
+      this.loading.barcode = true
+      this.barcode = this.onlyNumber(this.barcode)
+      const res = await this.$store.dispatch(
+        'product/getProductByBarcode',
+        this.barcode
+      )
+      const product = this.$store.get('product/productDetails')
+
+      // if success get product
+      if (res) {
+        this.errorMessage.barcode = ''
+        const payload = {
+          ...product,
+          qty: 1,
+        }
+        this.$store.dispatch('order/addCart', payload)
+        this.successAddCart = true
+        this.barcode = null
+      } else {
+        this.errorMessage.barcode = this.$store.get('product/errorMessage')
+      }
+      this.loading.barcode = false
+    }, 500),
+    handleClickSelect(item) {
+      const payload = {
+        ...item,
+        qty: 1,
+      }
+      this.$store.dispatch('order/addCart', payload)
+      this.successAddCart = true
+      setTimeout(() => {
+        /**
+         * Close the Snackbar.
+         */
+        this.successAddCart = false
+      }, 3000)
+    },
   },
 }
 </script>
@@ -222,5 +291,9 @@ export default {
   min-height: unset !important;
   height: unset !important;
   width: unset !important;
+}
+:deep(.v-label.v-label--active) {
+  background: #fff;
+  padding: 0 5px;
 }
 </style>

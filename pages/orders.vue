@@ -224,12 +224,13 @@ export default {
         {
           text: 'Nama',
           value: 'user.name',
+          width: '202px',
         },
-        { text: 'Total Order', value: 'details.length' },
-        { text: 'Total Harga', value: 'total' },
-        { text: 'Status', value: 'user.status' },
+        { text: 'Total Order', value: 'details.length', width: '150px' },
+        { text: 'Total Harga', value: 'total', width: '130px' },
+        { text: 'Status', value: 'user.status', width: '130px' },
         { text: 'Tanggal', value: 'createdAt', width: '150px' },
-        { text: 'Status Order', value: 'status' },
+        { text: 'Status Order', value: 'status', width: '150px' },
         { text: 'Aksi', value: 'action' },
       ],
     }

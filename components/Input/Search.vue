@@ -1,5 +1,6 @@
 <template>
   <v-text-field
+    id="search"
     :value="value"
     :placeholder="placeholder"
     background-color="#fff"
@@ -21,7 +22,9 @@
 
 <script>
 import debounce from 'lodash/debounce'
+import directive from '~/utils/directive'
 export default {
+  mixins: [directive],
   props: {
     value: {
       type: String,
