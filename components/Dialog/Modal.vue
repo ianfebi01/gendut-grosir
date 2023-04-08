@@ -5,13 +5,17 @@
         class="d-flex flex-column justify-center letter-spacing-normal mb-2"
         style="width: 100%"
       >
-        <Snackbar
-          v-if="errorMessage"
-          class="mb-2 mt-2"
-          color="error"
-          :text="errorMessage"
-          @set="$emit('clearErrorMessage')"
-        />
+        <transition name="fade">
+          <Snackbar
+            v-if="errorMessage"
+            color="error"
+            position="fixed"
+            width="330px"
+            :visibility="true"
+            :text="errorMessage"
+            @set="$emit('clearErrorMessage')"
+          />
+        </transition>
         <div :class="`${type === 'default' ? 'icon' : type} mt-2 mb-4`">
           <v-icon>{{ icon }}</v-icon>
         </div>
@@ -158,5 +162,15 @@ export default {
   width: 58px;
   height: 58px;
   border: 8px solid v.$success_50;
+}
+
+// Component <transition>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease-in-out;
+}
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
 }
 </style>

@@ -128,8 +128,19 @@ $font-sizes: (
   letter-spacing: normal !important;
 }
 
-.line-height-md {
-  line-height: 20px;
+.line-height {
+  &-md {
+    line-height: 20px;
+  }
+  &-normal {
+    line-height: normal;
+  }
+}
+
+.word-break {
+  &-word {
+    word-break: break-word;
+  }
 }
 
 // Border

@@ -3,12 +3,14 @@
     :class="`d-flex align-center justify-space-between py-3 px-4 ${position} ${
       visibility ? 'visible' : 'hidden'
     }`"
-    style="border-radius: 8px; box-shadow: 0px 2px #eaecf0"
+    style="border-radius: 8px"
     :color="color"
     :width="width"
   >
     <div class="d-flex align-center font-weight-medium" style="color: #1bbf70">
-      <span class="white--text text-14">{{ text }}</span>
+      <span class="white--text text-14 line-height-normal word-break-word">{{
+        text
+      }}</span>
     </div>
     <v-btn fab small icon color="white" text @click="$emit('set')">
       <v-icon>mdi-close</v-icon>
@@ -32,7 +34,7 @@ export default {
     },
     visibility: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   created() {
@@ -43,13 +45,14 @@ export default {
       /**
        * Close the Snackbar.
        */
+
       this.$emit('set')
     }, 3000)
   },
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
 .fixed {
   position: fixed;
   top: 80px;

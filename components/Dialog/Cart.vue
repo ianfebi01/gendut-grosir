@@ -10,6 +10,7 @@
     :disable="!datas.length"
     :loading="loading?.loadingCheckout || loading?.barcode"
     @save="handleCheckout"
+    @clearErrorMessage="$store.set('order/errorMessage', '')"
   >
     <template #content>
       <Barcode

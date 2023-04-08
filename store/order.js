@@ -18,9 +18,20 @@ export const actions = {
   addCart({ dispatch, state }, payload) {
     const tmp = JSON.parse(JSON.stringify(state.cart))
     const index = tmp.findIndex((item) => item._id === payload._id)
+
+    const product = JSON.parse(JSON.stringify(this.get('product/product')))
+    const productIndex = product.findIndex((item) => item._id === payload._id)
+
     if (index != -1) {
-      tmp[index].qty = tmp[index].qty + 1
-      dispatch('set/cart', tmp)
+      if (product[productIndex].stock > tmp[index].qty) {
+        tmp[index].qty = tmp[index].qty + 1
+        dispatch('set/cart', tmp)
+      } else {
+        dispatch(
+          'set/errorMessage',
+          `Tidak bisa menambahkan lebih dari ${product[productIndex].stock} ${product[productIndex].name}`
+        )
+      }
     } else {
       dispatch('set/cart.push', payload)
     }
@@ -28,9 +39,20 @@ export const actions = {
   plus({ dispatch, state }, id) {
     const tmp = JSON.parse(JSON.stringify(state.cart))
     const index = tmp.findIndex((item) => item._id === id)
+
+    const product = JSON.parse(JSON.stringify(this.get('product/product')))
+    const productIndex = product.findIndex((item) => item._id === id)
+
     if (index != -1) {
-      tmp[index].qty = tmp[index].qty + 1
-      dispatch('set/cart', tmp)
+      if (product[productIndex].stock > tmp[index].qty) {
+        tmp[index].qty = tmp[index].qty + 1
+        dispatch('set/cart', tmp)
+      } else {
+        dispatch(
+          'set/errorMessage',
+          `Tidak bisa menambahkan lebih dari ${product[productIndex].stock} ${product[productIndex].name}`
+        )
+      }
     }
   },
   minus({ dispatch, state }, id) {

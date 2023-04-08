@@ -3,13 +3,27 @@
     fluid
     class="full-width-height gray_100 d-flex flex-column align-center justify-center"
   >
-    <Snackbar
-      width="330px"
-      position="fixed"
-      text="Sukses menambahkan ke keranjang"
-      :visibility="successAddCart"
-      @set="successAddCart = false"
-    />
+    <transition name="fade">
+      <Snackbar
+        v-if="successAddCart"
+        width="330px"
+        position="fixed"
+        text="Sukses menambahkan ke keranjang"
+        :visibility="true"
+        @set="successAddCart = false"
+      />
+    </transition>
+    <transition name="fade">
+      <Snackbar
+        v-if="cartErrorMessage"
+        color="error"
+        position="fixed"
+        width="330px"
+        :visibility="true"
+        :text="cartErrorMessage"
+        @set="$store.set('order/errorMessage', '')"
+      />
+    </transition>
     <v-row class="px-6 pt-4" style="width: 100%; max-width: 960px">
       <v-list
         width="100%"
@@ -319,6 +333,9 @@ export default {
     detailsProduct() {
       return this.$store.get('order/detailOrder')
     },
+    cartErrorMessage() {
+      return this.$store.get('order/errorMessage')
+    },
   },
   mounted() {
     this.loginSuccess()
@@ -398,7 +415,9 @@ export default {
         qty: 1,
       }
       this.$store.dispatch('order/addCart', payload)
-      this.successAddCart = true
+      if (!this.cartErrorMessage) {
+        this.successAddCart = true
+      }
       setTimeout(() => {
         /**
          * Close the Snackbar.
@@ -472,5 +491,14 @@ export default {
 :deep(.v-list-item--active::before) {
   border-radius: 8px;
   background-color: v.$primary_50;
+}
+// Component <transition>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease-in-out;
+}
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
 }
 </style>
