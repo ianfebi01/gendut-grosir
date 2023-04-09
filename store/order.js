@@ -109,6 +109,26 @@ export const actions = {
         return false
       })
   },
+  cancelOrder({ dispatch, state }, params) {
+    return this.$axios
+      .put(`api/cancelOrder/${params}`)
+      .then((res) => {
+        const tmp = JSON.parse(JSON.stringify(state.order))
+        const index = tmp.findIndex((item) => item._id === res?.data?.data?._id)
+
+        if (index != -1) {
+          tmp[index] = res?.data?.data
+        }
+        dispatch('set/order', tmp)
+
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err?.response?.data?.message)
+        return false
+      })
+  },
   getOrder({ dispatch }, params) {
     return this.$axios
       .get(`api/order`, { params })

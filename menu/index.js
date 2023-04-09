@@ -71,7 +71,7 @@ export default [
   },
   {
     name: 'User Role Management',
-    url: '/admin/role',
+    url: '/role',
     icon: '$role',
     access: ['super_admin'],
   },

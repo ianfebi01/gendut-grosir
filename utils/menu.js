@@ -57,12 +57,9 @@ export const filterMenu = (role, menus, url) => {
     const arr = url.split('/')
     const len = arr.length > 4 ? 4 : arr.length
     let res = ''
-    if (arr.includes('role')) {
-      res = '/admin/role'
-    } else {
-      for (let i = 1; i < len; i++) {
-        res = res + '/' + arr[i]
-      }
+
+    for (let i = 1; i < len; i++) {
+      res = res + '/' + arr[i]
     }
 
     return res

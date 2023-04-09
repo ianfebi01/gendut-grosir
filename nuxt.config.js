@@ -99,6 +99,10 @@ export default {
           white: '#fff',
           bg_sidebar: '#101828',
           neutral_80: '#6F7173',
+          'orange-100': '#FFEAD5',
+          'orange-300': '#FEB273',
+          'orange-500': '#FB6514',
+          'orange-600': '#EC4A0A',
         },
       },
     },
@@ -111,8 +115,5 @@ export default {
   server: {
     port: 3001,
     host: '0.0.0.0',
-  },
-  serverMiddleware: {
-    '/api2': '~/api',
   },
 }

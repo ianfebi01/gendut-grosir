@@ -185,8 +185,35 @@ $font-sizes: (
   }
 }
 
-.gap {
-  &-5 {
-    gap: 5px;
+.column {
+  display: flex !important;
+  flex-direction: column !important;
+  &--center {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  &--center-align {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  &--center-justify {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+}
+
+// gap
+@for $i from 2 through 30 {
+  .gap-#{$i} {
+    gap: #{$i}px;
+  }
+}
+@for $i from 2 through 50 {
+  .rounded-#{$i} {
+    border-radius: #{$i}px !important;
   }
 }

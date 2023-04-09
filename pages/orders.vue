@@ -88,10 +88,13 @@
             depressed
             outlined
             small
-            :disabled="item?.item?.status === 'complete'"
+            :disabled="
+              item?.item?.status === 'complete' ||
+              item?.item?.status === 'cancel'
+            "
             :class="`'text-12`"
-            :loading="loading.status === item?.item?.orderId"
-            @click="changeStatusOrder(item?.item?.orderId, item?.item?.status)"
+            :loading="loading.cancelOrder === item?.item?.orderId"
+            @click="cancelOrder(item?.item?.orderId)"
           >
             Batalkan
           </v-btn>
@@ -204,6 +207,7 @@ export default {
         edit: false,
         data: false,
         status: '',
+        cancelOrder: '',
       },
       params: {
         q: '',
@@ -252,7 +256,7 @@ export default {
     },
   },
   watch: {
-    page() {
+    'params.page'() {
       this.getOrder()
     },
   },
@@ -288,25 +292,38 @@ export default {
       return capitalizeFirstLetter(string)
     },
     statusOrderButtonColor(item) {
-      return item?.item?.status === 'complete' ? 'success_100' : 'blue-100'
+      return item?.item?.status === 'complete'
+        ? 'success_100'
+        : item?.item?.status === 'process'
+        ? 'blue-100'
+        : 'orange-100'
     },
     statusOrderButtonTextColor(item) {
       return item?.item?.status === 'complete'
         ? 'success_600--text cursor-normal'
-        : 'blue-600--text'
+        : item?.item?.status === 'process'
+        ? 'blue-600--text'
+        : 'orange-600--text cursor-normal'
     },
     statusOrderTooltips(item) {
       return item?.item?.status === 'process'
         ? 'Klik untuk menyelesaikan pesanan'
-        : 'Pesanan telah selesai'
+        : item?.item?.status === 'complete'
+        ? 'Pesanan telah selesai'
+        : 'Pesanan telah dibatalkan'
     },
 
     async changeStatusOrder(orderId, status) {
-      if (status === 'complete') return
+      if (status === 'complete' || status === 'cancel') return
 
       this.loading.status = orderId
       await this.$store.dispatch('order/changeStatusOrder', orderId)
       this.loading.status = ''
+    },
+    async cancelOrder(orderId) {
+      this.loading.cancelOrder = orderId
+      await this.$store.dispatch('order/cancelOrder', orderId)
+      this.loading.cancelOrder = ''
     },
   },
 }

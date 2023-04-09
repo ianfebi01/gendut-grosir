@@ -209,6 +209,7 @@ export default {
       const details = this.datas.map((item) => ({
         product: item?._id,
         qty: item?.qty,
+        buyPrice: item?.buyPrice,
         price:
           this.customer?.status === 'retail'
             ? item?.retailPrice

@@ -783,16 +783,18 @@ export default {
         {
           text: 'Image',
           value: 'image',
+          width: '100px',
         },
         {
           text: 'Name',
           value: 'name',
+          width: '200px',
         },
-        { text: 'Stock', value: 'stock' },
-        { text: 'Category', value: 'category.name' },
-        { text: 'Retail Price', value: 'retailPrice' },
-        { text: 'Sales Price', value: 'wholesalerPrice' },
-        { text: 'Action', value: 'action' },
+        { text: 'Stock', value: 'stock', width: '100px' },
+        { text: 'Category', value: 'category.name', width: '150px' },
+        { text: 'Retail Price', value: 'retailPrice', width: '150px' },
+        { text: 'Sales Price', value: 'wholesalerPrice', width: '150px' },
+        { text: 'Action', value: 'action', width: '150px' },
       ],
       page: 1,
     }
