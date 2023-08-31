@@ -1,0 +1,13 @@
+version: '3.7'
+services:
+  gendut-grosir-fe:
+    restart: always
+    build : .
+    container_name: gendut-grosir-fe
+    ports:
+      - 3001:3001
+    networks:
+      - app
+networks:
+  app:
+    driver: bridge
