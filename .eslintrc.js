@@ -16,7 +16,7 @@ module.exports = {
   plugins: ['vue'],
   rules: {
     semi: [2, 'never'],
-    'no-console': 'off',
+    'no-console': 'error',
     'no-prototype-builtins': 'off',
     'vue/max-attributes-per-line': 'off',
     'vue/html-self-closing': 'off',

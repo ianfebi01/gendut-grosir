@@ -881,7 +881,6 @@ export default {
       this.publicId = item.image?.match(
         /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
       )?.[0]
-      console.log(item.image)
       this.deleteModal = true
     },
     async handleDelete() {
