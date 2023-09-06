@@ -83,6 +83,19 @@
             <span>{{ statusOrderTooltips(item) }}</span>
           </v-tooltip>
         </template>
+        <template #[`item.invoice`]="item">
+          <v-btn
+            depressed
+            outlined
+            small
+            :disabled="item?.item?.status !== 'complete'"
+            :class="`'text-12`"
+            :loading="loading.downloadInvoice === item?.item?.orderId"
+            @click="downloadInvoice(item?.item?.orderId)"
+          >
+            Unduh
+          </v-btn>
+        </template>
         <template #[`item.action`]="item">
           <v-btn
             depressed
@@ -208,6 +221,7 @@ export default {
         data: false,
         status: '',
         cancelOrder: '',
+        downloadInvoice: '',
       },
       params: {
         q: '',
@@ -223,7 +237,7 @@ export default {
         {
           text: 'ID Order',
           value: 'orderId',
-          width: '202px',
+          width: '180px',
         },
         {
           text: 'Nama',
@@ -235,6 +249,7 @@ export default {
         { text: 'Status', value: 'user.status', width: '130px' },
         { text: 'Tanggal', value: 'createdAt', width: '150px' },
         { text: 'Status Order', value: 'status', width: '150px' },
+        { text: 'Invoice', value: 'invoice' },
         { text: 'Aksi', value: 'action' },
       ],
     }
@@ -325,12 +340,20 @@ export default {
       await this.$store.dispatch('order/cancelOrder', orderId)
       this.loading.cancelOrder = ''
     },
+    async downloadInvoice(orderId) {
+      this.loading.downloadInvoice = orderId
+      await this.$store.dispatch('order/downloadInvoice', {
+        orderId,
+      })
+      this.loading.downloadInvoice = ''
+    },
   },
 }
 </script>
 
 <style lang="scss" scoped>
 @use '@/assets/scss/abstracts/variables.scss' as v;
+
 .input-image {
   border-radius: 8px !important;
   display: flex;
@@ -341,6 +364,7 @@ export default {
   box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
   color: v.$gray_500;
 }
+
 .icon {
   display: flex;
   align-items: center;
@@ -351,16 +375,19 @@ export default {
   height: 40px;
   border: 8px solid v.$gray_50;
 }
+
 .clear-image {
   position: absolute;
   right: 5px;
   top: 5px;
   z-index: 1;
 }
+
 .border {
   border: 1px solid v.$primary_300;
   border-radius: 8px !important;
 }
+
 :deep(.v-btn:is(.rounded-full)) {
   border-radius: 50px !important;
 }
