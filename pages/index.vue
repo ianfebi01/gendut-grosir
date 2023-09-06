@@ -156,12 +156,13 @@
         </v-list>
         <Empty
           v-else
-          img="/girl-shop.svg"
-          title="Cart is Empty"
-          description="Please add Product to cart first!"
-          padding="px-0"
+          img="/family.svg"
+          title="Pelanggan tidak ditemukan"
+          description="Tambahkan pelanggan terlebih dahulu."
+          padding="px-0 py-4"
           gap-bottom="mb-0"
           max-height-image="200"
+          max-width-image="300"
         />
       </template>
       <template #action>

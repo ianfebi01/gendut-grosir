@@ -99,6 +99,7 @@ import {
 import DynamicField from '~/components/Input/DynamicField.vue'
 export default {
   name: 'DynamicForm',
+  components: { DynamicField },
   mixins: [directive],
   layout: 'dashboard',
   data() {
@@ -125,7 +126,6 @@ export default {
   methods: {
     handleSubmit(form) {
       this.form = form
-      console.log('submit')
     },
     error_message(param) {
       const errors = []
@@ -192,7 +192,6 @@ export default {
     })
     return { form }
   },
-  components: { DynamicField },
 }
 </script>
 <style lang="scss" scoped>
