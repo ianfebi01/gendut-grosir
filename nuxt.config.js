@@ -5,7 +5,7 @@ export default {
 
   router: {
     base: '/',
-    middleware: 'authenticated',
+    middleware: ['authenticated', 'role'],
   },
   head: {
     titleTemplate: '%s',
