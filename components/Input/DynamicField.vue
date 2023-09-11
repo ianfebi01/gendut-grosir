@@ -24,6 +24,11 @@
       :error-messages="errorMessages"
       @blur="$emit('blur')"
     ></v-text-field>
+    <slot
+      v-else-if="item?.fieldType === 'autocomplete'"
+      name="autocomplete"
+      :error-messages="errorMessages"
+    />
     <v-select
       v-else-if="item?.fieldType === 'select'"
       v-model="model"

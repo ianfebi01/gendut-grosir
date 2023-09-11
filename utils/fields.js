@@ -23,7 +23,7 @@ export const addCustomer = [
   },
   {
     valueName: 'role',
-    fieldType: 'select',
+    fieldType: 'autocomplete',
     label: 'Role',
     placeholder: 'Pilih Role',
     items: [
@@ -100,7 +100,7 @@ export const editCustomer = [
   },
   {
     valueName: 'role',
-    fieldType: 'select',
+    fieldType: 'autocomplete',
     label: 'Role',
     placeholder: 'Pilih Role',
     items: [

@@ -12,9 +12,11 @@ export const mutations = {
 export const plugins = [EasyAccess()]
 
 export const actions = {
-  getRoles({ dispatch }) {
+  getRoles({ dispatch }, params) {
     return this.$axios
-      .get(`api/getRole`)
+      .get(`api/getRole`, {
+        params,
+      })
       .then((res) => {
         dispatch('set/roles', res.data?.data)
       })

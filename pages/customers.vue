@@ -24,7 +24,7 @@
       <v-data-table
         :headers="headers"
         :items="datas"
-        :loading="loading"
+        :loading="loading.data"
         :items-per-page="paginator?.limit"
         hide-default-footer
         no-data-text="No Data"
@@ -48,6 +48,9 @@
             />
           </v-avatar>
         </template>
+        <template #[`item.role.roleName`]="item">{{
+          convertRoleString(item.item?.role?.roleName)
+        }}</template>
         <template #[`item.action`]="item">
           <div>
             <v-btn
@@ -200,7 +203,32 @@
               :item="item"
               :error-messages="error_message(item?.valueName)"
               @blur="$v.form[item.valueName].$touch()"
-            />
+            >
+              <template #autocomplete="{ errorMessages }">
+                <v-autocomplete
+                  v-model="form[item.valueName]"
+                  :items="roles"
+                  item-text="roleName"
+                  item-value="_id"
+                  background-color="#fff"
+                  outlined
+                  dense
+                  flat
+                  height="44"
+                  placeholder="Select Category"
+                  :loading="loading.roles"
+                  :error-messages="error_message(item?.valueName)"
+                  @focus="getRoles()"
+                  @blur="$v.form[item.valueName].$touch()"
+                >
+                  <template slot="append">
+                    <v-icon v-if="errorMessages[0]" color="red">
+                      mdi-alert-circle-outline
+                    </v-icon>
+                  </template>
+                </v-autocomplete>
+              </template>
+            </DynamicField>
           </v-col>
         </v-row>
       </template>
@@ -307,7 +335,32 @@
               :item="item"
               :error-messages="error_message(item?.valueName)"
               @blur="$v.editForm[item.valueName].$touch()"
-            />
+            >
+              <template #autocomplete="{ errorMessages }">
+                <v-autocomplete
+                  v-model="editForm[item.valueName]"
+                  :items="roles"
+                  item-text="roleName"
+                  item-value="_id"
+                  background-color="#fff"
+                  outlined
+                  dense
+                  flat
+                  height="44"
+                  placeholder="Select Category"
+                  :loading="loading.roles"
+                  :error-messages="error_message(item?.valueName)"
+                  @focus="getRoles()"
+                  @blur="$v.editForm[item.valueName].$touch()"
+                >
+                  <template slot="append">
+                    <v-icon v-if="errorMessages[0]" color="red">
+                      mdi-alert-circle-outline
+                    </v-icon>
+                  </template>
+                </v-autocomplete>
+              </template>
+            </DynamicField>
           </v-col>
         </v-row>
       </template>
@@ -335,6 +388,7 @@ import {
 } from 'vuelidate/lib/validators'
 import DynamicField from '~/components/Input/DynamicField.vue'
 import { addCustomer, editCustomer } from '~/utils/fields'
+import { convertRoleString } from '@/utils/convertRoleString.js'
 
 export default {
   name: 'Customers',
@@ -346,6 +400,10 @@ export default {
       imageFile: null,
       loadingCategory: false,
       loadingEdit: false,
+      loading: {
+        roles: false,
+        data: false,
+      },
       id: '',
       editModal: false,
       publicId: null,
@@ -367,12 +425,12 @@ export default {
           value: 'name',
         },
         { text: 'Email', value: 'email' },
-        { text: 'Role', value: 'role' },
+        { text: 'Role', value: 'role.roleName' },
         { text: 'Status', value: 'status' },
         { text: 'Activate', value: 'activate' },
         { text: 'Action', value: 'action' },
       ],
-      loading: false,
+
       page: 1,
     }
   },
@@ -403,6 +461,9 @@ export default {
     editCustomer() {
       return editCustomer
     },
+    roles() {
+      return this.$store.get('role/roles')
+    },
   },
   watch: {
     page() {
@@ -417,7 +478,7 @@ export default {
       await this.getAllUser()
     },
     async getAllUser() {
-      this.loading = true
+      this.loading.data = true
       const params = {
         q: this.search,
         page: this.page,
@@ -425,9 +486,9 @@ export default {
       }
       const res = await this.$store.dispatch('user/getAllUser', params)
       if (res) {
-        this.loading = false
+        this.loading.data = false
       } else {
-        this.loading = false
+        this.loading.data = false
       }
     },
     async handleAdd() {
@@ -481,6 +542,7 @@ export default {
         this.editForm = {
           ...this.userDetail,
           id: this.userDetail._id,
+          role: this.userDetail.role?._id,
         }
         this.editModal = true
         this.loadingEdit = ''
@@ -586,6 +648,23 @@ export default {
         }
       )
       return errors
+    },
+    async getRoles(q) {
+      this.loading.roles = true
+      const params = {
+        q: q,
+        page: this.page,
+        limit: 25,
+      }
+      const res = await this.$store.dispatch('role/getRoles', params)
+      if (res) {
+        this.loading.roles = false
+      } else {
+        this.loading.roles = false
+      }
+    },
+    convertRoleString(role) {
+      return convertRoleString(role)
     },
   },
   validations() {
