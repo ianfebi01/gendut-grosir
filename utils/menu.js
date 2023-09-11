@@ -1,12 +1,6 @@
-export const hasAccess = (menu, role) => {
+export const hasAccess = (menu, role, allow) => {
   if (menu.access) {
-    if (menu.access === '*') {
-      if (menu.except) return menu.except.includes(role)
-
-      return true
-    }
-
-    return menu.access.includes(role)
+    return allow.includes(menu.name)
   } else if (menu.blocked) {
     if (menu.blocked === '*') {
       if (menu.except) return menu.except.includes(role)
@@ -20,12 +14,12 @@ export const hasAccess = (menu, role) => {
   return true
 }
 
-export const filterMenu = (role, menus, url) => {
+export const filterMenu = (role, menus, url, allow) => {
   const filteredMenu = menus.reduce((result, menu) => {
     if (menu.hasOwnProperty('children')) {
-      if (hasAccess(menu, role)) {
+      if (hasAccess(menu, role, allow)) {
         const children = menu.children.filter((submenu) =>
-          hasAccess(submenu, role)
+          hasAccess(submenu, role, allow)
         )
 
         if (children.length > 0) {
@@ -33,7 +27,7 @@ export const filterMenu = (role, menus, url) => {
         }
       }
     } else {
-      if (hasAccess(menu, role)) result.push(menu)
+      if (hasAccess(menu, role, allow)) result.push(menu)
     }
 
     return result

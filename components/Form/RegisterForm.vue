@@ -248,6 +248,9 @@ export default {
       this.loading = true
       const body = {
         ...this.form,
+        role: this.$store
+          .get('role/roles')
+          .find((item) => item.roleName === 'super_admin')._id,
       }
       const res = await this.$store.dispatch('user/register', body)
       if (res) {

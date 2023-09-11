@@ -56,7 +56,14 @@ export default {
     if (this.accessToken) {
       this.$cookiz.set('access_token', this.accessToken)
       this.$router.push('/')
+    } else {
+      this.getRoles()
     }
+  },
+  methods: {
+    async getRoles() {
+      await this.$store.dispatch('role/getRoles')
+    },
   },
 }
 </script>

@@ -26,11 +26,10 @@ export const actions = {
     return this.$axios
       .get(`api/me`)
       .then((res) => {
-        dispatch('set/profile', res.data)
+        dispatch('set/profile', res.data?._doc)
         return true
       })
       .catch((err) => {
-        console.log(err)
         commit('errorMessage', err)
         return false
       })
@@ -43,7 +42,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err)
         return false
       })
@@ -64,7 +62,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err)
         return false
       })
@@ -80,7 +77,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err)
         return false
       })
@@ -100,7 +96,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err)
         return false
       })
@@ -115,7 +110,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err)
         return false
       })
@@ -130,7 +124,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err?.response?.data?.message)
         return false
       })
@@ -147,7 +140,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err?.response?.data?.message)
         return false
       })
@@ -162,7 +154,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err)
         return false
       })
