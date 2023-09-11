@@ -41,12 +41,12 @@
                 </v-list-item-action>
                 <v-list-item-content v-if="menu.name === 'Sign Out'">
                   <v-list-item-title class="gray_100--text">{{
-                    menu.name
+                    menu.title
                   }}</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-content v-else>
                   <v-list-item-title class="gray_100--text">{{
-                    menu.name
+                    menu.title
                   }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -66,7 +66,7 @@
                   </v-list-item-action>
                   <v-list-item-content>
                     <v-list-item-title class="gray_100--text">{{
-                      menu.name
+                      menu.title
                     }}</v-list-item-title>
                   </v-list-item-content>
                 </template>
@@ -82,7 +82,7 @@
                 >
                   <v-list-item-content>
                     <v-list-item-title class="gray_100--text">{{
-                      submenu.name
+                      submenu.title
                     }}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -94,7 +94,7 @@
       <div class="profile">
         <v-divider class="mx-4 mb-4"></v-divider>
         <!-- Profile -->
-        <v-layout class="userinfo" align-center justify-center>
+        <v-layout class="userinfo" align-center justify-start px-4>
           <div class="userinfo__container">
             <v-avatar class="userinfo__container--avatar" size="40" tile>
               <v-img :src="user.profilePicture"></v-img>
@@ -102,8 +102,9 @@
           </div>
           <div>
             <p class="userinfo__name text-truncate">{{ user?.name }}</p>
-            <p class="userinfo__role">{{ user?.role }}</p>
+            <p class="userinfo__role">{{ user?.role?.roleName }}</p>
           </div>
+          <v-spacer />
           <v-btn depressed fab small text class="ml-2" @click="handleSignout">
             <v-icon size="40">$signout</v-icon>
           </v-btn>
@@ -131,7 +132,12 @@ export default {
       return this.$store.get('user/profile.role')
     },
     menus() {
-      return filterMenu(this.role, menus, this.$route.path)
+      return filterMenu(
+        this.role.roleName,
+        menus,
+        this.$route.path,
+        this.role?.allow
+      )
     },
     baseUrl() {
       return window.location.origin
@@ -140,6 +146,7 @@ export default {
       return this.$store.get('user/profile')
     },
   },
+
   methods: {
     openNewTab(url) {
       window.open(this.baseUrl + url, '_blank')

@@ -2,13 +2,13 @@
  * Routing configuration
  *
  * Default
- * `name`   : Menu title (String)
+ * `title`   : Menu title (String)
  * `url`    : Menu URL (String)
  * `icon`   : Menu icon (String)
  * `access` : Menu role-based access control (Array of String)
  *
  * Has Children
- * `name`     : Menu title (String)
+ * `title`     : Menu title (String)
  * `url`      : Menu URL (String)
  * `icon`     : Menu icon (String)
  * `access`   : Menu role-based access control (Array of String)
@@ -20,43 +20,50 @@
  */
 export default [
   {
-    name: 'Point Of Sales',
+    title: 'Point Of Sales',
+    name: 'pos',
     url: '/',
     icon: '$shoping_bag',
     access: ['super_admin', 'admin', 'customer'],
   },
   {
-    name: 'Dashboard',
+    title: 'Dashboard',
+    name: 'dashboard',
     url: '/dashboard',
     icon: '$dashboard',
     access: ['super_admin'],
   },
   {
-    name: 'Orders',
+    title: 'Orders',
+    name: 'orders',
     url: '/orders',
     icon: '$orders',
     access: ['super_admin', 'admin'],
   },
   {
-    name: 'Menu Library',
+    title: 'Menu Library',
+    name: 'library',
     url: '/library',
     icon: '$menulibrary',
     access: ['super_admin', 'admin'],
     children: [
       {
-        name: 'Category',
+        title: 'Category',
+        name: 'category',
         url: '/library/category',
         icon: '',
         access: ['super_admin', 'admin'],
       },
       {
-        name: 'Product',
+        title: 'Product',
+        name: 'product',
         url: '/library/product',
         icon: '',
         access: ['super_admin', 'admin'],
       },
       {
-        name: 'Stock Opname',
+        title: 'Stock Opname',
+        name: 'stockOpname',
         url: '/library/stockOpname',
         icon: '',
         access: ['super_admin', 'admin'],
@@ -64,14 +71,16 @@ export default [
     ],
   },
   {
-    name: 'Customers',
+    title: 'Customers',
+    name: 'customers',
     url: '/customers',
     icon: '$customers',
     access: ['super_admin'],
   },
   {
-    name: 'User Role Management',
+    title: 'User Role Management',
     url: '/role',
+    name: 'role',
     icon: '$role',
     access: ['super_admin'],
   },
