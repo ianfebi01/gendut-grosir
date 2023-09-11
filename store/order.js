@@ -84,7 +84,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err?.response?.data?.message)
         return false
       })
@@ -95,7 +94,6 @@ export const actions = {
       .then((res) => {
         const tmp = JSON.parse(JSON.stringify(state.order))
         const index = tmp.findIndex((item) => item._id === res?.data?.data?._id)
-        console.log(res.data.data)
         if (index != -1) {
           tmp[index] = res?.data?.data
         }
@@ -104,7 +102,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err?.response?.data?.message)
         return false
       })
@@ -124,7 +121,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err?.response?.data?.message)
         return false
       })
@@ -138,7 +134,6 @@ export const actions = {
         return true
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err)
         return false
       })
@@ -168,7 +163,6 @@ export const actions = {
         // return res.data
       })
       .catch((err) => {
-        console.log(err)
         dispatch('set/errorMessage', err)
         return false
       })
