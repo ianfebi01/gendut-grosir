@@ -102,7 +102,9 @@
           </div>
           <div>
             <p class="userinfo__name text-truncate">{{ user?.name }}</p>
-            <p class="userinfo__role">{{ user?.role?.roleName }}</p>
+            <p class="userinfo__role">
+              {{ convertRoleString(user?.role?.roleName) }}
+            </p>
           </div>
           <v-spacer />
           <v-btn depressed fab small text class="ml-2" @click="handleSignout">
@@ -121,6 +123,7 @@
  */
 import menus from '@/menu'
 import { filterMenu } from '@/utils/menu'
+import { convertRoleString } from '@/utils/convertRoleString.js'
 
 export default {
   name: 'Sidebar',
@@ -158,6 +161,9 @@ export default {
       // await this.$store.dispatch('admin/users/logOutUser')
       this.$cookiz.removeAll()
       this.$router.go(0)
+    },
+    convertRoleString(role) {
+      return convertRoleString(role)
     },
   },
 }

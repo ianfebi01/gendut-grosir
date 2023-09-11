@@ -1,6 +1,7 @@
 import menu from '~/menu'
 // Authentication middleware
 export default function Role({ route, redirect, store, from }) {
+  if (route.path === '/login' || route.path === '/register') return true
   const allow = store.get('user/profile')?.role?.allow
   const flattenMenus = []
   menu.map((item) => {
