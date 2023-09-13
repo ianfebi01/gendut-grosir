@@ -21,18 +21,16 @@
             <v-row :key="item?._id" dense class="mt-2 gap-4 mb-4">
               <v-col cols="2">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Point Of Sales"
                   value="pos"
                   hide-details
-                  :disabled="item.roleName === 'super_admin'"
+                  disabled
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="2">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Library"
                   value="library"
@@ -43,7 +41,6 @@
               </v-col>
               <v-col cols="2">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Orders"
                   value="orders"
@@ -54,7 +51,6 @@
               </v-col>
               <v-col cols="2">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Dashboard"
                   value="dashboard"
@@ -65,7 +61,6 @@
               </v-col>
               <v-col cols="3">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Role Management"
                   value="role"
@@ -76,7 +71,6 @@
               </v-col>
               <v-col cols="2">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Customers"
                   value="customers"
@@ -87,7 +81,6 @@
               </v-col>
               <v-col cols="2">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Product"
                   value="product"
@@ -98,7 +91,6 @@
               </v-col>
               <v-col cols="2">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Category"
                   value="category"
@@ -109,7 +101,6 @@
               </v-col>
               <v-col cols="2">
                 <v-checkbox
-                  id="super_admin"
                   v-model="role[item.roleName]"
                   label="Stock Opname"
                   value="stockOpname"
