@@ -26,6 +26,7 @@
                   label="Point Of Sales"
                   value="pos"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
@@ -36,6 +37,7 @@
                   label="Library"
                   value="library"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
@@ -46,6 +48,7 @@
                   label="Orders"
                   value="orders"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
@@ -56,6 +59,7 @@
                   label="Dashboard"
                   value="dashboard"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
@@ -66,6 +70,7 @@
                   label="Role Management"
                   value="role"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
@@ -76,6 +81,7 @@
                   label="Customers"
                   value="customers"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
@@ -86,6 +92,7 @@
                   label="Product"
                   value="product"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
@@ -96,6 +103,7 @@
                   label="Category"
                   value="category"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
@@ -106,6 +114,7 @@
                   label="Stock Opname"
                   value="stockOpname"
                   hide-details
+                  :disabled="item.roleName === 'super_admin'"
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
