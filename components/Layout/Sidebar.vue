@@ -138,7 +138,7 @@ export default {
         this.role.roleName,
         menus,
         this.$route.path,
-        this.role?.allow
+        this.role?.allows
       )
     },
     baseUrl() {

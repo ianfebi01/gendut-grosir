@@ -12,6 +12,7 @@
         <h1 class="gray_900--text text-24 font-weight-regular">
           Kelola Hak Akses
         </h1>
+
         <div class="mt-6">
           <template v-for="item in roles">
             <span :key="item?.id" class="font-weight-medium">{{
@@ -25,6 +26,7 @@
                   label="Point Of Sales"
                   value="pos"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="2">
@@ -34,6 +36,7 @@
                   label="Library"
                   value="library"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="2">
@@ -43,6 +46,7 @@
                   label="Orders"
                   value="orders"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="2">
@@ -52,6 +56,7 @@
                   label="Dashboard"
                   value="dashboard"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="3">
@@ -61,6 +66,7 @@
                   label="Role Management"
                   value="role"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="2">
@@ -70,6 +76,7 @@
                   label="Customers"
                   value="customers"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="2">
@@ -79,6 +86,7 @@
                   label="Product"
                   value="product"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="2">
@@ -88,6 +96,7 @@
                   label="Category"
                   value="category"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
               <v-col cols="2">
@@ -97,6 +106,7 @@
                   label="Stock Opname"
                   value="stockOpname"
                   hide-details
+                  @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
             </v-row>
@@ -138,9 +148,17 @@ export default {
 
       if (res) {
         this.roles.map((item) => {
-          this.role[item.roleName] = item.allow
+          this.role[item.roleName] = item.allows
         })
       }
+    },
+    async updateRole(id, allows) {
+      const params = {
+        id,
+        allows,
+      }
+
+      await this.$store.dispatch('role/updateRole', params)
     },
   },
 }
