@@ -26,4 +26,20 @@ export const actions = {
         return false
       })
   },
+  updateRole({ dispatch }, params, body) {
+    return this.$axios
+      .put(`api/getRole`, {
+        params,
+        ...body,
+      })
+      .then((res) => {
+        // dispatch('set/roles', res.data?.data)
+        console.log(res.data.data)
+        return true
+      })
+      .catch((err) => {
+        dispatch('set/errorMessage', err)
+        return false
+      })
+  },
 }
