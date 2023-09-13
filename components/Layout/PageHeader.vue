@@ -19,12 +19,12 @@
         Tambah Customer
       </v-btn>
     </v-row>
-    <v-row class="px-6">
+    <v-row class="px-6" :class="{ 'pb-4': !searchBar }">
       <span class="text-14 font-weight-normal gray_500--text">
         {{ subtitle }}
       </span>
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row v-if="searchBar" class="px-6 pt-4">
       <Search
         v-model="search"
         style="max-width: 400px"
@@ -41,6 +41,10 @@ export default {
   components: { Search },
   props: {
     actions: {
+      type: Boolean,
+      default: true,
+    },
+    searchBar: {
       type: Boolean,
       default: true,
     },

@@ -1,10 +1,10 @@
 <template>
   <v-container fluid class="full-width-height gray_100">
     <page-header
-      title="Customize Role"
+      title="Role"
       subtitle="Kelola role akses"
       :actions="false"
-      @search="handleSearch($event)"
+      :search-bar="false"
     />
 
     <v-row class="px-6 pt-4">
@@ -130,9 +130,6 @@ export default {
     this.getRoles()
   },
   methods: {
-    handleSearch(value) {
-      console.log(value)
-    },
     async getRoles(q) {
       const params = {
         q,
