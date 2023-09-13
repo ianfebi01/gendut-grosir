@@ -49,7 +49,7 @@
           </v-avatar>
         </template>
         <template #[`item.role.roleName`]="item">{{
-          convertRoleString(item.item?.role?.roleName)
+          item.item?.role?.title
         }}</template>
         <template #[`item.action`]="item">
           <div>
@@ -388,7 +388,6 @@ import {
 } from 'vuelidate/lib/validators'
 import DynamicField from '~/components/Input/DynamicField.vue'
 import { addCustomer, editCustomer } from '~/utils/fields'
-import { convertRoleString } from '@/utils/convertRoleString.js'
 
 export default {
   name: 'Customers',
@@ -664,9 +663,6 @@ export default {
       } else {
         this.loading.roles = false
       }
-    },
-    convertRoleString(role) {
-      return convertRoleString(role)
     },
   },
   validations() {

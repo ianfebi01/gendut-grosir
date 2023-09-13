@@ -19,6 +19,7 @@ export const actions = {
       })
       .then((res) => {
         dispatch('set/roles', res.data?.data)
+        return true
       })
       .catch((err) => {
         dispatch('set/errorMessage', err)
