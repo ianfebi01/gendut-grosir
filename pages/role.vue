@@ -135,7 +135,7 @@ export default {
     },
     async getRoles(q) {
       const params = {
-        q: '',
+        q,
       }
       const res = await this.$store.dispatch('role/getRoles', params)
 
