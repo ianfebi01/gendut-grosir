@@ -215,7 +215,7 @@
                   dense
                   flat
                   height="44"
-                  placeholder="Select Category"
+                  placeholder="Pilih Role"
                   :loading="loading.roles"
                   :error-messages="error_message(item?.valueName)"
                   @focus="getRoles()"
@@ -347,7 +347,7 @@
                   dense
                   flat
                   height="44"
-                  placeholder="Select Category"
+                  placeholder="Pilih Role"
                   :loading="loading.roles"
                   :error-messages="error_message(item?.valueName)"
                   @focus="getRoles()"
@@ -535,6 +535,7 @@ export default {
     },
     async openEditModal(item) {
       this.loadingEdit = item?._id
+      await this.getRoles()
       const res = await this.$store.dispatch('user/getUserbyId', item?._id)
 
       if (res) {
@@ -544,6 +545,7 @@ export default {
           id: this.userDetail._id,
           role: this.userDetail.role?._id,
         }
+
         this.editModal = true
         this.loadingEdit = ''
       } else {
