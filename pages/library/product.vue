@@ -4,7 +4,7 @@
       <div class="d-flex flex-column">
         <span class="text-30 font-weight-medium gray_900--text"> Product </span>
         <span class="text-14 font-weight-normal gray_500--text">
-          Manage all your prroducts
+          Kelola produk anda
         </span>
       </div>
       <v-spacer></v-spacer>
@@ -20,7 +20,7 @@
       />
       <v-btn color="primary" height="44" dense depressed @click="modal = true">
         <v-icon size="13" class="mr-2">$plus</v-icon>
-        Add Product
+        Tambah Produk
       </v-btn>
     </v-row>
 
@@ -781,27 +781,27 @@ export default {
       name: '',
       headers: [
         {
-          text: 'Image',
+          text: 'Gambar',
           value: 'image',
           width: '100px',
         },
         {
-          text: 'Name',
+          text: 'Nama',
           value: 'name',
           width: '200px',
         },
-        { text: 'Stock', value: 'stock', width: '100px' },
-        { text: 'Category', value: 'category.name', width: '150px' },
-        { text: 'Retail Price', value: 'retailPrice', width: '150px' },
-        { text: 'Sales Price', value: 'wholesalerPrice', width: '150px' },
-        { text: 'Action', value: 'action', width: '150px' },
+        { text: 'Stok', value: 'stock', width: '100px' },
+        { text: 'Kategori', value: 'category.name', width: '150px' },
+        { text: 'Harga Retail', value: 'retailPrice', width: '150px' },
+        { text: 'Harga Sales', value: 'wholesalerPrice', width: '150px' },
+        { text: 'Aksi', value: 'action', width: '150px' },
       ],
       page: 1,
     }
   },
   head() {
     return {
-      title: 'Gendut Grosir | Product',
+      title: 'Gendut Grosir | Produk',
     }
   },
   computed: {
