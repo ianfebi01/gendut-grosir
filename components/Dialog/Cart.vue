@@ -96,13 +96,7 @@
               <v-list-item-action-text
                 class="font-weight-bold text-14 gray_900--text"
               >
-                {{
-                  customer?.status === 'retail'
-                    ? formatRupiah(datas.reduce((a, c) => a + c.retailPrice, 0))
-                    : formatRupiah(
-                        datas.reduce((a, c) => a + c.wholesalerPrice, 0)
-                      )
-                }}
+                {{ customer?.status === 'retail' ? totalRetail : totalSales }}
               </v-list-item-action-text>
             </v-list-item-action>
           </v-list-item>
@@ -178,6 +172,20 @@ export default {
     },
     detailOrder() {
       return this.$store.get('order/detailOrder')
+    },
+    totalRetail() {
+      const tmp = this.datas.map((item) => {
+        return item.qty * item.retailPrice
+      })
+      const total = tmp.reduce((a, c) => a + c, 0)
+      return this.formatRupiah(total)
+    },
+    totalSales() {
+      const tmp = this.datas.map((item) => {
+        return item.qty * item.wholesalerPrice
+      })
+      const total = tmp.reduce((a, c) => a + c, 0)
+      return this.formatRupiah(total)
     },
   },
   watch: {
