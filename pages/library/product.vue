@@ -2,9 +2,9 @@
   <v-container fluid class="full-width-height gray_100">
     <v-row class="px-6 pt-4">
       <div class="d-flex flex-column">
-        <span class="text-30 font-weight-medium gray_900--text"> Product </span>
+        <span class="text-30 font-weight-medium gray_900--text"> Produk </span>
         <span class="text-14 font-weight-normal gray_500--text">
-          Manage all your prroducts
+          Kelola produk anda
         </span>
       </div>
       <v-spacer></v-spacer>
@@ -12,7 +12,7 @@
         v-model="barcode"
         style="max-width: 200px"
         class="mr-4"
-        placeholder="Tambah stock"
+        placeholder="Tambah stok"
         :success-message="successMessage.barcode"
         :loading="loading.barcode"
         :error-message="barcodeErrorMessage"
@@ -20,7 +20,7 @@
       />
       <v-btn color="primary" height="44" dense depressed @click="modal = true">
         <v-icon size="13" class="mr-2">$plus</v-icon>
-        Add Product
+        Tambah Produk
       </v-btn>
     </v-row>
 
@@ -107,9 +107,9 @@
     <!-- Add -->
     <Modal
       v-model="modal"
-      title="Add Product"
+      title="Tambahkan Produk"
       width="800px"
-      subtitle="Add new Product for your store"
+      subtitle="Tambahkan produk untuk toko anda"
       :loading="loading.add"
       :error-message="errorMessage"
       :modal-prop="modal"
@@ -125,7 +125,7 @@
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
             >
-              Image
+              Gambar
             </div>
             <v-card
               class="input-image"
@@ -159,7 +159,7 @@
                 </div>
 
                 <span class="primary--text font-weight-bold pa-0">
-                  Click to upload
+                  Klik untuk upload foto
                 </span>
                 <span class="gray_500--text text-12 font-weight-normal pa-0">
                   SVG, PNG, JPG or GIF (max. 800x400px)
@@ -183,7 +183,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Name
+              Nama
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
@@ -219,7 +219,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Category
+              Kategori
               <span style="color: red !important">*</span>
             </div>
             <v-autocomplete
@@ -258,7 +258,7 @@
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
             >
-              Stock
+              Stok
             </div>
             <v-text-field
               v-model="form.stock"
@@ -276,7 +276,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Buy Price
+              Harga modal
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
@@ -313,7 +313,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Sales Price
+              Jual ke sales
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
@@ -356,7 +356,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Retail Price
+              Jual ke retail
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
@@ -434,7 +434,7 @@
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
             >
-              Image
+              Gambar
             </div>
             <v-card
               class="input-image"
@@ -492,7 +492,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Name
+              Nama
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
@@ -528,7 +528,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Category
+              Kategori
               <span style="color: red !important">*</span>
             </div>
             <v-autocomplete
@@ -567,7 +567,7 @@
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
             >
-              Stock
+              Stok
             </div>
             <v-text-field
               v-model="form.stock"
@@ -585,7 +585,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Buy Price
+              Harga modal
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
@@ -622,7 +622,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Sales Price
+              Jual ke sales
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
@@ -665,7 +665,7 @@
               class="font-weight-medium mb-1 gray_700--text mt-2"
               style="font-size: 14px"
             >
-              Retail Price
+              Jual ke retail
               <span style="color: red !important">*</span>
             </div>
             <v-text-field
@@ -781,27 +781,27 @@ export default {
       name: '',
       headers: [
         {
-          text: 'Image',
+          text: 'Gambar',
           value: 'image',
           width: '100px',
         },
         {
-          text: 'Name',
+          text: 'Nama',
           value: 'name',
           width: '200px',
         },
-        { text: 'Stock', value: 'stock', width: '100px' },
-        { text: 'Category', value: 'category.name', width: '150px' },
-        { text: 'Retail Price', value: 'retailPrice', width: '150px' },
-        { text: 'Sales Price', value: 'wholesalerPrice', width: '150px' },
-        { text: 'Action', value: 'action', width: '150px' },
+        { text: 'Stok', value: 'stock', width: '100px' },
+        { text: 'Kategori', value: 'category.name', width: '150px' },
+        { text: 'Harga Retail', value: 'retailPrice', width: '150px' },
+        { text: 'Harga Sales', value: 'wholesalerPrice', width: '150px' },
+        { text: 'Aksi', value: 'action', width: '150px' },
       ],
       page: 1,
     }
   },
   head() {
     return {
-      title: 'Gendut Grosir | Product',
+      title: 'Gendut Grosir | Produk',
     }
   },
   computed: {
