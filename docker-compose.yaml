@@ -1,15 +1,15 @@
 version: '3.7'
 services:
-  gendut-grosir-fe:
+  fan-steal-fe:
     restart: always
     build: .
-    container_name: gendut-grosir-fe
+    container_name: fan-steal-fe
     ports:
       - 3001:3001
     networks:
-      - app
+      - fan-steal
     env_file:
       - .env
 networks:
-  app:
+  fan-steal:
     driver: bridge
