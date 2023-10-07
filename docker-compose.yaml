@@ -5,7 +5,7 @@ services:
     build: .
     container_name: fan-steal-fe
     ports:
-      - 3001:3001
+      - 3002:3001
     networks:
       - fan-steal
     env_file:
