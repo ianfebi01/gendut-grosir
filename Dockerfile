@@ -47,6 +47,8 @@ WORKDIR /app
 
 RUN yarn add "nuxt-start@${NUXT_VERSION}"
 
+ENV NODE_ENV production
+
 COPY --from=frontend-build /src/.nuxt /app/.nuxt
 COPY --from=frontend-build /src/node_modules /app/node_modules
 COPY --from=frontend-build /src/static /app/static
