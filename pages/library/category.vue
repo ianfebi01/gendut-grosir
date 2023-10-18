@@ -1,16 +1,16 @@
 <template>
   <v-container fluid class="full-width-height gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text"> Category </span>
+      <span class="text-30 font-weight-medium gray_900--text"> Kategori </span>
       <v-spacer></v-spacer>
       <v-btn color="primary" height="44" dense depressed @click="modal = true">
         <v-icon size="13" class="mr-2">$plus</v-icon>
-        Add Category
+        Tambah Kategori
       </v-btn>
     </v-row>
     <v-row class="px-6">
       <span class="text-14 font-weight-normal gray_500--text">
-        See all category for your product
+        Lihat semua kategori uyntuk produk Anda
       </span>
     </v-row>
     <v-row class="px-6 pt-4">
@@ -56,7 +56,7 @@
         <template #footer>
           <div class="d-flex align-center text-14 my-4 mx-4">
             <span class="gray_700--text font-weight-medium">{{
-              'Page ' + page + ' of ' + paginator?.totalPages
+              'Halaman ' + page + ' dari ' + paginator?.totalPages
             }}</span>
             <v-spacer></v-spacer>
             <v-btn
@@ -66,7 +66,7 @@
               dense
               :disabled="!paginator.hasPrevPage"
               @click="page--"
-              >Previous</v-btn
+              >Sebelumnya</v-btn
             >
             <v-btn
               class="ml-2"
@@ -76,7 +76,7 @@
               dense
               :disabled="!paginator.hasNextPage"
               @click="page++"
-              >Next</v-btn
+              >Selanjutnya</v-btn
             >
           </div>
         </template>
@@ -86,8 +86,8 @@
     <!-- Add -->
     <Modal
       v-model="modal"
-      title="Add Category"
-      subtitle="Enter new Category name"
+      title="Tambah Kategori"
+      subtitle="Masukkan nama kategori"
       :loading="loadingCategory"
       :error-message="errorMessage"
       @cancel="name = ''"
@@ -99,7 +99,7 @@
           class="font-weight-medium mb-1 gray_700--text"
           style="font-size: 14px"
         >
-          Name
+          Nama
         </div>
         <v-text-field
           v-model="name"
@@ -109,7 +109,7 @@
           flat
           height="44"
           hide-details
-          placeholder="Enter new category name"
+          placeholder="Masukkan nama"
         >
         </v-text-field>
       </template>
@@ -118,8 +118,8 @@
     <!-- Edit -->
     <Modal
       v-model="editModal"
-      title="Edit Category"
-      subtitle="Enter new Category name"
+      title="Edit Nama Kategori"
+      subtitle="Masukkan nama kategori"
       :loading="loadingEdit"
       :error-message="errorMessage"
       @cancel="name = ''"
@@ -131,7 +131,7 @@
           class="font-weight-medium mb-1 gray_700--text"
           style="font-size: 14px"
         >
-          Name
+          Nama
         </div>
         <v-text-field
           v-model="name"
@@ -141,7 +141,7 @@
           flat
           height="44"
           hide-details
-          placeholder="Enter new category name"
+          placeholder="Masukkan nama"
         >
         </v-text-field>
       </template>
@@ -178,11 +178,11 @@ export default {
       name: '',
       headers: [
         {
-          text: 'Name',
+          text: 'Nama',
           value: 'name',
         },
-        { text: 'Total Product', value: 'totalProducts' },
-        { text: 'Action', value: 'action', width: '150px' },
+        { text: 'Total Produk', value: 'totalProducts' },
+        { text: 'Aksi', value: 'action', width: '150px' },
       ],
       loading: false,
       page: 1,
