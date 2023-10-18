@@ -25,7 +25,7 @@
         :headers="headers"
         :items="category"
         :loading="loading"
-        :items-per-page="paginator?.perPage"
+        :items-per-page="paginator?.limit"
         hide-default-footer
         no-data-text="No Data"
         class="data-table"
@@ -146,11 +146,11 @@
         </v-text-field>
       </template>
     </Modal>
+    <!-- DeleteModal -->
     <Delete
+      v-model="deleteModal"
       icon="$warning_delete"
       :loading="loadingDeleteCategory"
-      :modal-prop="deleteModal"
-      @modalProp="deleteModal = false"
       @ok="handleDelete()"
     />
   </v-container>
