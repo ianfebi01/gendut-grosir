@@ -50,6 +50,12 @@
             :src="item?.item?.image"
           />
         </template>
+        <template #[`item.retailPrice`]="item">
+          <p>{{ $formatRupiah(item.item?.retailPrice) }}</p>
+        </template>
+        <template #[`item.wholesalerPrice`]="item">
+          <p>{{ $formatRupiah(item.item?.wholesalerPrice) }}</p>
+        </template>
         <template #[`item.action`]="item">
           <div>
             <v-btn
@@ -739,6 +745,7 @@ import debounce from 'lodash/debounce'
 import directive from '~/utils/directive'
 import replaceChar from '~/utils/mixins/replaceChar'
 import Barcode from '~/components/Input/Barcode.vue'
+import formatRupiah from '~/plugins/formatRupiah'
 
 export default {
   name: 'Product',
