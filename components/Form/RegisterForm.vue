@@ -237,7 +237,6 @@ export default {
       status: [
         { name: 'Retail', value: 'retail' },
         { name: 'Sales', value: 'wholesaler' },
-        { name: 'None', value: null },
       ],
       success: false,
       loading: false,
