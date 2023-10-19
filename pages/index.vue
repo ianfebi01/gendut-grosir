@@ -149,7 +149,7 @@
               </v-list-item-content>
             </v-list-item>
             <div
-              v-if="userPaginator.hasNextPage"
+              v-if="userPaginator.nextPage"
               v-intersect.quiet="onIntersect"
               class="pa-4 primary--text"
             >
