@@ -21,7 +21,7 @@
         :headers="headers"
         :items="datas"
         :loading="loading.data"
-        :items-per-page="paginator?.perPage"
+        :items-per-page="paginator?.limit"
         hide-default-footer
         no-data-text="No Data"
         class="data-table"
