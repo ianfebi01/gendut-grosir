@@ -7,7 +7,7 @@
     class="data-table"
   >
     <template v-if="readOnly" #[`item.productName`]="item">
-      <span>{{ item?.item?.product?.name }}</span>
+      <p class="ma-0">{{ item?.item?.product?.name }}</p>
     </template>
     <template #[`item.action`]="item">
       <div>

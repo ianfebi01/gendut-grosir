@@ -44,7 +44,6 @@ export const actions = {
       .then((res) => {
         const tmp = JSON.parse(JSON.stringify(state.stockOpname))
         const index = tmp.findIndex((item) => item._id === res.data.data._id)
-        console.log(index)
         if (index != -1) {
           tmp[index].apply = true
         }

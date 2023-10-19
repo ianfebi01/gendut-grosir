@@ -63,8 +63,8 @@
         :datas="datas"
         :loading="loading.datas"
         :loading-apply="loading.apply"
-        @next="page++"
-        @previous="page--"
+        @next="params.page++"
+        @previous="params.page--"
         @clickProduct="handleOpenModalProduct($event)"
         @apply="handleApplyStockOpname($event)"
       />
@@ -192,7 +192,7 @@
     >
       <template #content>
         <product-table
-          :headers="headersAddProduct"
+          :headers="headersPreview"
           :datas="payload.product"
           :read-only="true"
           @deleteProduct="deleteProduct($event)"
@@ -262,6 +262,21 @@ export default {
         { text: 'Perbedaan', value: 'difference' },
         { text: 'Aksi', value: 'action' },
       ],
+      headersPreview: [
+        {
+          text: 'Product',
+          value: 'productName',
+        },
+        {
+          text: 'Stok Sistem',
+          value: 'systemQty',
+        },
+        {
+          text: 'Stok Sebenarnya',
+          value: 'realQty',
+        },
+        { text: 'Perbedaan', value: 'difference' },
+      ],
       form: {},
       params: {
         q: '',
@@ -321,6 +336,11 @@ export default {
     },
     paginator() {
       return this.$store.get('stockOpname/paginator')
+    },
+  },
+  watch: {
+    'params.page'() {
+      this.getDatas()
     },
   },
   mounted() {
