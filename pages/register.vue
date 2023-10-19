@@ -48,9 +48,6 @@ export default {
     errorMessageUrl() {
       return this.$route.query.error_message
     },
-    tes() {
-      return this.$store.get('user/name')
-    },
   },
   mounted() {
     if (this.accessToken) {
