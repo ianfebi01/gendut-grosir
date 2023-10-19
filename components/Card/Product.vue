@@ -56,7 +56,9 @@
               {{
                 customerStatus === 'retail'
                   ? formatRupiah(item?.retailPrice)
-                  : formatRupiah(item?.wholesalerPrice)
+                  : customerStatus === 'wholesaler'
+                  ? formatRupiah(item?.wholesalerPrice)
+                  : ''
               }}
             </span>
           </div>

@@ -67,7 +67,9 @@
         <Product
           :item="item"
           :loading="loading.loadingSelected"
-          :customer-status="customer?.status"
+          :customer-status="
+            customer?.status ? customer?.status : profile?.status
+          "
           @handleClick="handleClickSelect($event)"
         />
       </v-col>
@@ -98,6 +100,7 @@
         <Loading />
       </v-col>
     </v-row>
+
     <!-- Customer -->
     <Modal
       v-model="modal.customer"
@@ -154,6 +157,7 @@
             </div>
           </v-list-item-group>
         </v-list>
+
         <Empty
           v-else
           img="/family.svg"
@@ -321,6 +325,9 @@ export default {
     },
     users() {
       return this.$store.get('user/user')
+    },
+    profile() {
+      return this.$store.get('user/profile')
     },
     userPaginator() {
       return this.$store.get('user/paginator')
