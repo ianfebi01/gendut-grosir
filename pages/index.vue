@@ -48,6 +48,20 @@
             <span v-if="!customer?.name" class="ml-2"> Pilih Pelanggan </span>
             <span v-else class="ml-2"> {{ customer?.name }} </span>
           </v-btn>
+          <v-btn
+            color="gray_500"
+            outlined
+            height="44"
+            dense
+            style="background-color: #fff"
+            disabled
+          >
+            {{
+              formatCustomerStatus(
+                customer?.status ? customer?.status : profile?.status
+              )
+            }}
+          </v-btn>
         </v-list-item-group>
       </v-list>
     </v-row>
@@ -144,7 +158,7 @@
                   {{ item?.name }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ item?.status === 'wholesaler' ? 'Sales' : 'Retail' }}
+                  {{ formatCustomerStatus(item?.status) }}
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -486,6 +500,9 @@ export default {
     },
     formatRupiah(item) {
       return formatRupiah(item)
+    },
+    formatCustomerStatus(item) {
+      return item === 'wholesaler' ? 'Sales' : item === 'retail' ? 'Retail' : ''
     },
   },
 }
