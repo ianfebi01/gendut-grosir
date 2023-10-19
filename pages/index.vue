@@ -30,7 +30,7 @@
         class="py-0 ml-2 d-flex flex-column justify-center align-center"
       >
         <v-list-item-group
-          class="d-flex align-center"
+          class="d-flex align-center flex-wrap"
           style="gap: 8px; width: 100%"
         >
           <Search v-model="params.q" @input="handleSearch($event)" />
@@ -41,12 +41,34 @@
             height="44"
             dense
             style="background-color: #fff"
+            :class="{
+              'flex-grow-0': $vuetify.breakpoint.smAndUp,
+              'flex-grow-1': $vuetify.breakpoint.xs,
+            }"
             :loading="loading.loadingUsers"
             @click="handleClickUsers"
           >
             <v-icon size="15">$customers</v-icon>
             <span v-if="!customer?.name" class="ml-2"> Pilih Pelanggan </span>
             <span v-else class="ml-2"> {{ customer?.name }} </span>
+          </v-btn>
+          <v-btn
+            color="gray_500"
+            outlined
+            height="44"
+            dense
+            style="background-color: #fff"
+            :class="{
+              'flex-grow-0': $vuetify.breakpoint.smAndUp,
+              'flex-grow-1': $vuetify.breakpoint.xs,
+            }"
+            disabled
+          >
+            {{
+              formatCustomerStatus(
+                customer?.status ? customer?.status : profile?.status
+              )
+            }}
           </v-btn>
         </v-list-item-group>
       </v-list>
@@ -67,7 +89,9 @@
         <Product
           :item="item"
           :loading="loading.loadingSelected"
-          :customer-status="customer?.status"
+          :customer-status="
+            customer?.status ? customer?.status : profile?.status
+          "
           @handleClick="handleClickSelect($event)"
         />
       </v-col>
@@ -98,6 +122,7 @@
         <Loading />
       </v-col>
     </v-row>
+
     <!-- Customer -->
     <Modal
       v-model="modal.customer"
@@ -141,12 +166,12 @@
                   {{ item?.name }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ item?.status === 'wholesaler' ? 'Sales' : 'Retail' }}
+                  {{ formatCustomerStatus(item?.status) }}
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <div
-              v-if="userPaginator.hasNextPage"
+              v-if="userPaginator.nextPage"
               v-intersect.quiet="onIntersect"
               class="pa-4 primary--text"
             >
@@ -154,6 +179,7 @@
             </div>
           </v-list-item-group>
         </v-list>
+
         <Empty
           v-else
           img="/family.svg"
@@ -322,6 +348,9 @@ export default {
     users() {
       return this.$store.get('user/user')
     },
+    profile() {
+      return this.$store.get('user/profile')
+    },
     userPaginator() {
       return this.$store.get('user/paginator')
     },
@@ -479,6 +508,9 @@ export default {
     },
     formatRupiah(item) {
       return formatRupiah(item)
+    },
+    formatCustomerStatus(item) {
+      return item === 'wholesaler' ? 'Sales' : item === 'retail' ? 'Retail' : ''
     },
   },
 }

@@ -6,6 +6,7 @@
       color="bg_sidebar"
       width="280"
       dark
+      style="height: 100svh"
     >
       <v-layout
         class="brand d-flex flex-column align-center justify-center"
