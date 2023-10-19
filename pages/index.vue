@@ -76,7 +76,7 @@
 
     <v-row
       v-if="datas?.length && !loading.loadingProduct"
-      class="px-6 pt-4 align-self-center"
+      class="px-6 pt-4 py-6 align-self-center"
       justify="center"
       style="width: 100%; max-width: 960px; height: 100%"
     >
