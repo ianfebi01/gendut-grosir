@@ -30,7 +30,7 @@
         class="py-0 ml-2 d-flex flex-column justify-center align-center"
       >
         <v-list-item-group
-          class="d-flex align-center"
+          class="d-flex align-center flex-wrap"
           style="gap: 8px; width: 100%"
         >
           <Search v-model="params.q" @input="handleSearch($event)" />
@@ -41,6 +41,10 @@
             height="44"
             dense
             style="background-color: #fff"
+            :class="{
+              'flex-grow-0': $vuetify.breakpoint.smAndUp,
+              'flex-grow-1': $vuetify.breakpoint.xs,
+            }"
             :loading="loading.loadingUsers"
             @click="handleClickUsers"
           >
@@ -54,6 +58,10 @@
             height="44"
             dense
             style="background-color: #fff"
+            :class="{
+              'flex-grow-0': $vuetify.breakpoint.smAndUp,
+              'flex-grow-1': $vuetify.breakpoint.xs,
+            }"
             disabled
           >
             {{
