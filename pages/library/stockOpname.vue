@@ -280,7 +280,7 @@ export default {
       form: {},
       params: {
         q: '',
-        limit: 5,
+        limit: 25,
         page: 1,
       },
       paramsProduct: {
