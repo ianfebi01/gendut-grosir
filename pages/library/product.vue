@@ -745,7 +745,6 @@ import debounce from 'lodash/debounce'
 import directive from '~/utils/directive'
 import replaceChar from '~/utils/mixins/replaceChar'
 import Barcode from '~/components/Input/Barcode.vue'
-import formatRupiah from '~/plugins/formatRupiah'
 
 export default {
   name: 'Product',

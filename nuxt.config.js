@@ -29,6 +29,7 @@ export default {
     { src: '@plugins/main', mode: 'client' },
     { src: '@/plugins/chart.js', mode: 'client' },
     { src: '@/plugins/formatRupiah.js' },
+    { src: '@/plugins/formatDate.js' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

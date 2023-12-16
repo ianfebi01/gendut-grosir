@@ -44,7 +44,7 @@
 
         <template #[`item.createdAt`]="item">
           <span>
-            {{ $moment(item?.item?.createdAt).format('DD MMM YYYY') }}
+            {{ $formatDate(item?.item?.createdAt, 'with-clock') }}
           </span>
         </template>
         <template #[`item.details.length`]="item">
@@ -247,7 +247,7 @@ export default {
         { text: 'Total Order', value: 'details.length', width: '150px' },
         { text: 'Total Harga', value: 'total', width: '130px' },
         { text: 'Status', value: 'user.status', width: '130px' },
-        { text: 'Tanggal', value: 'createdAt', width: '150px' },
+        { text: 'Tanggal', value: 'createdAt', width: '200px' },
         { text: 'Status Order', value: 'status', width: '150px' },
         { text: 'Invoice', value: 'invoice' },
         { text: 'Aksi', value: 'action' },

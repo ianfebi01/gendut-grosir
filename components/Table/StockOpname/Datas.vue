@@ -19,6 +19,9 @@
         >
       </div>
     </template>
+    <template #[`item.date`]="item">
+      {{ $formatDate(item?.item?.createdAt, 'with-clock') }}
+    </template>
     <template #[`item.action`]="item">
       <div>
         <v-btn

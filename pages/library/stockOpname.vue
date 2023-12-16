@@ -240,6 +240,10 @@ export default {
           value: 'opnameId',
         },
         {
+          text: 'Pengguna',
+          value: 'user.name',
+        },
+        {
           text: 'Tanggal',
           value: 'date',
         },
