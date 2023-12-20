@@ -235,14 +235,14 @@ export default {
           width: '75px',
         },
         {
-          text: 'ID Order',
-          value: 'orderId',
-          width: '180px',
-        },
-        {
           text: 'Nama',
           value: 'user.name',
           width: '202px',
+        },
+        {
+          text: 'ID Order',
+          value: 'orderId',
+          width: '180px',
         },
         { text: 'Total Order', value: 'details.length', width: '150px' },
         { text: 'Total Harga', value: 'total', width: '130px' },
