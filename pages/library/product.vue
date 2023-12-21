@@ -435,7 +435,7 @@
     >
       <template #content>
         <v-row class="mt-2">
-          <v-col cols="6">
+          <v-col cols="12" sm="6">
             <div
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
@@ -568,7 +568,7 @@
               </template>
             </v-autocomplete>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="12" sm="6">
             <div
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
