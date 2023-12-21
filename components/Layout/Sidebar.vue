@@ -178,6 +178,7 @@ export default {
 .list {
   padding-top: 0;
   margin: 0px 16px;
+  padding-bottom: 110px;
 
   .v-list-item {
     height: 48px !important;
@@ -265,8 +266,10 @@ export default {
   }
 }
 .profile {
+  background: v.$gray-900;
   position: absolute;
-  bottom: 15px;
+  padding-bottom: 15px;
+  bottom: 0;
   width: 100%;
   :deep(.v-btn) {
     padding: 0;
