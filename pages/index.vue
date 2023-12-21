@@ -24,10 +24,10 @@
         @set="$store.set('order/errorMessage', '')"
       />
     </transition>
-    <v-row class="px-6 pt-4" style="width: 100%; max-width: 960px">
+    <v-row class="pt-4" style="width: 100%; max-width: 960px">
       <v-list
         width="100%"
-        class="py-0 ml-2 d-flex flex-column justify-center align-center"
+        class="py-0 d-flex flex-column justify-center align-center"
       >
         <v-list-item-group
           class="d-flex align-center flex-wrap"
@@ -76,8 +76,8 @@
 
     <v-row
       v-if="datas?.length && !loading.loadingProduct"
-      class="px-6 pt-4 py-6 align-self-center"
-      justify="center"
+      class="pt-4 py-6 align-self-center"
+      justify="left"
       style="width: 100%; max-width: 960px; height: 100%"
     >
       <v-col
@@ -130,6 +130,7 @@
       subtitle="Pilih salah satu pelanggan Anda"
       :error-message="''"
       min-height="642"
+      :fullscreen="$vuetify.breakpoint.xs"
       icon="$customers"
     >
       <template #content>
@@ -232,6 +233,7 @@
       subtitle="Berikut adalah detail order Anda."
       save-text="Print Invoice"
       cancel-text="Tutup"
+      :fullscreen="$vuetify.breakpoint.xs"
       :loading="loading.downloadInvoice"
       @save="downloadInvoice"
     >

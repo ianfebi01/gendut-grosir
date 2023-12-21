@@ -19,7 +19,7 @@
               item.title
             }}</span>
             <v-row :key="item?._id" dense class="mt-2 gap-4 mb-4">
-              <v-col cols="2">
+              <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Point Of Sales"
@@ -29,7 +29,7 @@
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
-              <v-col cols="2">
+              <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Library"
@@ -39,7 +39,7 @@
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
-              <v-col cols="2">
+              <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Orders"
@@ -49,7 +49,7 @@
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
-              <v-col cols="2">
+              <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Dashboard"
@@ -59,7 +59,7 @@
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
-              <v-col cols="3">
+              <v-col cols="12" lg="3">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Role Management"
@@ -69,7 +69,7 @@
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
-              <v-col cols="2">
+              <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Customers"
@@ -79,7 +79,7 @@
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
-              <v-col cols="2">
+              <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Product"
@@ -89,7 +89,7 @@
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
-              <v-col cols="2">
+              <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Category"
@@ -99,7 +99,7 @@
                   @change="updateRole(item?._id, role[item.roleName])"
                 ></v-checkbox>
               </v-col>
-              <v-col cols="2">
+              <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
                   label="Stock Opname"

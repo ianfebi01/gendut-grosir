@@ -6,7 +6,8 @@
     :loading="loading"
     hide-default-footer
     no-data-text="No Data"
-    class="data-table"
+    disable-sort
+    class="data-table fixed-non-select-col"
   >
     <template #[`item.product`]="item">
       <div>

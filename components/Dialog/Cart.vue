@@ -9,6 +9,7 @@
     save-text="Beli"
     :disable="!datas.length"
     :loading="loading?.loadingCheckout || loading?.barcode"
+    :fullscreen="$vuetify.breakpoint.xs"
     @save="handleCheckout"
     @clearErrorMessage="$store.set('order/errorMessage', '')"
   >

@@ -24,7 +24,8 @@
         :items-per-page="paginator?.limit"
         hide-default-footer
         no-data-text="No Data"
-        class="data-table fixed-non-select-col elevation-0"
+        disable-sort
+        class="data-table fixed-non-select-col"
       >
         <template #[`item._id`]="index">
           <span>{{ index?.index + 1 }}</span>

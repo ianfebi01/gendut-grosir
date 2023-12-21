@@ -6,7 +6,7 @@
     scrollable
     :fullscreen="fullscreen"
   >
-    <v-card style="border-radius: 12px !important">
+    <v-card :style="{ borderRadius: !fullscreen && '12px !important' }">
       <v-card-title
         class="d-flex flex-column justify-center letter-spacing-normal mb-2"
         style="width: 100%"

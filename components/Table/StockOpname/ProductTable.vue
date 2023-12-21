@@ -4,7 +4,8 @@
     :items="datas"
     hide-default-footer
     no-data-text="No Data"
-    class="data-table"
+    disable-sort
+    class="data-table fixed-non-select-col"
   >
     <template v-if="readOnly" #[`item.productName`]="item">
       <p class="ma-0">{{ item?.item?.product?.name }}</p>

@@ -32,7 +32,7 @@
       />
     </v-row>
 
-    <v-row class="px-6 pt-4">
+    <v-row class="px-6 py-4">
       <v-data-table
         :headers="headers"
         :items="datas"
@@ -40,7 +40,8 @@
         :items-per-page="paginator?.limit"
         hide-default-footer
         no-data-text="No Data"
-        class="data-table"
+        disable-sort
+        class="data-table fixed-non-select-col"
       >
         <template #[`item.image`]="item">
           <v-img
@@ -790,18 +791,32 @@ export default {
         {
           text: 'Gambar',
           value: 'image',
-          width: '100px',
+          width: '120px',
         },
         {
           text: 'Nama',
           value: 'name',
           width: '200px',
+          sort: false,
         },
         { text: 'Stok', value: 'stock', width: '100px' },
-        { text: 'Kategori', value: 'category.name', width: '150px' },
-        { text: 'Harga Retail', value: 'retailPrice', width: '150px' },
-        { text: 'Harga Sales', value: 'wholesalerPrice', width: '150px' },
-        { text: 'Aksi', value: 'action', width: '150px' },
+        {
+          text: 'Kategori',
+          value: 'category.name',
+          width: '150px',
+        },
+        {
+          text: 'Harga Retail',
+          value: 'retailPrice',
+          width: '150px',
+        },
+        {
+          text: 'Harga Sales',
+          value: 'wholesalerPrice',
+          width: '150px',
+          sort: false,
+        },
+        { text: 'Aksi', value: 'action', width: '150px', sort: false },
       ],
       page: 1,
     }
