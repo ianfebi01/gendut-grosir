@@ -1022,24 +1022,24 @@ export default {
         name: {
           required,
           minLength: minLength(2),
-          maxLength: maxLength(20),
+          maxLength: maxLength(50),
         },
         category: {
           required,
         },
         buyPrice: {
           required,
-          maxLength: maxLength(20),
+          maxLength: maxLength(50),
           Number,
         },
         wholesalerPrice: {
           required,
-          maxLength: maxLength(20),
+          maxLength: maxLength(50),
           Number,
         },
         retailPrice: {
           required,
-          maxLength: maxLength(20),
+          maxLength: maxLength(50),
           Number,
         },
       },
