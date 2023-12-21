@@ -65,12 +65,18 @@ export const actions = {
         return false
       })
   },
-  addProduct({ dispatch }, body) {
+  addProduct({ dispatch }, formData) {
     dispatch('set/errorMessage', '')
+    let config = {
+      header: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
     return this.$axios
-      .post(`api/product`, { ...body })
+      .post(`api/product`, formData, config)
       .then((res) => {
         dispatch('set/product.push', res.data?.data)
+        // console.log(res.data)
 
         return true
       })
@@ -100,13 +106,18 @@ export const actions = {
         return false
       })
   },
-  editProduct({ dispatch, state }, body) {
+  editProduct({ dispatch, state }, formData) {
     dispatch('set/errorMessage', '')
+    let config = {
+      header: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
     return this.$axios
-      .put(`api/product/${body._id}`, { ...body })
+      .put(`api/product/${formData.get('_id')}`, formData, config)
       .then((res) => {
         const tmp = JSON.parse(JSON.stringify(state.product))
-        const index = tmp.findIndex((item) => item._id === body._id)
+        const index = tmp.findIndex((item) => item._id === formData.get('_id'))
         if (index != -1) {
           tmp[index] = {
             ...res?.data?.data,

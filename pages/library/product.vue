@@ -120,13 +120,14 @@
       :error-message="errorMessage"
       :modal-prop="modal"
       :disable="$v.form.$invalid"
+      :fullscreen="$vuetify.breakpoint.xs"
       @cancel="clearAll"
       @save="handleAdd"
       @clearErrorMessage="$store.set('product/errorMessage', '')"
     >
       <template #content>
         <v-row class="mt-2">
-          <v-col cols="6">
+          <v-col cols="12" md="6">
             <div
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
@@ -259,7 +260,7 @@
               </template>
             </v-autocomplete>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="12" md="6">
             <div
               class="font-weight-medium mb-1 gray_700--text"
               style="font-size: 14px"
@@ -429,6 +430,7 @@
       :error-message="errorMessage"
       :modal-prop="editModal"
       :disable="$v.form.$invalid"
+      :fullscreen="$vuetify.breakpoint.xs"
       @cancel="clearAll"
       @save="handleEdit"
       @clearErrorMessage="$store.set('product/errorMessage', '')"
@@ -763,7 +765,6 @@ export default {
         wholesalerPrice: null,
         retailPrice: null,
         barcode: null,
-        image: null,
       },
       loading: {
         barcode: false,
@@ -859,21 +860,19 @@ export default {
     async handleAdd() {
       this.loading.add = true
 
+      const formData = new FormData()
       if (this.image) {
-        const formData = new FormData()
         formData.append('image', this.image)
-        formData.append('path', 'gendut-grosir')
-        const res = await this.$store.dispatch(
-          'uploadImages/uploadImages',
-          formData
-        )
-        if (res) {
-          this.form.image = this.imageUrl[0].url
-        }
       }
-      const body = { ...this.form }
+      Object.keys(this.form).forEach((key) => {
+        if (this.form[key] !== null) {
+          formData.append(key, this.form[key])
+        }
+      })
+      const res = await this.$store.dispatch('product/addProduct', formData)
+      // const body = { ...this.form }
 
-      const res = await this.$store.dispatch('product/addProduct', body)
+      // const res = await this.$store.dispatch('product/addProduct', body)
       if (res) {
         this.loading.add = false
         this.modal = false
@@ -924,23 +923,17 @@ export default {
       this.loading.add = true
 
       // Upload Image
+      const formData = new FormData()
       if (this.image) {
-        const formData = new FormData()
         formData.append('image', this.image)
-        formData.append('path', 'gendut-grosir')
-        const res = await this.$store.dispatch(
-          'uploadImages/uploadImages',
-          formData
-        )
-        if (res) {
-          this.form.image = this.imageUrl[0].url
+      }
+      Object.keys(this.form).forEach((key) => {
+        if (this.form[key] !== null) {
+          formData.append(key, this.form[key])
         }
-      }
-      // Make body
-      const body = {
-        ...this.form,
-      }
-      const res = await this.$store.dispatch('product/editProduct', body)
+      })
+      const res = await this.$store.dispatch('product/editProduct', formData)
+
       if (res) {
         this.loading.add = false
         this.editModal = false

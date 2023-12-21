@@ -1,5 +1,11 @@
 <template>
-  <v-dialog v-model="modal" persistent :width="width" scrollable>
+  <v-dialog
+    v-model="modal"
+    persistent
+    :width="width"
+    scrollable
+    :fullscreen="fullscreen"
+  >
     <v-card style="border-radius: 12px !important">
       <v-card-title
         class="d-flex flex-column justify-center letter-spacing-normal mb-2"
@@ -104,6 +110,10 @@ export default {
       default: '408px',
     },
     value: {
+      type: Boolean,
+      default: false,
+    },
+    fullscreen: {
       type: Boolean,
       default: false,
     },
