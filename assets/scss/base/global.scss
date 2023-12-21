@@ -251,3 +251,14 @@ div.fixed-select-col table > thead > tr > th:nth-child(3) {
     border-radius: #{$i}px !important;
   }
 }
+
+
+// Component <transition>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease-in-out;
+}
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+}

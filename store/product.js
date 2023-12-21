@@ -5,6 +5,7 @@ export const state = () => ({
   productDetails: {},
   errorMessage: '',
   paginator: {},
+  uploadProgress: null,
 })
 
 export const mutations = { ...defaultMutations(state()) }
@@ -65,12 +66,15 @@ export const actions = {
         return false
       })
   },
+  // Upload
   addProduct({ dispatch }, formData) {
     dispatch('set/errorMessage', '')
     let config = {
       header: {
         'Content-Type': 'multipart/form-data',
       },
+      onUploadProgress: (progressEvent) =>
+        dispatch('onUploadProgress', progressEvent),
     }
     return this.$axios
       .post(`api/product`, formData, config)
@@ -83,6 +87,37 @@ export const actions = {
       .catch((err) => {
         console.log(err)
         dispatch('set/errorMessage', err)
+        return false
+      })
+  },
+  editProduct({ dispatch, state }, formData) {
+    dispatch('set/errorMessage', '')
+    let config = {
+      header: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) =>
+        dispatch('onUploadProgress', progressEvent),
+    }
+    return this.$axios
+      .put(`api/product/${formData.get('_id')}`, formData, config)
+      .then((res) => {
+        const tmp = JSON.parse(JSON.stringify(state.product))
+        const index = tmp.findIndex((item) => item._id === formData.get('_id'))
+        if (index != -1) {
+          tmp[index] = {
+            ...res?.data?.data,
+          }
+        }
+
+        dispatch('set/product', tmp)
+        dispatch('set/uploadProgress', null)
+        return true
+      })
+      .catch((err) => {
+        console.log(err)
+        dispatch('set/errorMessage', err)
+        dispatch('set/uploadProgress', null)
         return false
       })
   },
@@ -103,32 +138,6 @@ export const actions = {
       .catch((err) => {
         console.log(err)
         dispatch('set/errorMessage', err?.response?.data?.message)
-        return false
-      })
-  },
-  editProduct({ dispatch, state }, formData) {
-    dispatch('set/errorMessage', '')
-    let config = {
-      header: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }
-    return this.$axios
-      .put(`api/product/${formData.get('_id')}`, formData, config)
-      .then((res) => {
-        const tmp = JSON.parse(JSON.stringify(state.product))
-        const index = tmp.findIndex((item) => item._id === formData.get('_id'))
-        if (index != -1) {
-          tmp[index] = {
-            ...res?.data?.data,
-          }
-        }
-        dispatch('set/product', tmp)
-        return true
-      })
-      .catch((err) => {
-        console.log(err)
-        dispatch('set/errorMessage', err.response.data?.message)
         return false
       })
   },
@@ -170,5 +179,10 @@ export const actions = {
     })
 
     dispatch('set/product', product)
+  },
+  onUploadProgress({ dispatch }, progressEvent) {
+    const { loaded, total } = progressEvent
+    let percent = Math.floor((loaded * 100) / total)
+    dispatch('set/uploadProgress', percent)
   },
 }

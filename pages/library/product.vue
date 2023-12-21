@@ -417,6 +417,17 @@
             >
             </v-text-field>
           </v-col>
+          <v-col v-if="uploadProgress" cols="12">
+            <v-progress-linear
+              :value="uploadProgress"
+              color="primary"
+              height="25"
+            >
+              <template #default="{ value }">
+                <strong class="white--text">{{ value }}%</strong>
+              </template>
+            </v-progress-linear>
+          </v-col>
         </v-row>
       </template>
     </Modal>
@@ -727,6 +738,17 @@
             >
             </v-text-field>
           </v-col>
+          <v-col v-if="uploadProgress" cols="12">
+            <v-progress-linear
+              :value="uploadProgress"
+              color="primary"
+              height="25"
+            >
+              <template #default="{ value }">
+                <strong class="white--text">{{ value }}%</strong>
+              </template>
+            </v-progress-linear>
+          </v-col>
         </v-row>
       </template>
     </Modal>
@@ -835,6 +857,9 @@ export default {
     },
     errorMessage() {
       return this.$store.get('product/errorMessage')
+    },
+    uploadProgress() {
+      return this.$store.get('product/uploadProgress')
     },
     category() {
       return this.$store.get('category/category')

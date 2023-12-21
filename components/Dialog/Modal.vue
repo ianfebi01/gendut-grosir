@@ -173,14 +173,4 @@ export default {
   height: 58px;
   border: 8px solid v.$success_50;
 }
-
-// Component <transition>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease-in-out;
-}
-.fade-enter,
-.fade-leave-active {
-  opacity: 0;
-}
 </style>
