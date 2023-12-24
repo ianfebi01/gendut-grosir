@@ -3,7 +3,6 @@
     class="card"
     text
     outlined
-    height="auto"
     style="overflow: hidden"
     :loading="loading === item?.id"
     :disabled="loading === item?.id || item?.stock <= 0"
@@ -17,7 +16,7 @@
         class="loader"
       ></v-progress-circular>
     </template>
-    <v-container class="pa-0">
+    <v-container class="pa-0 d-flex flex-column" style="height: 100%">
       <v-img
         lazy-src="lazy-loader.svg"
         :src="item?.image"
@@ -40,12 +39,13 @@
       </v-img>
 
       <v-list-item-title
-        class="text-title mt-2 font-weight-medium letter-spacing-normal text-14 px-0 gray_900--text mx-3"
+        class="text-title mt-2 font-weight-medium letter-spacing-normal text-14 gray_900--text px-3"
+        style="width: 100%"
       >
         {{ item?.name }}
       </v-list-item-title>
-
-      <v-card-actions class="px-0 text-body-2 mx-3 mb-3">
+      <div class="flex-grow-1"></div>
+      <v-card-actions class="px-0 text-body-2 mx-3">
         <div
           style="width: 100%"
           class="px-0 d-flex align-center justify-space-between"
@@ -120,7 +120,9 @@ export default {
 }
 
 .card {
-  border: 1px solid #eaecf0;
+  //border: 1px solid #eaecf0;
+  border: 1px solid red;
+  height: 100%;
 
   box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1),
     0px 1px 2px rgba(16, 24, 40, 0.06);
@@ -136,7 +138,6 @@ export default {
 
 .text-title {
   max-height: 60px;
-  margin-right: 10px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
