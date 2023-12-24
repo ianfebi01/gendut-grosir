@@ -81,6 +81,7 @@ export const actions = {
       .then((res) => {
         dispatch('set/product.push', res.data?.data)
         // console.log(res.data)
+        dispatch('set/uploadProgress', null)
 
         return true
       })
