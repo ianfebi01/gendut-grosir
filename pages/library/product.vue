@@ -48,7 +48,7 @@
             lazy-src="lazy-loader.svg"
             height="40"
             width="40"
-            :src="item?.item?.image"
+            :src="$changeImageSize(item?.item?.image, 'xs')"
           />
         </template>
         <template #[`item.retailPrice`]="item">

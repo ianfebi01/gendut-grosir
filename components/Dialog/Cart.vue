@@ -36,7 +36,10 @@
               width="50"
               style="border-radius: 8px"
             >
-              <v-img lazy-src="lazy-loader.svg" :src="item?.image"></v-img>
+              <v-img
+                lazy-src="lazy-loader.svg"
+                :src="$changeImageSize(item?.image, 'xs')"
+              ></v-img>
             </v-list-item-avatar>
 
             <v-list-item-content>

@@ -11,7 +11,7 @@ const imageCompress = (url, size) => {
     case 'xs':
       return newStr(url, 50)
     case 'sm':
-      return newStr(url, 150)
+      return newStr(url, 200)
     case 'md':
       return newStr(url, 300)
     case 'lg':
