@@ -120,8 +120,7 @@ export default {
 }
 
 .card {
-  //border: 1px solid #eaecf0;
-  border: 1px solid red;
+  border: 1px solid #eaecf0;
   height: 100%;
 
   box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1),

@@ -1,7 +1,7 @@
 <template>
   <v-container
     fluid
-    class="full-width-height gray_100 d-flex flex-column align-center justify-center"
+    class="full-width-height gray_100 d-flex flex-column align-center justify-start"
   >
     <transition name="fade">
       <Snackbar
@@ -24,10 +24,14 @@
         @set="$store.set('order/errorMessage', '')"
       />
     </transition>
-    <v-row class="pt-4" style="width: 100%; max-width: 960px">
+    <v-row
+      class="pt-4"
+      style="width: 100%; max-width: 960px; height: fit-content; flex-grow: 0"
+    >
       <v-list
         width="100%"
         class="py-0 d-flex flex-column justify-center align-center"
+        style="height: fit-content"
       >
         <v-list-item-group
           class="d-flex align-center flex-wrap"
@@ -78,13 +82,14 @@
       v-if="datas?.length && !loading.loadingProduct"
       class="pt-4 py-6 align-self-center"
       justify="left"
-      style="width: 100%; max-width: 960px; height: 100%"
+      style="width: 100%; max-width: 960px; flex-grow: 0"
     >
       <v-col
         v-for="item in datas"
         :key="item?.id"
         class="pa-1"
         :cols="cardPerPage($vuetify.breakpoint)"
+        style="max-height: 280px"
       >
         <Product
           :item="item"
