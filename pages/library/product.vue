@@ -986,7 +986,7 @@ export default {
       this.loading.category = true
       const params = {
         q: q,
-        page: this.page,
+        page: 1,
         limit: 25,
       }
       const res = await this.$store.dispatch('category/getCategory', params)
