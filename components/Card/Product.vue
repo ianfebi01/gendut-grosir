@@ -19,7 +19,11 @@
     <v-container class="pa-0 d-flex flex-column" style="height: 100%">
       <v-img
         lazy-src="lazy-loader.svg"
-        :src="item?.image"
+        :src="
+          $vuetify.breakpoint.mdAndUp
+            ? $changeImageSize(item?.image, 'md')
+            : $changeImageSize(item?.image, 'sm')
+        "
         height="150px"
         width="100%"
         class=""

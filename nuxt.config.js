@@ -30,6 +30,7 @@ export default {
     { src: '@/plugins/chart.js', mode: 'client' },
     { src: '@/plugins/formatRupiah.js' },
     { src: '@/plugins/formatDate.js' },
+    { src: '@/plugins/changeImageSize.js' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
