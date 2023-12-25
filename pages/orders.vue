@@ -45,7 +45,7 @@
 
         <template #[`item.createdAt`]="item">
           <span>
-            {{ $formatDate(item?.item?.createdAt, 'with-clock') }}
+            {{ $formatDate(item?.item?.date, 'with-clock') }}
           </span>
         </template>
         <template #[`item.details.length`]="item">
