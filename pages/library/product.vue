@@ -92,7 +92,7 @@
               height="36"
               depressed
               dense
-              :disabled="!paginator.hasPrevPage"
+              :disabled="!paginator.hasPrevPage || loading.datas"
               @click="page--"
               >Previous</v-btn
             >
@@ -102,7 +102,7 @@
               height="36"
               depressed
               dense
-              :disabled="!paginator.hasNextPage"
+              :disabled="!paginator.hasNextPage || loading.datas"
               @click="page++"
               >Next</v-btn
             >

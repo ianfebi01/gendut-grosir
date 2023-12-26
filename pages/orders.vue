@@ -74,6 +74,11 @@
                 small
                 width="80px"
                 :loading="loading.status === item?.item?.orderId"
+                :disabled="
+                  loading.status !== '' ||
+                  loading.cancelOrder !== '' ||
+                  loading.downloadInvoice !== ''
+                "
                 v-bind="attrs"
                 v-on="on"
                 @click="
@@ -91,7 +96,12 @@
             depressed
             outlined
             small
-            :disabled="item?.item?.status !== 'complete'"
+            :disabled="
+              item?.item?.status !== 'complete' ||
+              loading.downloadInvoice !== '' ||
+              loading.cancelOrder !== '' ||
+              loading.status !== ''
+            "
             :class="`'text-12`"
             :loading="loading.downloadInvoice === item?.item?.orderId"
             @click="downloadInvoice(item?.item?.orderId)"
@@ -106,7 +116,10 @@
             small
             :disabled="
               item?.item?.status === 'complete' ||
-              item?.item?.status === 'cancel'
+              item?.item?.status === 'cancel' ||
+              loading.cancelOrder !== '' ||
+              loading.downloadInvoice !== '' ||
+              loading.status !== ''
             "
             :class="`'text-12`"
             :loading="loading.cancelOrder === item?.item?.orderId"
@@ -127,7 +140,7 @@
               height="36"
               depressed
               dense
-              :disabled="!paginator.hasPrevPage"
+              :disabled="!paginator.hasPrevPage || loading.data"
               @click="params.page--"
               >Sebelumnya</v-btn
             >
@@ -137,7 +150,7 @@
               height="36"
               depressed
               dense
-              :disabled="!paginator.hasNextPage"
+              :disabled="!paginator.hasNextPage || loading.data"
               @click="params.page++"
               >Selanjutnya</v-btn
             >
