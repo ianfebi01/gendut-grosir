@@ -172,7 +172,10 @@
             class="border mb-2"
           >
             <v-list-item-avatar height="50" width="50" class="border-radius-8">
-              <v-img lazy-src="lazy-loader.svg" :src="item?.product?.image" />
+              <v-img
+                lazy-src="lazy-loader.svg"
+                :src="$changeImageSize(item?.product?.image, 'sm')"
+              />
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title
