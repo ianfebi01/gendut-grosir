@@ -28,7 +28,9 @@
         class="data-table fixed-non-select-col"
       >
         <template #[`item._id`]="index">
-          <span>{{ index?.index + 1 }}</span>
+          <span>
+            {{ (paginator.page - 1) * paginator.limit + index.index + 1 }}
+          </span>
         </template>
         <template #[`item.user.status`]="item">
           <span>{{
