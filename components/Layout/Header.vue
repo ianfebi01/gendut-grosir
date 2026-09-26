@@ -10,7 +10,7 @@
       </v-row>
 
       <template v-slot:append>
-        <v-badge v-if="router == '/'" bordered color="primary" :model-value="!!cart?.length" :content="cart?.length">
+        <v-badge v-if="router == '/'" bordered color="primary" class="pr-2" :model-value="!!cart?.length" :content="cart?.length">
           <v-btn v-if="router == '/'" icon="$cart" size="small" @click="openCart"/>
         </v-badge>
       </template>
