@@ -177,6 +177,18 @@ div.fixed-select-col table > thead > tr > th:nth-child(3) {
   }
 }
 
+// Remove elevation / shadow from all text fields.
+// Vuetify's `solo` variant renders its own box-shadow that the
+// `elevation="0"` prop does not remove, so kill it explicitly.
+.v-field--variant-solo,
+.v-field--variant-solo-filled,
+.v-field--variant-solo-inverted,
+.v-text-field .v-field,
+.v-select .v-field,
+.v-autocomplete .v-field {
+  box-shadow: none !important;
+}
+
 // Border
 .border {
   border-radius: 8px !important;
