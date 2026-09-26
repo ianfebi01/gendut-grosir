@@ -1,9 +1,5 @@
 {
-  "builds": [
-    {
-      "src": "nuxt.config.js",
-      "use": "@nuxtjs/vercel-builder",
-      "config": {}
-    }
-  ]
+  "buildCommand": "yarn build",
+  "outputDirectory": ".output/public",
+  "framework": "nuxt"
 }
