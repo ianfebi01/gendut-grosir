@@ -1,74 +1,82 @@
 <template>
-  <v-card
-    class="card"
-    variant="outlined"
-    style="overflow: hidden"
-    :loading="loading === item?.id"
-    :disabled="loading === item?.id || item?.stock <= 0"
-    @click="$emit('handleClick', item)"
-  >
-    <template #progress>
-      <v-progress-circular
-        indeterminate
-        size="35"
-        color="primary"
-        class="loader"
-      ></v-progress-circular>
-    </template>
-    <v-container class="pa-0 d-flex flex-column" style="height: 100%">
-      <v-img
-        lazy-src="/lazy-loader.svg"
-        :src="
-          $vuetify.display.mdAndUp
-            ? $changeImageSize(item?.image, 'md')
-            : $changeImageSize(item?.image, 'sm')
-        "
-        height="150px"
-        width="100%"
-        class=""
+  <v-hover>
+    <template v-slot:default="{ isHovering, props }">
+      <v-card
+        v-bind="props"
+        variant="flat"
+        style="overflow: hidden; transition: all 150ms;"
+        class="border h-100"
+        :style="!isHovering && 'border-color: transparent'"
+        :loading="loading === item?.id"
+        :disabled="loading === item?.id || item?.stock <= 0"
+        @click="$emit('handleClick', item)"
       >
-        <v-card-actions class="d-flex justify-end">
-          <v-btn
-            icon
-            size="small"
-            active-class="color:primary !important"
-            class="pa-2"
-            variant="flat"
+        <template #progress>
+          <v-progress-circular
+            indeterminate
+            size="35"
             color="primary"
+            class="loader"
+          ></v-progress-circular>
+        </template>
+        <v-container class="pa-0 d-flex flex-column" style="height: 100%">
+          <v-img
+            lazy-src="/lazy-loader.svg"
+            :src="
+              $vuetify.display.mdAndUp
+                ? $changeImageSize(item?.image, 'md')
+                : $changeImageSize(item?.image, 'sm')
+            "
+            height="150px"
+            width="100%"
+            cover
           >
-            <span class="text-white font-weight-bold">{{ item?.stock }}</span>
-          </v-btn>
-        </v-card-actions>
-      </v-img>
+            <v-card-actions class="d-flex justify-end">
+              <v-btn
+                icon
+                size="small"
+                active-class="color:primary !important"
+                class="pa-2"
+                variant="flat"
+                color="primary"
+              >
+                <span class="text-white font-weight-bold">{{
+                  item?.stock
+                }}</span>
+              </v-btn>
+            </v-card-actions>
+          </v-img>
 
-      <v-list-item-title
-        class="text-title mt-2 font-weight-medium letter-spacing-normal text-14 text-gray_900 px-3"
-        style="width: 100%"
-      >
-        {{ item?.name }}
-      </v-list-item-title>
-      <div class="flex-grow-1"></div>
-      <v-card-actions class="px-0 text-body-2 mx-3">
-        <div
-          style="width: 100%"
-          class="px-0 d-flex align-center justify-space-between"
-        >
-          <div class="d-flex flex-column justify-center">
-            <span class="text-secondary text-subtitle-2">Price:</span>
-            <span class="text-gray_900 font-weight-bold">
-              {{
-                customerStatus === 'retail'
-                  ? formatRupiah(item?.retailPrice)
-                  : customerStatus === 'wholesaler'
-                  ? formatRupiah(item?.wholesalerPrice)
-                  : ''
-              }}
-            </span>
-          </div>
-        </div>
-      </v-card-actions>
-    </v-container>
-  </v-card>
+          <v-card-title
+            class="text-title mt-2 letter-spacing-normal text-18 text-gray_900 px-3"
+            style="width: 100%"
+          >
+            {{ item?.name }}
+          </v-card-title>
+          <div class="flex-grow-1"></div>
+          <v-card-actions class="px-0 text-body-2 mx-3">
+            <div
+              style="width: 100%"
+              class="px-0 d-flex align-center justify-space-between"
+            >
+              <div class="d-flex flex-column justify-center">
+                <span class="text-secondary text-subtitle-2">Price:</span>
+                <span class="text-gray_900 font-weight-bold">
+                  {{
+                    customerStatus === 'retail'
+                      ? formatRupiah(item?.retailPrice)
+                      : customerStatus === 'wholesaler'
+                        ? formatRupiah(item?.wholesalerPrice)
+                        : ''
+                  }}
+                </span>
+              </div>
+            </div>
+          </v-card-actions>
+        </v-container>
+      </v-card>
+    </template></v-hover
+  >
 </template>
 
 <script>
@@ -115,32 +123,11 @@ const { $changeImageSize } = useNuxtApp()
 </script>
 
 <style lang="scss" scoped>
-:deep(.v-btn:not(.v-btn--icon)) {
-  border-radius: 8px !important;
-}
-
-.card {
-  border: 1px solid #eaecf0;
-  height: 100%;
-
-  box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1),
-    0px 1px 2px rgba(16, 24, 40, 0.06);
-  border-radius: 8px !important;
-  .img {
-    border-radius: 8px;
-  }
-}
-
-:deep(.v-list-item) {
-  padding: 0;
-}
-
 .text-title {
   max-height: 60px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  font-size: 14px !important;
 
   @supports (-webkit-line-clamp: 2) {
     overflow: hidden;
@@ -151,6 +138,7 @@ const { $changeImageSize } = useNuxtApp()
     -webkit-box-orient: vertical;
   }
 }
+
 .loader {
   position: absolute;
   top: 50%;
