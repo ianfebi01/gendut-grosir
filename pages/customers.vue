@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="full-width-height bg-gray_100">
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <span class="text-30 font-weight-medium text-gray_900"> Customer </span>
       <v-spacer></v-spacer>
       <v-btn
@@ -14,19 +14,19 @@
         Tambah Customer
       </v-btn>
     </v-row>
-    <v-row class="px-6">
+    <v-row class="">
       <span class="text-14 font-weight-normal text-gray_500">
         Kelola Customer Anda
       </span>
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <Search
         v-model="search"
         style="max-width: 400px"
         @update:model-value="handleSearch"
       />
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <v-data-table
         :headers="headers"
         :items="datas"

@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="full-width-height bg-gray_100">
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <span class="text-30 font-weight-medium text-gray_900">
         Stock Opname
       </span>
@@ -38,12 +38,12 @@
         </v-btn>
       </div>
     </v-row>
-    <v-row class="px-6">
+    <v-row class="">
       <span class="text-14 font-weight-normal text-gray_500">
         Kelola stock opmane Anda
       </span>
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <Search
         v-if="!mode.add"
         v-model="params.q"
@@ -54,7 +54,7 @@
         <InputDate :value="dayjs(payload.date).format('DD/MM/YYYY')" />
       </template>
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <StockOpnameDataTable
         v-if="!mode.add"
         :headers="headers"

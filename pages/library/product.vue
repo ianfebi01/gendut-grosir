@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="full-width-height bg-gray_100">
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <div class="d-flex flex-column">
         <span class="text-30 font-weight-medium text-gray_900"> Produk </span>
         <span class="text-14 font-weight-normal text-gray_500">
@@ -30,7 +30,7 @@
       </v-btn>
     </v-row>
 
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <Search
         v-model="search"
         style="max-width: 400px"
@@ -38,7 +38,7 @@
       />
     </v-row>
 
-    <v-row class="px-6 py-4">
+    <v-row class=" py-4">
       <v-data-table
         :headers="headers"
         :items="datas"

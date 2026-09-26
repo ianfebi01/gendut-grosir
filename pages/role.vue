@@ -7,7 +7,7 @@
       :search-bar="false"
     />
 
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <div class="row-content pa-4">
         <h1 class="text-gray_900 text-24 font-weight-regular">
           Kelola Hak Akses

@@ -1,21 +1,21 @@
 <template>
   <v-container fluid class="full-width-height bg-gray_100">
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <span class="text-30 font-weight-medium text-gray_900"> Analitik </span>
     </v-row>
-    <v-row class="px-6">
+    <v-row class="">
       <span class="text-14 font-weight-normal text-gray_500">
         Lihat grafik penjualan Anda
       </span>
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <!-- DatePicker -->
       <v-col cols="auto" class="pa-0">
         <DateRangePicker v-model="range" @apply="getAnalytic()" />
       </v-col>
       <!-- End -->
     </v-row>
-    <v-row class="px-6 pt-6">
+    <v-row class=" pt-6">
       <div class="row-content pa-4">
         <LineChart
           v-if="datas?.length && !loading.firstLoad"

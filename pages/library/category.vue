@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="full-width-height bg-gray_100">
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <span class="text-30 font-weight-medium text-gray_900"> Kategori </span>
       <v-spacer></v-spacer>
       <v-btn
@@ -14,19 +14,19 @@
         Tambah Kategori
       </v-btn>
     </v-row>
-    <v-row class="px-6">
+    <v-row class="">
       <span class="text-14 font-weight-normal text-gray_500">
         Lihat semua kategori uyntuk produk Anda
       </span>
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <Search
         v-model="search"
         style="max-width: 400px"
         @input="handleSearch($event)"
       />
     </v-row>
-    <v-row class="px-6 pt-4">
+    <v-row class=" pt-4">
       <v-data-table
         :headers="headers"
         :items="category"
