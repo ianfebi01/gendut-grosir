@@ -19,6 +19,9 @@ export default defineNuxtConfig({
   vuetify: {
     moduleOptions: {
       styles: { configFile: 'assets/scss/abstracts/vuetify-settings.scss' },
+      // useLayout collides with Nuxt's built-in useLayout auto-import;
+      // prefix only Vuetify's copy (no code uses it, so nothing else changes).
+      prefixComposables: ['useLayout'],
     },
     vuetifyOptions: './vuetify.config.ts',
   },
