@@ -1,39 +1,19 @@
 <template>
   <v-app-bar color="white" :elevation="0" :height="72">
-    <div class="d-flex align-center" style="width: 100%">
-      <v-app-bar-nav-icon
-        color="gray_700"
-        @click.stop="toggleDrawer"
-      ></v-app-bar-nav-icon>
+    <template v-slot:prepend>
+      <v-app-bar-nav-icon color="gray_700" @click.stop="toggleDrawer"></v-app-bar-nav-icon>
+    </template>
 
-      <v-row
-        class="brand d-flex flex-column align-center justify-center"
-        no-gutters
-      >
+      <v-row class="brand d-flex flex-column align-center justify-center" no-gutters>
         <!-- Place your own logo here -->
         <img src="/logo.svg" alt="Logo GG" />
       </v-row>
 
-      <v-badge
-        v-if="router == '/'"
-        bordered
-        color="primary"
-        :model-value="!!cart?.length"
-        :content="cart?.length"
-      >
-        <v-btn
-          v-if="router == '/'"
-          icon
-          size="small"
-          density="compact"
-          variant="text"
-          @click="openCart"
-        >
-          <v-icon color="gray_700" size="20">$cart</v-icon>
-        </v-btn>
-      </v-badge>
-    </div>
-    <!-- <div class="d-flex align-center" style="width: 100%">gg</div> -->
+      <template v-slot:append>
+        <v-badge v-if="router == '/'" bordered color="primary" :model-value="!!cart?.length" :content="cart?.length">
+          <v-btn v-if="router == '/'" icon="$cart" size="small" @click="openCart"/>
+        </v-badge>
+      </template>
   </v-app-bar>
 </template>
 
@@ -68,7 +48,7 @@ export default {
       return useOrderStore().cart
     },
   },
-  mounted() {},
+  mounted() { },
   methods: {
     toggleDrawer() {
       useAppStore().toggleDrawer()
