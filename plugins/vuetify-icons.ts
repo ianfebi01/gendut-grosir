@@ -66,9 +66,11 @@ export default defineNuxtPlugin((nuxtApp) => {
       custom: {
         component: (props: any) => {
           const Cmp = customIcons[props.icon as string]
-          return Cmp
-            ? h(props.tag, [h(Cmp, { class: 'v-icon__svg' })])
-            : h(props.tag, props.icon)
+          // NOTE: do NOT add Vuetify's `v-icon__svg` class here. Its CSS
+          // (`fill: currentColor`) overrides the `fill="none"` attribute on
+          // our stroke-based SVGs and fills the insides. Rendering the raw
+          // component matches the old Vuetify 2 custom-icon look.
+          return Cmp ? h(props.tag, [h(Cmp)]) : h(props.tag, props.icon)
         },
       },
     }
