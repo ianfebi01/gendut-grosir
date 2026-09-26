@@ -12,9 +12,8 @@
     <template #[`item.product`]="item">
       <div>
         <v-btn
-          depressed
-          small
-          outlined
+          size="small"
+          variant="outlined"
           @click="$emit('clickProduct', item?.item?.product)"
           >{{ item?.item?.product?.length + ' Produk' }}</v-btn
         >
@@ -26,8 +25,8 @@
     <template #[`item.action`]="item">
       <div>
         <v-btn
-          depressed
-          small
+          size="small"
+          variant="flat"
           color="primary"
           :disabled="item?.item?.apply"
           :loading="loadingApply === item?.item?._id"
@@ -37,27 +36,25 @@
         </v-btn>
       </div>
     </template>
-    <template #footer>
+    <template #bottom>
       <div class="d-flex align-center text-14 my-4 mx-4">
-        <span class="gray_700--text font-weight-medium">{{
+        <span class="text-gray_700 font-weight-medium">{{
           'Page ' + paginator?.page + ' of ' + paginator?.totalPages
         }}</span>
         <v-spacer></v-spacer>
         <v-btn
-          outlined
+          variant="outlined"
           height="36"
-          depressed
-          dense
+          density="compact"
           :disabled="!paginator.hasPrevPage"
           @click="$emit('previous')"
           >Previous</v-btn
         >
         <v-btn
           class="ml-2"
-          outlined
+          variant="outlined"
           height="36"
-          depressed
-          dense
+          density="compact"
           :disabled="!paginator.hasNextPage"
           @click="$emit('next')"
           >Next</v-btn
@@ -92,4 +89,8 @@ export default {
     },
   },
 }
+</script>
+
+<script setup>
+const { $formatDate } = useNuxtApp()
 </script>

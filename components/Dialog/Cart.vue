@@ -3,15 +3,15 @@
     v-model="model"
     title="Keranjang"
     subtitle="Tambahkan produk untuk membeli"
-    :error-message="$store.get('order/errorMessage')"
+    :error-message="orderErrorMessage"
     icon="$cart"
     min-height="542"
     save-text="Beli"
     :disable="!datas.length"
     :loading="loading?.loadingCheckout || loading?.barcode"
-    :fullscreen="$vuetify.breakpoint.xs"
+    :fullscreen="$vuetify.display.xs"
     @save="handleCheckout"
-    @clearErrorMessage="$store.set('order/errorMessage', '')"
+    @clearErrorMessage="clearOrderError"
   >
     <template #content>
       <Barcode
@@ -25,58 +25,55 @@
         @handleBarcodeinput="handleBarcodeinput"
       />
       <template v-if="datas.length">
-        <v-list two-line>
+        <v-list lines="two">
           <v-list-item
             v-for="item in datas"
             :key="item?._id"
             class="border mb-2"
           >
-            <v-list-item-avatar
-              height="50"
-              width="50"
-              style="border-radius: 8px"
+            <template #prepend>
+              <v-avatar height="50" width="50" style="border-radius: 8px">
+                <v-img
+                  lazy-src="/lazy-loader.svg"
+                  :src="$changeImageSize(item?.image, 'xs')"
+                ></v-img>
+              </v-avatar>
+            </template>
+
+            <v-list-item-title
+              class="text-gray_900 text-16 font-weight-medium mb-2"
+              >{{ item?.name }}</v-list-item-title
             >
-              <v-img
-                lazy-src="lazy-loader.svg"
-                :src="$changeImageSize(item?.image, 'xs')"
-              ></v-img>
-            </v-list-item-avatar>
-
-            <v-list-item-content>
-              <v-list-item-title
-                class="gray_900--text text-16 font-weight-medium mb-2"
-                >{{ item?.name }}</v-list-item-title
+            <div class="action">
+              <v-btn
+                size="small"
+                icon
+                variant="outlined"
+                color="primary_300"
+                @click="handleMinus(item?._id)"
               >
-              <div class="action">
-                <v-btn
-                  small
-                  fab
-                  depressed
-                  color="primary_300"
-                  outlined
-                  @click="handleMinus(item?._id)"
-                >
-                  <v-icon class="qty" size="15">mdi-minus</v-icon>
-                </v-btn>
+                <v-icon class="qty" size="15">mdi-minus</v-icon>
+              </v-btn>
 
-                <span class="font-weight-bold mx-2 text-16">{{
-                  item?.qty
-                }}</span>
+              <span class="font-weight-bold mx-2 text-16">{{ item?.qty }}</span>
 
-                <v-btn
-                  small
-                  fab
-                  depressed
-                  color="primary_300"
-                  outlined
-                  @click="handlePlus(item?._id)"
-                >
-                  <v-icon class="qty" size="15">mdi-plus</v-icon>
-                </v-btn>
-              </div>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-btn depressed small fab text @click="handleDelete(item?._id)">
+              <v-btn
+                size="small"
+                icon
+                variant="outlined"
+                color="primary_300"
+                @click="handlePlus(item?._id)"
+              >
+                <v-icon class="qty" size="15">mdi-plus</v-icon>
+              </v-btn>
+            </div>
+            <template #append>
+              <v-btn
+                variant="text"
+                size="small"
+                icon
+                @click="handleDelete(item?._id)"
+              >
                 <v-icon size="15">$trash</v-icon>
               </v-btn>
               <v-list-item-title class="font-weight-bold text-14">
@@ -86,23 +83,19 @@
                     : formatRupiah(item?.wholesalerPrice)
                 }}
               </v-list-item-title>
-            </v-list-item-action>
+            </template>
           </v-list-item>
         </v-list>
         <v-list>
           <v-list-item class="border">
-            <v-list-item-content>
-              <v-list-item-title class="font-weight-bold text-14">
-                Total
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text
-                class="font-weight-bold text-14 gray_900--text"
-              >
+            <v-list-item-title class="font-weight-bold text-14">
+              Total
+            </v-list-item-title>
+            <template #append>
+              <span class="font-weight-bold text-14 text-gray_900">
                 {{ customer?.status === 'retail' ? totalRetail : totalSales }}
-              </v-list-item-action-text>
-            </v-list-item-action>
+              </span>
+            </template>
           </v-list-item>
         </v-list>
       </template>
@@ -122,6 +115,8 @@ import debounce from 'lodash/debounce'
 import directive from '~/utils/directive'
 import replaceChar from '~/utils/mixins/replaceChar'
 import { formatRupiah } from '~/utils/formatRupiah'
+import { useOrderStore } from '~/stores/order'
+import { useProductStore } from '~/stores/product'
 import Empty from '../Layout/Empty.vue'
 import Modal from './Modal.vue'
 import Barcode from '~/components/Input/Barcode.vue'
@@ -131,7 +126,7 @@ export default {
   components: { Empty, Modal, Barcode },
   mixins: [directive, replaceChar],
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false,
     },
@@ -140,6 +135,7 @@ export default {
       default: () => {},
     },
   },
+  emits: ['update:model-value', 'successCheckout'],
   data() {
     return {
       params: {
@@ -160,22 +156,25 @@ export default {
   computed: {
     model: {
       get: function () {
-        return this.value
+        return this.modelValue
       },
       set: function (newValue) {
-        this.$emit('input', newValue)
+        this.$emit('update:model-value', newValue)
       },
     },
     datas: {
       get() {
-        return this.$store.get('order/cart')
+        return useOrderStore().cart
       },
       set(newValue) {
-        this.$store.set('order/cart', newValue)
+        useOrderStore().setCart(newValue)
       },
     },
     detailOrder() {
-      return this.$store.get('order/detailOrder')
+      return useOrderStore().detailOrder
+    },
+    orderErrorMessage() {
+      return useOrderStore().errorMessage
     },
     totalRetail() {
       const tmp = this.datas.map((item) => {
@@ -200,6 +199,9 @@ export default {
     },
   },
   methods: {
+    clearOrderError() {
+      useOrderStore().errorMessage = ''
+    },
     async focusBarcode() {
       await this.$nextTick()
       this.$refs.barcode.$refs.barcode.focus()
@@ -208,13 +210,13 @@ export default {
       return formatRupiah(item)
     },
     handlePlus(id) {
-      this.$store.dispatch('order/plus', id)
+      useOrderStore().plus(id)
     },
     handleMinus(id) {
-      this.$store.dispatch('order/minus', id)
+      useOrderStore().minus(id)
     },
     handleDelete(id) {
-      this.$store.dispatch('order/delete', id)
+      useOrderStore().delete(id)
     },
     async handleCheckout() {
       this.loading.loadingCheckout = true
@@ -231,11 +233,11 @@ export default {
         user: this.customer?._id || '',
         details,
       }
-      const res = await this.$store.dispatch('order/postOrder', this.params)
+      const res = await useOrderStore().postOrder(this.params)
       if (res) {
         this.datas = []
         // const
-        this.$store.dispatch('product/orderSuccess', this.detailOrder?.details)
+        useProductStore().orderSuccess(this.detailOrder?.details)
         this.loading.loadingCheckout = false
         this.model = false
         this.$emit('successCheckout')
@@ -246,11 +248,8 @@ export default {
     handleBarcodeinput: debounce(async function () {
       this.loading.barcode = true
       this.barcode = this.onlyNumber(this.barcode)
-      const res = await this.$store.dispatch(
-        'product/getProductByBarcode',
-        this.barcode
-      )
-      const product = this.$store.get('product/productDetails')
+      const res = await useProductStore().getProductByBarcode(this.barcode)
+      const product = useProductStore().productDetails
 
       // if success get product
       if (res) {
@@ -259,11 +258,11 @@ export default {
           ...product,
           qty: 1,
         }
-        this.$store.dispatch('order/addCart', payload)
+        useOrderStore().addCart(payload)
         this.successAddCart = true
         this.barcode = null
       } else {
-        this.errorMessage.barcode = this.$store.get('product/errorMessage')
+        this.errorMessage.barcode = useProductStore().errorMessage
       }
       this.loading.barcode = false
     }, 500),
@@ -272,7 +271,7 @@ export default {
         ...item,
         qty: 1,
       }
-      this.$store.dispatch('order/addCart', payload)
+      useOrderStore().addCart(payload)
       this.successAddCart = true
       setTimeout(() => {
         /**
@@ -284,6 +283,11 @@ export default {
   },
 }
 </script>
+
+<script setup>
+const { $changeImageSize } = useNuxtApp()
+</script>
+
 <style lang="scss" scoped>
 @use '@/assets/scss/abstracts/variables.scss' as v;
 .icon {

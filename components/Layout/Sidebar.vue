@@ -1,120 +1,108 @@
 <template>
-  <div>
-    <v-navigation-drawer
-      :value="drawer"
-      app
-      color="bg_sidebar"
-      width="280"
-      dark
-      style="height: 100svh"
+  <v-navigation-drawer
+    v-model="drawer"
+    color="bg_sidebar"
+    width="280"
+    theme="dark"
+    disable-resize-watcher
+    style="height: 100svh"
+  >
+    <v-row
+      class="brand d-flex flex-column align-center justify-center"
+      no-gutters
     >
-      <v-layout
-        class="brand d-flex flex-column align-center justify-center"
-        align-center
-        justify-center
-      >
-        <!-- Place your own logo here -->
-        <img src="/logo-light.svg" alt="Logo GG" />
-      </v-layout>
+      <!-- Place your own logo here -->
+      <img src="/logo-light.svg" alt="Logo GG" />
+    </v-row>
 
-      <!-- <v-divider></v-divider> -->
+    <!-- <v-divider></v-divider> -->
 
-      <v-list class="list mt-4" dense>
-        <v-list-item-group :value="menus.activeMenu" color="gray_100">
-          <template v-for="menu in menus.filteredMenu">
-            <template v-if="!menu.children">
+    <v-list
+      v-model:selected="selectedMenu"
+      v-model:opened="openedGroups"
+      class="list mt-4"
+      density="compact"
+      color="gray_100"
+    >
+      <template v-for="menu in menus.filteredMenu" :key="menu.name">
+        <template v-if="!menu.children">
+          <v-list-item
+            :id="menu.name"
+            :value="menu.name"
+            style="margin-top: 8px"
+            :class="{ list__active: menus.activeMenu === menu.name }"
+            @click="$router.push(menu.url)"
+          >
+            <template #prepend>
+              <v-icon color="gray_300">{{ menu.icon }}</v-icon>
+            </template>
+            <v-list-item-title class="text-gray_100">
+              {{ menu.title }}
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+
+        <template v-else>
+          <v-list-group :value="menu.name" color="gray_100">
+            <template #activator="{ props }">
               <v-list-item
-                :id="menu.name"
-                :key="menu.name"
+                v-bind="props"
                 :value="menu.name"
                 style="margin-top: 8px"
-                :class="{ list__active: menus.activeMenu === menu.name }"
-                link
-                @click="$router.push(menu.url)"
               >
-                <v-list-item-action v-if="menu.name === 'Sign Out'">
+                <template #prepend>
                   <v-icon color="gray_300">{{ menu.icon }}</v-icon>
-                </v-list-item-action>
-                <v-list-item-action v-else>
-                  <v-icon color="gray_300" class="gray_300--text">{{
-                    menu.icon
-                  }}</v-icon>
-                </v-list-item-action>
-                <v-list-item-content v-if="menu.name === 'Sign Out'">
-                  <v-list-item-title class="gray_100--text">{{
-                    menu.title
-                  }}</v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-content v-else>
-                  <v-list-item-title class="gray_100--text">{{
-                    menu.title
-                  }}</v-list-item-title>
-                </v-list-item-content>
+                </template>
+                <v-list-item-title class="text-gray_100">
+                  {{ menu.title }}
+                </v-list-item-title>
               </v-list-item>
             </template>
 
-            <template v-else-if="menu.children">
-              <v-list-group
-                :key="menu.name"
-                :value="isSubmenuOpen(menu.url)"
-                no-action
-                style="margin-top: 8px"
-                color="gray_100"
-              >
-                <template #activator>
-                  <v-list-item-action>
-                    <v-icon color="gray_300">{{ menu.icon }}</v-icon>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title class="gray_100--text">{{
-                      menu.title
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </template>
-
-                <v-list-item
-                  v-for="submenu in menu.children"
-                  :key="submenu.name"
-                  :value="submenu.name"
-                  style="margin-top: 8px; padding-left: 54px"
-                  :class="{ list__active: menus.activeMenu === submenu.name }"
-                  link
-                  @click="$router.push(submenu.url)"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title class="gray_100--text">{{
-                      submenu.title
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-group>
-            </template>
-          </template>
-        </v-list-item-group>
-      </v-list>
-      <div class="profile">
-        <v-divider class="mx-4 mb-4"></v-divider>
-        <!-- Profile -->
-        <v-layout class="userinfo" align-center justify-start px-4>
-          <div class="userinfo__container">
-            <v-avatar class="userinfo__container--avatar" size="40" tile>
-              <v-img :src="user.profilePicture"></v-img>
-            </v-avatar>
-          </div>
-          <div>
-            <p class="userinfo__name text-truncate">{{ user?.name }}</p>
-            <p class="userinfo__role">
-              {{ user?.role?.title }}
-            </p>
-          </div>
-          <v-spacer />
-          <v-btn depressed fab small text class="ml-2" @click="handleSignout">
-            <v-icon size="40">$signout</v-icon>
-          </v-btn>
-        </v-layout>
-      </div>
-    </v-navigation-drawer>
-  </div>
+            <v-list-item
+              v-for="submenu in menu.children"
+              :key="submenu.name"
+              :value="submenu.name"
+              style="margin-top: 8px; padding-left: 54px"
+              :class="{ list__active: menus.activeMenu === submenu.name }"
+              @click="$router.push(submenu.url)"
+            >
+              <v-list-item-title class="text-gray_100">
+                {{ submenu.title }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list-group>
+        </template>
+      </template>
+    </v-list>
+    <div class="profile">
+      <v-divider class="mx-4 mb-4"></v-divider>
+      <!-- Profile -->
+      <v-row class="userinfo px-4" align="center" justify="start" no-gutters>
+        <div class="userinfo__container">
+          <v-avatar class="userinfo__container--avatar" size="40" rounded="0">
+            <v-img :src="user.profilePicture"></v-img>
+          </v-avatar>
+        </div>
+        <div>
+          <p class="userinfo__name text-truncate">{{ user?.name }}</p>
+          <p class="userinfo__role">
+            {{ user?.role?.title }}
+          </p>
+        </div>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          icon
+          size="small"
+          class="ml-2"
+          @click="handleSignout"
+        >
+          <v-icon size="40">$signout</v-icon>
+        </v-btn>
+      </v-row>
+    </div>
+  </v-navigation-drawer>
 </template>
 
 <script>
@@ -124,43 +112,70 @@
  */
 import menus from '@/menu'
 import { filterMenu } from '@/utils/menu'
+import { useAppStore } from '@/stores/app'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'Sidebar',
+  data() {
+    return {
+      selectedMenu: [],
+      openedGroups: [],
+    }
+  },
   computed: {
-    drawer() {
-      return this.$store.get('drawer')
+    drawer: {
+      get() {
+        return useAppStore().drawer
+      },
+      set(value) {
+        useAppStore().setDrawer(value)
+      },
     },
     role() {
-      return this.$store.get('user/profile.role')
+      return useUserStore().profile?.role || {}
     },
     menus() {
       return filterMenu(
         this.role.roleName,
         menus,
         this.$route.path,
-        this.role?.allows
+        this.role?.allows || []
       )
     },
     baseUrl() {
-      return window.location.origin
+      return typeof window !== 'undefined' ? window.location.origin : ''
     },
     user() {
-      return this.$store.get('user/profile')
+      return useUserStore().profile || {}
+    },
+  },
+  watch: {
+    menus: {
+      immediate: true,
+      handler() {
+        this.syncMenuState()
+      },
     },
   },
 
   methods: {
+    syncMenuState() {
+      const activeMenu = this.menus?.activeMenu
+      this.selectedMenu = activeMenu ? [activeMenu] : []
+      const path = this.$route.path
+      this.openedGroups = (this.menus?.filteredMenu || [])
+        .filter((menu) => menu.children && path.startsWith(menu.url))
+        .map((menu) => menu.name)
+    },
     openNewTab(url) {
       window.open(this.baseUrl + url, '_blank')
     },
-    isSubmenuOpen(url) {
-      return this.$route.path.startsWith(url)
-    },
     async handleSignout() {
-      // await this.$store.dispatch('admin/users/logOutUser')
-      this.$cookiz.removeAll()
-      this.$router.go(0)
+      useUserStore().clearProfile()
+      const accessToken = useCookie('access_token')
+      accessToken.value = null
+      await navigateTo('/login')
     },
   },
 }

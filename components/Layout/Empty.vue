@@ -1,16 +1,25 @@
 <template>
-  <v-layout
+  <v-row
     :class="`d-flex flex-column justify-center align-center ${padding}`"
+    no-gutters
   >
-    <v-img :src="img" :max-height="maxHeightImage" :max-width="maxWidthImage" />
-    <span class="gray_900--text mt-4 font-weight-medium text-18">{{
+    <img
+      :src="img"
+      alt="Empty"
+      :style="{
+        width: '100%',
+        maxWidth: `${maxWidthImage}px`,
+        maxHeight: `${maxHeightImage}px`,
+      }"
+    />
+    <span class="text-gray_900 mt-4 font-weight-medium text-18">{{
       title
     }}</span>
-    <p :class="`mt-2 ${gapBottom} text-center text-14 gray_500--text`">
+    <p :class="`mt-2 ${gapBottom} text-center text-14 text-gray_500`">
       {{ description }}
     </p>
     <slot name="button"></slot>
-  </v-layout>
+  </v-row>
 </template>
 <script>
 export default {

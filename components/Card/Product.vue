@@ -1,8 +1,7 @@
 <template>
   <v-card
     class="card"
-    text
-    outlined
+    variant="outlined"
     style="overflow: hidden"
     :loading="loading === item?.id"
     :disabled="loading === item?.id || item?.stock <= 0"
@@ -18,9 +17,9 @@
     </template>
     <v-container class="pa-0 d-flex flex-column" style="height: 100%">
       <v-img
-        lazy-src="lazy-loader.svg"
+        lazy-src="/lazy-loader.svg"
         :src="
-          $vuetify.breakpoint.mdAndUp
+          $vuetify.display.mdAndUp
             ? $changeImageSize(item?.image, 'md')
             : $changeImageSize(item?.image, 'sm')
         "
@@ -30,20 +29,20 @@
       >
         <v-card-actions class="d-flex justify-end">
           <v-btn
-            fab
-            small
+            icon
+            size="small"
             active-class="color:primary !important"
             class="pa-2"
-            depressed
+            variant="flat"
             color="primary"
           >
-            <span class="white--text font-weight-bold">{{ item?.stock }}</span>
+            <span class="text-white font-weight-bold">{{ item?.stock }}</span>
           </v-btn>
         </v-card-actions>
       </v-img>
 
       <v-list-item-title
-        class="text-title mt-2 font-weight-medium letter-spacing-normal text-14 gray_900--text px-3"
+        class="text-title mt-2 font-weight-medium letter-spacing-normal text-14 text-gray_900 px-3"
         style="width: 100%"
       >
         {{ item?.name }}
@@ -56,7 +55,7 @@
         >
           <div class="d-flex flex-column justify-center">
             <span class="text-secondary text-subtitle-2">Price:</span>
-            <span class="gray_900--text font-weight-bold">
+            <span class="text-gray_900 font-weight-bold">
               {{
                 customerStatus === 'retail'
                   ? formatRupiah(item?.retailPrice)
@@ -88,26 +87,19 @@ export default {
       default: '',
     },
   },
+  emits: ['handleClick'],
   data() {
     return {
       favorite: 'false',
     }
   },
   computed: {
-    //get value to activate order details components
-    activator() {
-      return this.$store.get('order/order_activator')
-    },
-    //get value to daily dose counter
-    dailyDose() {
-      return this.$store.get('barista.user/current_portion')
-    },
     //get windows size height
     windowWidth() {
       return window.innerHeight
     },
     widthScreen() {
-      return this.$vuetify.breakpoint.xs
+      return this.$vuetify.display.xs
     },
   },
   methods: {
@@ -118,8 +110,12 @@ export default {
 }
 </script>
 
+<script setup>
+const { $changeImageSize } = useNuxtApp()
+</script>
+
 <style lang="scss" scoped>
-:deep(.v-btn:not(.v-btn--fab)) {
+:deep(.v-btn:not(.v-btn--icon)) {
   border-radius: 8px !important;
 }
 

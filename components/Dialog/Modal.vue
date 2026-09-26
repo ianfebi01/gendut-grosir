@@ -26,10 +26,10 @@
           <v-icon>{{ icon }}</v-icon>
         </div>
         <span
-          class="text-18 font-weight-bold gray_900--text line-height-md mb-2"
+          class="text-18 font-weight-bold text-gray_900 line-height-md mb-2"
           >{{ title }}</span
         >
-        <span class="text-14 font-weight-normal gray_500--text line-height-md">
+        <span class="text-14 font-weight-normal text-gray_500 line-height-md">
           {{ subtitle }}
         </span>
       </v-card-title>
@@ -41,11 +41,10 @@
           <v-col class="px-0 pr-1">
             <v-btn
               block
-              outlined
+              variant="outlined"
               height="44"
-              depressed
               :disabled="loading"
-              dense
+              density="compact"
               @click="cancel"
             >
               {{ cancelText }}
@@ -54,7 +53,7 @@
           <v-col class="px-0 pl-1">
             <v-btn
               block
-              depressed
+              variant="flat"
               height="44"
               color="primary"
               :loading="loading"
@@ -109,7 +108,7 @@ export default {
       type: String,
       default: '408px',
     },
-    value: {
+    modelValue: {
       type: Boolean,
       default: false,
     },
@@ -130,13 +129,14 @@ export default {
       default: 'Batal',
     },
   },
+  emits: ['update:model-value', 'cancel', 'save', 'clearErrorMessage'],
   computed: {
     modal: {
       get: function () {
-        return this.value
+        return this.modelValue
       },
       set: function (newValue) {
-        this.$emit('input', newValue)
+        this.$emit('update:model-value', newValue)
       },
     },
   },

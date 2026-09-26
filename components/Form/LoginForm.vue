@@ -1,13 +1,9 @@
 <template>
   <v-container fluid class="px-0">
-    <v-row :class="$vuetify.breakpoint.smAndDown ? 'mx-2' : 'mx-6'">
+    <v-row :class="smAndDown ? 'mx-2' : 'mx-6'">
       <v-col cols="12" class="text-center">
-        <div style="margin-bottom: 16px">
-          <v-avatar size="auto" tile class="d-flex flex-column">
-            <div>
-              <v-img src="/logo.svg"></v-img>
-            </div>
-          </v-avatar>
+        <div style="margin-bottom: 16px" class="d-flex justify-center">
+          <img src="/logo.svg" alt="Gendut Grosir" style="height: 64px" />
         </div>
         <v-row>
           <v-col>
@@ -19,7 +15,7 @@
             </div>
             <div
               v-if="errorMessage"
-              class="font-weight-medium mt-2 error--text"
+              class="font-weight-medium mt-2 text-error"
               style="font-size: 14px"
             >
               {{ 'Error: ' + errorMessage }}
@@ -29,46 +25,42 @@
       </v-col>
     </v-row>
 
-    <v-row
-      :class="$vuetify.breakpoint.smAndDown ? 'mx-2' : 'mx-6'"
-      align="center"
-      justify="center"
-    >
+    <v-row :class="smAndDown ? 'mx-2' : 'mx-6'" align="center" justify="center">
       <v-col class="text-black">
         <form @submit.prevent>
           <v-divider class="mb-4"></v-divider>
           <div
-            class="font-weight-medium mb-1 gray_700--text"
+            class="font-weight-medium mb-1 text-gray_700"
             style="font-size: 14px"
           >
             Email
           </div>
           <v-text-field
             v-model="form.email"
-            outlined
-            dense
-            flat
+            variant="outlined"
+            density="compact"
             height="44"
             placeholder="Enter your Email"
             :error-messages="
-              !$v.form.email.required && $v.form.email.$dirty
+              v$.form.email.required.$invalid && v$.form.email.$dirty
                 ? 'Email is required'
-                : !$v.form.email.email && $v.form.email.$dirty
+                : v$.form.email.email.$invalid && v$.form.email.$dirty
                 ? 'Please insert valid email address'
                 : []
             "
-            @blur="$v.form.email.$touch()"
-            ><template slot="append">
+            @blur="v$.form.email.$touch()"
+          >
+            <template #append>
               <v-icon
-                v-if="$v.form.email.$invalid && $v.form.email.$dirty"
+                v-if="v$.form.email.$invalid && v$.form.email.$dirty"
                 color="red"
               >
                 mdi-alert-circle-outline
               </v-icon>
-            </template></v-text-field
-          >
+            </template>
+          </v-text-field>
           <div
-            class="font-weight-medium mb-1 gray_700--text"
+            class="font-weight-medium mb-1 text-gray_700"
             style="font-size: 14px"
           >
             Password
@@ -76,24 +68,23 @@
           <v-text-field
             v-model="form.password"
             class="mb-4"
-            outlined
-            dense
-            flat
+            variant="outlined"
+            density="compact"
             type="password"
             height="44"
             placeholder="Enter your Password"
             :error-messages="
-              !$v.form.password.required && $v.form.password.$dirty
+              v$.form.password.required.$invalid && v$.form.password.$dirty
                 ? 'Password is required'
-                : !$v.form.password.minLength && $v.form.password.$dirty
+                : v$.form.password.minLength.$invalid && v$.form.password.$dirty
                 ? 'Minimum is 6 char'
                 : []
             "
-            @blur="$v.form.password.$touch()"
+            @blur="v$.form.password.$touch()"
           >
-            <template slot="append">
+            <template #append>
               <v-icon
-                v-if="$v.form.password.$invalid && $v.form.password.$dirty"
+                v-if="v$.form.password.$invalid && v$.form.password.$dirty"
                 color="red"
               >
                 mdi-alert-circle-outline
@@ -102,18 +93,18 @@
           </v-text-field>
           <v-btn
             :class="
-              $vuetify.breakpoint.smAndDown
-                ? 'white--text rounded-lg mb-4'
-                : 'white--text rounded-lg mb-4'
+              smAndDown
+                ? 'text-white rounded-lg mb-4'
+                : 'text-white rounded-lg mb-4'
             "
             color="primary"
-            large
+            size="large"
             block
-            depressed
+            variant="flat"
             type="submit"
-            :disabled="$v.form.$invalid"
+            :disabled="v$.form.$invalid"
             :loading="loading"
-            @click="$emit('handleLogin', form)"
+            @click="emit('handleLogin', form)"
           >
             Masuk
           </v-btn>
@@ -121,14 +112,14 @@
         <v-btn
           href="http://localhost:8000/auth/facebook"
           :class="
-            $vuetify.breakpoint.smAndDown
-              ? 'white--text rounded-lg mb-4'
-              : 'white--text rounded-lg'
+            smAndDown
+              ? 'text-white rounded-lg mb-4'
+              : 'text-white rounded-lg'
           "
           color="#4267B2"
-          large
+          size="large"
           block
-          depressed
+          variant="flat"
           :loading="loading"
           @click="loading = true"
         >
@@ -138,7 +129,9 @@
           <v-list-item>
             <v-list-item-title class="text-center"
               >Tidak punya akun?
-              <nuxt-link to="/register" class="primary--text">Daftar</nuxt-link>
+              <NuxtLink to="/register" class="text-primary"
+                >Daftar</NuxtLink
+              >
             </v-list-item-title>
           </v-list-item>
         </form>
@@ -147,46 +140,44 @@
   </v-container>
 </template>
 
-<script>
-import { required, minLength, email } from 'vuelidate/lib/validators'
-export default {
-  props: {
-    loadingProps: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data() {
-    return {
-      form: {
-        email: '',
-        password: '',
-      },
-    }
-  },
-  computed: {
-    loading: {
-      get() {
-        return this.loadingProps
-      },
-      set(newVal) {
-        this.$emit('setLoading', newVal)
-      },
-    },
-    errorMessage() {
-      return this.$store.get('user/errorMessage')
-    },
-  },
+<script setup>
+import { reactive, computed } from 'vue'
+import { useDisplay } from 'vuetify'
+import { useVuelidate } from '@vuelidate/core'
+import { required, minLength, email } from '@vuelidate/validators'
+import { useUserStore } from '@/stores/user'
 
-  validations() {
-    return {
-      form: {
-        email: { required, email },
-        password: { required, minLength: minLength(6) },
-      },
-    }
+defineOptions({ name: 'LoginForm' })
+
+const props = defineProps({
+  loadingProps: {
+    type: Boolean,
+    default: false,
+  },
+})
+const emit = defineEmits(['handleLogin', 'setLoading'])
+
+const { smAndDown } = useDisplay()
+const userStore = useUserStore()
+
+const form = reactive({
+  email: '',
+  password: '',
+})
+
+const rules = {
+  form: {
+    email: { required, email },
+    password: { required, minLength: minLength(6) },
   },
 }
+const v$ = useVuelidate(rules, { form })
+
+const loading = computed({
+  get: () => props.loadingProps,
+  set: (newVal) => emit('setLoading', newVal),
+})
+const errorMessage = computed(() => userStore.errorMessage)
 </script>
 <style lang="scss" scoped>
 :deep(.v-btn) {

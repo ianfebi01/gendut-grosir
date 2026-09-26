@@ -1,26 +1,21 @@
 <template>
   <v-menu v-model="menu" offset-y :close-on-content-click="false">
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: menuProps }">
       <v-text-field
-        :value="`${$moment(range.start).format('D MMM YYYY')} - ${$moment(
-          range.end
-        ).format('D MMM YYYY')}`"
-        background-color="#fff"
+        :model-value="displayRange"
+        bg-color="#fff"
         hide-details
-        outlined
+        variant="outlined"
         height="44px"
-        dense
-        flat
+        density="compact"
         readonly
         style="width: 250px !important"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="menuProps"
       ></v-text-field>
     </template>
     <v-card rounded="lg">
-      <VcDatepicker
-        v-model="range"
-        is-range
+      <DatePicker
+        v-model.range="range"
         :columns="2"
         color="primary"
         :max-date="maxDate"
@@ -30,8 +25,7 @@
       <v-card-actions class="d-flex pa-4">
         <v-btn
           color="gray_900"
-          depressed
-          outlined
+          variant="outlined"
           class="px-4"
           height="44"
           @click="handleClickReset"
@@ -41,8 +35,7 @@
         <v-spacer></v-spacer>
         <v-btn
           color="gray_900"
-          depressed
-          outlined
+          variant="outlined"
           class="mr-2 px-4"
           height="44"
           @click="handleCancel"
@@ -51,8 +44,8 @@
         </v-btn>
         <v-btn
           color="primary"
-          depressed
-          class="white--text px-4"
+          variant="flat"
+          class="text-white px-4"
           height="44"
           @click="handleApply"
         >
@@ -62,52 +55,55 @@
     </v-card>
   </v-menu>
 </template>
-<script>
-export default {
-  name: 'DateRangePicker',
-  props: {
-    value: {
-      type: Object,
-      default: () => {},
-    },
+<script setup>
+import { ref, computed } from 'vue'
+import dayjs from 'dayjs'
+import { DatePicker } from 'v-calendar'
+
+defineOptions({ name: 'DateRangePicker' })
+
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({}),
   },
-  data() {
-    return {
-      menu: false,
-      maxDate: new Date(),
-    }
-  },
-  computed: {
-    range: {
-      get() {
-        return this.value
-      },
-      set(newVal) {
-        this.$emit('input', newVal)
-      },
-    },
-  },
-  methods: {
-    handleApply() {
-      this.$emit('apply')
-      this.menu = false
-    },
-    handleCancel() {
-      this.$emit('input', {
-        start: new Date(this.$moment().startOf('month').toISOString()),
-        end: new Date(),
-      })
-      this.menu = false
-    },
-    handleClickReset() {
-      this.$emit('input', {
-        start: new Date(this.$moment().startOf('month').toISOString()),
-        end: new Date(),
-      })
-      this.$emit('apply')
-      this.menu = false
-    },
-  },
+})
+const emit = defineEmits(['update:modelValue', 'apply'])
+
+const menu = ref(false)
+const maxDate = ref(new Date())
+
+const range = computed({
+  get: () => props.modelValue,
+  set: (newVal) => emit('update:modelValue', newVal),
+})
+
+const displayRange = computed(() => {
+  const format = (date) => (date ? dayjs(date).format('D MMM YYYY') : '-')
+  return `${format(props.modelValue?.start)} - ${format(
+    props.modelValue?.end
+  )}`
+})
+
+function defaultRange() {
+  return {
+    start: dayjs().startOf('month').toDate(),
+    end: new Date(),
+  }
+}
+
+function handleApply() {
+  emit('apply')
+  menu.value = false
+}
+function handleCancel() {
+  emit('update:modelValue', defaultRange())
+  menu.value = false
+}
+function handleClickReset() {
+  emit('update:modelValue', defaultRange())
+  emit('apply')
+  menu.value = false
 }
 </script>
 <style lang="scss" scoped>

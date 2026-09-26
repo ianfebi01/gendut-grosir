@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text">
+      <span class="text-30 font-weight-medium text-gray_900">
         {{ title }}
       </span>
       <v-spacer></v-spacer>
@@ -11,8 +11,8 @@
         v-if="actions"
         color="primary"
         height="44"
-        dense
-        depressed
+        density="compact"
+        variant="flat"
         @click="modal = true"
       >
         <v-icon size="13" class="mr-2">$plus</v-icon>
@@ -20,7 +20,7 @@
       </v-btn>
     </v-row>
     <v-row class="px-6" :class="{ 'pb-4': !searchBar }">
-      <span class="text-14 font-weight-normal gray_500--text">
+      <span class="text-14 font-weight-normal text-gray_500">
         {{ subtitle }}
       </span>
     </v-row>
@@ -60,6 +60,7 @@ export default {
   data() {
     return {
       search: '',
+      modal: false,
     }
   },
 }

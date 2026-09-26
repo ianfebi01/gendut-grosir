@@ -1,34 +1,23 @@
 <template>
-  <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+  <Bar id="my-chart-id" :options="options" :data="data" />
 </template>
 
-<script>
+<script setup>
 import { Bar } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-} from 'chart.js'
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
-
-export default {
-  name: 'BarChart',
-  components: { Bar },
-  data() {
-    return {
-      chartData: {
-        labels: ['January', 'February', 'March'],
-        datasets: [{ data: [40, 20, 12] }],
-      },
-      chartOptions: {
-        responsive: true,
-      },
-    }
+const props = defineProps({
+  data: {
+    type: Object,
+    default: () => ({
+      labels: ['January', 'February', 'March'],
+      datasets: [{ data: [40, 20, 12] }],
+    }),
   },
-}
+  options: {
+    type: Object,
+    default: () => ({
+      responsive: true,
+    }),
+  },
+})
 </script>

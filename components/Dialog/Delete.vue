@@ -9,11 +9,11 @@
           <v-icon>{{ icon }}</v-icon>
         </div>
         <span
-          class="text-18 font-weight-bold gray_900--text line-height-md mb-2"
+          class="text-18 font-weight-bold text-gray_900 line-height-md mb-2"
           >{{ title }}</span
         >
         <span
-          class="text-14 font-weight-normal gray_500--text text-center line-height-md"
+          class="text-14 font-weight-normal text-gray_500 text-center line-height-md"
         >
           {{ subtitle }}
         </span>
@@ -25,11 +25,10 @@
         <v-col class="px-0 pr-1">
           <v-btn
             block
-            outlined
+            variant="outlined"
             height="44"
-            depressed
             :disabled="loading"
-            dense
+            density="compact"
             @click="cancel"
           >
             Cancel
@@ -38,10 +37,10 @@
         <v-col class="px-0 pl-1">
           <v-btn
             block
-            depressed
+            variant="flat"
             height="44"
             color="error_600"
-            class="white--text"
+            class="text-white"
             :loading="loading"
             @click="ok"
           >
@@ -74,7 +73,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    value: {
+    modelValue: {
       type: Boolean,
       default: false,
     },
@@ -83,13 +82,14 @@ export default {
       default: 'You should set the text props!',
     },
   },
+  emits: ['update:model-value', 'cancel', 'ok'],
   computed: {
     modal: {
       get: function () {
-        return this.value
+        return this.modelValue
       },
       set: function (newValue) {
-        this.$emit('input', newValue)
+        this.$emit('update:model-value', newValue)
       },
     },
   },

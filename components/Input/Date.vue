@@ -1,46 +1,42 @@
 <template>
   <v-col class="pa-0" style="max-width: 400px">
     <div
-      class="font-weight-medium mb-1 gray_700--text mt-2"
+      class="font-weight-medium mb-1 text-gray_700 mt-2"
       style="font-size: 14px"
     >
       Date
     </div>
     <v-text-field
       v-model="model"
-      background-color="#fff"
-      outlined
-      dense
-      flat
+      bg-color="#fff"
+      variant="outlined"
+      density="compact"
       height="44"
       disabled
       hide-details
       placeholder="Enter Product name"
     >
-      <template slot="prepend-inner">
+      <template #prepend-inner>
         <v-icon color="red"> $date</v-icon>
       </template>
     </v-text-field>
   </v-col>
 </template>
-<script>
-export default {
-  name: 'InputDate',
-  props: {
-    value: {
-      type: String,
-      default: 'DD/MM/YYYY',
-    },
+<script setup>
+import { computed } from 'vue'
+
+defineOptions({ name: 'InputDate' })
+
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: 'DD/MM/YYYY',
   },
-  computed: {
-    model: {
-      get() {
-        return this.value
-      },
-      set(val) {
-        this.$emit('input', val)
-      },
-    },
-  },
-}
+})
+const emit = defineEmits(['update:modelValue'])
+
+const model = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+})
 </script>

@@ -8,11 +8,11 @@
     :width="width"
   >
     <div class="d-flex align-center font-weight-medium" style="color: #1bbf70">
-      <span class="white--text text-14 line-height-normal word-break-word">{{
+      <span class="text-white text-14 line-height-normal word-break-word">{{
         text
       }}</span>
     </div>
-    <v-btn fab small icon color="white" text @click="$emit('set')">
+    <v-btn icon size="small" variant="text" color="white" @click="$emit('set')">
       <v-icon>mdi-close</v-icon>
     </v-btn>
   </v-card>
@@ -37,6 +37,7 @@ export default {
       default: true,
     },
   },
+  emits: ['set'],
   created() {
     /**
      * set a countdown to get rid of the snackbar.

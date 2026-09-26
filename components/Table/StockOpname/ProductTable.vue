@@ -13,14 +13,13 @@
     <template #[`item.action`]="item">
       <div>
         <v-btn
-          fab
-          text
-          depressed
-          small
+          icon
+          variant="text"
+          size="small"
           color="gray_500"
           @click="$emit('deleteProduct', item?.item.product)"
         >
-          <v-icon small>$trash</v-icon>
+          <v-icon size="small">$trash</v-icon>
         </v-btn>
       </div>
     </template>

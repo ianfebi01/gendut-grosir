@@ -1,45 +1,40 @@
 <template>
   <v-text-field
     id="search"
-    :value="value"
+    :model-value="modelValue"
     :placeholder="placeholder"
-    background-color="#fff"
+    bg-color="#fff"
     hide-details
-    outlined
+    variant="outlined"
     height="44px"
-    dense
-    flat
+    density="compact"
     @keyup="debounceInput($event)"
   >
-    <template #prepend-inner-icon>
-      <v-icon size="15" class="mr-2">$magnify</v-icon>
-    </template>
     <template #prepend-inner>
       <v-icon size="15" class="mr-2">$magnify</v-icon>
-    </template></v-text-field
-  >
+    </template>
+  </v-text-field>
 </template>
 
-<script>
+<script setup>
 import debounce from 'lodash/debounce'
-import directive from '~/utils/directive'
-export default {
-  mixins: [directive],
-  props: {
-    value: {
-      type: String,
-      default: '',
-    },
-    placeholder: {
-      type: String,
-      default: 'Cari',
-    },
+
+defineOptions({ name: 'InputSearch' })
+
+defineProps({
+  modelValue: {
+    type: String,
+    default: '',
   },
-  methods: {
-    debounceInput: debounce(function (event) {
-      let q = event.target.value
-      this.$emit('input', q)
-    }, 500),
+  placeholder: {
+    type: String,
+    default: 'Cari',
   },
-}
+})
+const emit = defineEmits(['update:modelValue'])
+
+const debounceInput = debounce(function (event) {
+  const q = event.target.value
+  emit('update:modelValue', q)
+}, 500)
 </script>

@@ -4,76 +4,65 @@
     ref="barcode"
     v-model="model"
     v-barcode
-    background-color="#fff"
-    outlined
+    bg-color="#fff"
+    variant="outlined"
     height="44px"
-    dense
-    flat
+    density="compact"
     :label="label && label"
     :placeholder="placeholder"
     :loading="loading"
     :error-messages="errorMessage"
     :success-messages="successMessage"
-    @keyup.enter="$emit('handleBarcodeinput', value)"
+    @keyup.enter="emit('handleBarcodeinput', props.modelValue)"
   >
-    <template #prepend-inner-icon>
-      <v-icon size="25" class="mr-2">mdi-barcode</v-icon>
-    </template>
     <template #prepend-inner>
       <v-icon size="25" class="mr-2">mdi-barcode</v-icon>
-    </template></v-text-field
-  >
+    </template>
+  </v-text-field>
 </template>
 
-<script>
-import debounce from 'lodash/debounce'
-import directive from '~/utils/directive'
+<script setup>
+import { computed } from 'vue'
+import { inputDirectives } from '~/utils/directive'
 
-export default {
-  mixins: [directive],
-  props: {
-    value: {
-      type: String,
-      default: '',
-    },
-    placeholder: {
-      type: String,
-      default: 'Cari',
-    },
-    label: {
-      type: String,
-      default: '',
-    },
-    errorMessage: {
-      type: String,
-      default: '',
-    },
-    successMessage: {
-      type: String,
-      default: '',
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
+defineOptions({ name: 'InputBarcode' })
+
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: '',
   },
-  computed: {
-    model: {
-      get() {
-        return this.value
-      },
-      set(val) {
-        this.$emit('input', val)
-      },
-    },
+  placeholder: {
+    type: String,
+    default: 'Cari',
   },
-  methods: {
-    debounceInput: debounce(function (event) {
-      let q = event.target.value
-      this.$emit('input', q)
-    }, 500),
+  label: {
+    type: String,
+    default: '',
   },
-}
+  errorMessage: {
+    type: String,
+    default: '',
+  },
+  successMessage: {
+    type: String,
+    default: '',
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+})
+const emit = defineEmits(['update:modelValue', 'handleBarcodeinput'])
+
+// Local registration for `v-barcode` (migrated to the Vue 3
+// `beforeMount` hook in `~/utils/directive`).
+const vBarcode = inputDirectives.barcode
+
+const model = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+})
 </script>
 <style lang="scss" scoped>
 :deep(.v-label.v-label--active) {
