@@ -1,3 +1,12 @@
 {
-    "nuxt.isNuxtApp": true
+    "nuxt.isNuxtApp": true,
+    "tailwindCSS.files.exclude": ["**"],
+    "tailwindCSS.validate": false,
+    "tailwindCSS.suggestions": false,
+    "tailwindCSS.hovers": false,
+    "tailwindCSS.codeActions": false,
+    "tailwindCSS.colorDecorators": false,
+    "tailwindCSS.emmetCompletions": false,
+    "css.enabledLanguages": ["html", "vue"],
+    "css.styleSheets": ["node_modules/vuetify/dist/vuetify.css"]
 }
