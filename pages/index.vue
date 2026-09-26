@@ -28,11 +28,6 @@
       class="pt-4"
       style="width: 100%; max-width: 960px; height: fit-content; flex-grow: 0"
     >
-      <v-list
-        width="100%"
-        class="py-0 d-flex flex-column justify-center align-center"
-        style="height: fit-content"
-      >
         <div
           class="d-flex align-center flex-wrap"
           style="gap: 8px; width: 100%"
@@ -43,15 +38,6 @@
           />
 
           <v-btn
-            color="gray_500"
-            variant="outlined"
-            height="44"
-            density="compact"
-            style="background-color: #fff"
-            :class="{
-              'flex-grow-0': smAndUp,
-              'flex-grow-1': xs,
-            }"
             :loading="loading.loadingUsers"
             @click="handleClickUsers"
           >
@@ -59,12 +45,7 @@
             <span v-if="!customer?.name" class="ml-2"> Pilih Pelanggan </span>
             <span v-else class="ml-2"> {{ customer?.name }} </span>
           </v-btn>
-          <v-btn
-            color="gray_500"
-            variant="outlined"
-            height="44"
-            density="compact"
-            style="background-color: #fff"
+          <!-- <v-btn
             :class="{
               'flex-grow-0': smAndUp,
               'flex-grow-1': xs,
@@ -76,9 +57,8 @@
                 customer?.status ? customer?.status : profile?.status
               )
             }}
-          </v-btn>
+          </v-btn> -->
         </div>
-      </v-list>
     </v-row>
 
     <v-row
@@ -90,9 +70,8 @@
       <v-col
         v-for="item in datas"
         :key="item?.id"
-        class="pa-1"
         :cols="cardPerPage()"
-        style="max-height: 280px"
+        style="height: 280px"
       >
         <Product
           :item="item"
