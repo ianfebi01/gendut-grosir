@@ -1,7 +1,7 @@
 <template>
   <v-container
     fluid
-    class="full-width-height gray_100 d-flex flex-column align-center justify-start"
+    class="full-width-height bg-gray_100 d-flex flex-column align-center justify-start"
   >
     <transition name="fade">
       <Snackbar
@@ -21,7 +21,7 @@
         width="330px"
         :visibility="true"
         :text="cartErrorMessage"
-        @set="$store.set('order/errorMessage', '')"
+        @set="clearOrderError"
       />
     </transition>
     <v-row
@@ -33,21 +33,24 @@
         class="py-0 d-flex flex-column justify-center align-center"
         style="height: fit-content"
       >
-        <v-list-item-group
+        <div
           class="d-flex align-center flex-wrap"
           style="gap: 8px; width: 100%"
         >
-          <Search v-model="params.q" @input="handleSearch($event)" />
+          <Search
+            v-model="params.q"
+            @update:model-value="handleSearch"
+          />
 
           <v-btn
             color="gray_500"
-            outlined
+            variant="outlined"
             height="44"
-            dense
+            density="compact"
             style="background-color: #fff"
             :class="{
-              'flex-grow-0': $vuetify.breakpoint.smAndUp,
-              'flex-grow-1': $vuetify.breakpoint.xs,
+              'flex-grow-0': smAndUp,
+              'flex-grow-1': xs,
             }"
             :loading="loading.loadingUsers"
             @click="handleClickUsers"
@@ -58,13 +61,13 @@
           </v-btn>
           <v-btn
             color="gray_500"
-            outlined
+            variant="outlined"
             height="44"
-            dense
+            density="compact"
             style="background-color: #fff"
             :class="{
-              'flex-grow-0': $vuetify.breakpoint.smAndUp,
-              'flex-grow-1': $vuetify.breakpoint.xs,
+              'flex-grow-0': smAndUp,
+              'flex-grow-1': xs,
             }"
             disabled
           >
@@ -74,7 +77,7 @@
               )
             }}
           </v-btn>
-        </v-list-item-group>
+        </div>
       </v-list>
     </v-row>
 
@@ -88,7 +91,7 @@
         v-for="item in datas"
         :key="item?.id"
         class="pa-1"
-        :cols="cardPerPage($vuetify.breakpoint)"
+        :cols="cardPerPage()"
         style="max-height: 280px"
       >
         <Product
@@ -104,7 +107,7 @@
       <div
         v-if="paginator.hasNextPage"
         v-intersect.quiet="productOnIntersect"
-        class="pa-4 primary--text"
+        class="pa-4 text-primary"
       >
         Sedang memuat ...
       </div>
@@ -135,14 +138,14 @@
       subtitle="Pilih salah satu pelanggan Anda"
       :error-message="''"
       min-height="642"
-      :fullscreen="$vuetify.breakpoint.xs"
+      :fullscreen="xs"
       icon="$customers"
     >
       <template #content>
         <Search
           v-model="paramsUser.q"
           class="my-2"
-          @input="handleUserSearch($event)"
+          @update:model-value="handleUserSearch"
         />
         <v-list v-if="loading.searchUser">
           <v-skeleton-loader
@@ -153,37 +156,37 @@
           ></v-skeleton-loader>
         </v-list>
         <v-list v-else-if="users?.length && !loading.searchUser">
-          <v-list-item-group v-model="selectedUser">
-            <v-list-item
-              v-for="item in users"
-              :id="`scroll-${item?._id}`"
-              :key="item?._id"
-              :value="item"
-              active-class=" border-active "
-              class="border mb-2"
+          <v-list-item
+            v-for="item in users"
+            :id="`scroll-${item?._id}`"
+            :key="item?._id"
+            :value="item"
+            :active="selectedUser?._id === item?._id"
+            active-class=" border-active "
+            class="border mb-2"
+            @click="selectedUser = item"
+          >
+            <template #prepend>
+              <v-avatar size="50">
+                <v-img lazy-src="/lazy-loader.svg" :src="item?.profilePicture" />
+              </v-avatar>
+            </template>
+            <v-list-item-title
+              class="font-weight-medium letter-spacing-normal"
             >
-              <v-list-item-avatar height="50" width="50">
-                <v-img lazy-src="lazy-loader.svg" :src="item?.profilePicture" />
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title
-                  class="font-weight-medium letter-spacing-normal"
-                >
-                  {{ item?.name }}
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ formatCustomerStatus(item?.status) }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-            <div
-              v-if="userPaginator.nextPage"
-              v-intersect.quiet="onIntersect"
-              class="pa-4 primary--text"
-            >
-              Sedang memuat ...
-            </div>
-          </v-list-item-group>
+              {{ item?.name }}
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              {{ formatCustomerStatus(item?.status) }}
+            </v-list-item-subtitle>
+          </v-list-item>
+          <div
+            v-if="userPaginator.nextPage"
+            v-intersect.quiet="onIntersect"
+            class="pa-4 text-primary"
+          >
+            Sedang memuat ...
+          </div>
         </v-list>
 
         <Empty
@@ -201,10 +204,9 @@
         <v-col class="px-0 pr-1">
           <v-btn
             block
-            outlined
+            variant="outlined"
             height="44"
-            depressed
-            dense
+            density="compact"
             @click="handleClickCancel"
           >
             Batal
@@ -213,7 +215,7 @@
         <v-col class="px-0 pl-1">
           <v-btn
             block
-            depressed
+            variant="flat"
             height="44"
             color="primary"
             @click="handleClickSelectUser"
@@ -238,7 +240,7 @@
       subtitle="Berikut adalah detail order Anda."
       save-text="Print Invoice"
       cancel-text="Tutup"
-      :fullscreen="$vuetify.breakpoint.xs"
+      :fullscreen="xs"
       :loading="loading.downloadInvoice"
       @save="downloadInvoice"
     >
@@ -249,42 +251,40 @@
             :key="item?._id"
             class="border mb-2"
           >
-            <v-list-item-avatar height="50" width="50" class="border-radius-8">
-              <v-img lazy-src="lazy-loader.svg" :src="item?.product?.image" />
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title
-                class="font-weight-medium letter-spacing-normal"
-              >
-                {{ item?.product?.name }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ 'Jumlah : ' + item?.qty }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text
-                class="font-weight-bold text-14 gray_900--text"
+            <template #prepend>
+              <v-avatar size="50" class="border-radius-8">
+                <v-img lazy-src="/lazy-loader.svg" :src="item?.product?.image" />
+              </v-avatar>
+            </template>
+            <v-list-item-title
+              class="font-weight-medium letter-spacing-normal"
+            >
+              {{ item?.product?.name }}
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              {{ 'Jumlah : ' + item?.qty }}
+            </v-list-item-subtitle>
+            <template #append>
+              <span
+                class="font-weight-bold text-14 text-gray_900"
               >
                 {{ formatRupiah(item?.price) }}
-              </v-list-item-action-text>
-            </v-list-item-action>
+              </span>
+            </template>
           </v-list-item>
         </v-list>
         <v-list>
           <v-list-item class="border">
-            <v-list-item-content>
-              <v-list-item-title class="font-weight-bold text-14">
-                Total
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text
-                class="font-weight-bold text-14 gray_900--text"
+            <v-list-item-title class="font-weight-bold text-14">
+              Total
+            </v-list-item-title>
+            <template #append>
+              <span
+                class="font-weight-bold text-14 text-gray_900"
               >
                 {{ formatRupiah(detailsProduct.total) }}
-              </v-list-item-action-text>
-            </v-list-item-action>
+              </span>
+            </template>
           </v-list-item>
         </v-list>
       </template>
@@ -302,11 +302,13 @@ import Cart from '~/components/Dialog/Cart.vue'
 import debounce from 'lodash/debounce'
 import Snackbar from '~/components/Snackbar/Snackbar.vue'
 import { formatRupiah } from '~/utils/formatRupiah'
+import { useProductStore } from '~/stores/product'
+import { useUserStore } from '~/stores/user'
+import { useOrderStore } from '~/stores/order'
 
 export default {
   name: 'HomePage',
   components: { Product, Search, Empty, Modal, Loading, Cart, Snackbar },
-  layout: 'dashboard',
   data() {
     return {
       successAddCart: false,
@@ -342,36 +344,36 @@ export default {
   },
   computed: {
     datas() {
-      return this.$store.get('product/product')
+      return useProductStore().product
     },
     modalCart: {
       get() {
-        return this.$store.get('order/modalCart')
+        return useOrderStore().modalCart
       },
       set(event) {
-        this.$store.set('order/modalCart', event)
+        useOrderStore().modalCart = event
       },
     },
     users() {
-      return this.$store.get('user/user')
+      return useUserStore().user
     },
     profile() {
-      return this.$store.get('user/profile')
+      return useUserStore().profile
     },
     userPaginator() {
-      return this.$store.get('user/paginator')
+      return useUserStore().paginator
     },
     customer() {
-      return this.$store.get('user/selectedUser')
+      return useUserStore().selectedUser
     },
     paginator() {
-      return this.$store.get('product/paginator')
+      return useProductStore().paginator
     },
     detailsProduct() {
-      return this.$store.get('order/detailOrder')
+      return useOrderStore().detailOrder
     },
     cartErrorMessage() {
-      return this.$store.get('order/errorMessage')
+      return useOrderStore().errorMessage
     },
   },
   mounted() {
@@ -380,10 +382,13 @@ export default {
   },
 
   methods: {
+    clearOrderError() {
+      useOrderStore().errorMessage = ''
+    },
     // First render
     loginSuccess() {
       this.loading.loadingProduct = true
-      Promise.all([this.$store.dispatch('product/getProduct', this.params)])
+      Promise.all([useProductStore().getProduct(this.params)])
         .then(() => {
           this.loading.loadingProduct = false
         })
@@ -395,7 +400,7 @@ export default {
     async getProduct() {
       this.loading.loadingProduct = true
 
-      const res = await this.$store.dispatch('product/getProduct', this.params)
+      const res = await useProductStore().getProduct(this.params)
       if (res) {
         this.loading.loadingProduct = false
       } else {
@@ -403,15 +408,19 @@ export default {
       }
     },
     // card per page
-    cardPerPage(vss) {
+    // NOTE: use this.$vuetify.display.* here (not the useDisplay() setup
+    // bindings): setup bindings are not reachable via `this` in Options
+    // methods, while $vuetify.display refs are unwrapped booleans.
+    cardPerPage() {
+      const display = this.$vuetify.display
       switch (true) {
-        case vss.xs:
+        case display.xs:
           return '6'
-        case vss.sm:
+        case display.sm:
           return '4'
-        case vss.md:
+        case display.md:
           return '3'
-        case vss.lg:
+        case display.lg:
           return '3'
         default:
           return '3'
@@ -423,7 +432,7 @@ export default {
     },
     // Handle button cancel on customer Modal
     handleClickCancel() {
-      this.$store.set('user/user', [])
+      useUserStore().user = []
       this.paramsUser = {
         q: '',
         category: '',
@@ -434,8 +443,8 @@ export default {
     },
     // Select user on Customer modal
     handleClickSelectUser() {
-      this.$store.set('user/selectedUser', this.selectedUser)
-      this.$store.set('user/user', [])
+      useUserStore().selectedUser = this.selectedUser
+      useUserStore().user = []
 
       this.paramsUser = {
         q: '',
@@ -451,7 +460,7 @@ export default {
         ...item,
         qty: 1,
       }
-      this.$store.dispatch('order/addCart', payload)
+      useOrderStore().addCart(payload)
       if (!this.cartErrorMessage) {
         this.successAddCart = true
       }
@@ -465,10 +474,7 @@ export default {
     // Get Data User
     async getAllUser() {
       this.loading.loadingUsers = true
-      const res = await this.$store.dispatch(
-        'user/getAllUser2',
-        this.paramsUser
-      )
+      const res = await useUserStore().getAllUser2(this.paramsUser)
       if (res) {
         this.loading.loadingUsers = false
       } else {
@@ -484,7 +490,7 @@ export default {
     async handleUserSearch() {
       this.paramsUser.page = 1
       this.loading.searchUser = true
-      await this.$store.dispatch('user/getAllUser', this.paramsUser)
+      await useUserStore().getAllUser(this.paramsUser)
       this.loading.searchUser = false
     },
     // When User intersect
@@ -499,7 +505,7 @@ export default {
     }, 500),
     // Get Product when intersect
     async getProductIntersect() {
-      await this.$store.dispatch('product/getProductIntersect', this.params)
+      await useProductStore().getProductIntersect(this.params)
     },
     handleModalSumary(val) {
       this.modal.sumary = val
@@ -507,10 +513,7 @@ export default {
     async downloadInvoice() {
       this.loading.downloadInvoice = true
       this.paramsDownloadInvoice.orderId = this.detailsProduct.orderId
-      await this.$store.dispatch(
-        'order/downloadInvoice',
-        this.paramsDownloadInvoice
-      )
+      await useOrderStore().downloadInvoice(this.paramsDownloadInvoice)
       this.loading.downloadInvoice = false
     },
     formatRupiah(item) {
@@ -521,6 +524,14 @@ export default {
     },
   },
 }
+</script>
+
+<script setup>
+import { useDisplay } from 'vuetify'
+
+definePageMeta({ layout: 'dashboard' })
+
+const { xs, smAndUp } = useDisplay()
 </script>
 
 <style lang="scss" scoped>
@@ -537,8 +548,8 @@ export default {
 .fade-leave-active {
   transition: opacity 0.5s ease-in-out;
 }
-.fade-enter,
-.fade-leave-active {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

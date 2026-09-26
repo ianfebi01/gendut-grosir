@@ -30,7 +30,6 @@ import { images, posts, posts2 } from '@/utils/items'
 export default {
   name: 'Masonry',
   mixins: [directive],
-  layout: 'dashboard',
   data() {
     return {
       gg: [],
@@ -50,47 +49,47 @@ export default {
       return posts2
     },
     datas() {
-      let col = this.$vuetify.breakpoint.xs
+      let col = this.$vuetify.display.xs
         ? 1
-        : this.$vuetify.breakpoint.sm
+        : this.$vuetify.display.sm
         ? 2
-        : this.$vuetify.breakpoint.md
+        : this.$vuetify.display.md
         ? 3
-        : this.$vuetify.breakpoint.lg
+        : this.$vuetify.display.lg
         ? 4
         : 5
 
       return this.divideArray(col, posts)
     },
     datas2() {
-      let col = this.$vuetify.breakpoint.xs
+      let col = this.$vuetify.display.xs
         ? 1
-        : this.$vuetify.breakpoint.sm
+        : this.$vuetify.display.sm
         ? 2
-        : this.$vuetify.breakpoint.md
+        : this.$vuetify.display.md
         ? 4
-        : this.$vuetify.breakpoint.lg
+        : this.$vuetify.display.lg
         ? 5
         : 6
       return this.divideArray(col, posts2)
     },
     datas3() {
-      let col = this.$vuetify.breakpoint.xs
+      let col = this.$vuetify.display.xs
         ? 1
-        : this.$vuetify.breakpoint.sm
+        : this.$vuetify.display.sm
         ? 2
-        : this.$vuetify.breakpoint.md
+        : this.$vuetify.display.md
         ? 4
-        : this.$vuetify.breakpoint.lg
+        : this.$vuetify.display.lg
         ? 5
         : 6
       return this.divideArray(posts2, col)
     },
   },
-  created() {
+  mounted() {
     window.addEventListener('scroll', this.handleScroll)
   },
-  destroyed() {
+  unmounted() {
     window.removeEventListener('scroll', this.handleScroll)
   },
   methods: {
@@ -129,6 +128,11 @@ export default {
   },
 }
 </script>
+
+<script setup>
+definePageMeta({ layout: 'dashboard' })
+</script>
+
 <style lang="scss" scoped>
 @use '@/assets/scss/abstracts/variables.scss' as v;
 

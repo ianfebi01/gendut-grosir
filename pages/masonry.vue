@@ -27,9 +27,13 @@
 <script>
 export default {
   name: 'Masonry',
-  layout: 'dashboard',
 }
 </script>
+
+<script setup>
+definePageMeta({ layout: 'dashboard' })
+</script>
+
 <style lang="scss" scoped>
 @use '@/assets/scss/abstracts/variables.scss' as v;
 

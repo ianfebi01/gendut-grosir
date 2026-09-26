@@ -1,10 +1,5 @@
 <template>
-  <v-container
-    fluid
-    style="height: 100vh; width: 100%"
-    class="pa-0 ma-0"
-    fill-height
-  >
+  <v-container fluid style="height: 100vh; width: 100%" class="pa-0 ma-0">
     <v-row
       align="center"
       justify="center"
@@ -12,9 +7,9 @@
       class="px-0"
     >
       <v-col
-        :cols="$vuetify.breakpoint.smAndDown ? '12' : '6'"
+        :cols="smAndDown ? '12' : '6'"
         align-self="center"
-        :class="$vuetify.breakpoint.xs ? 'px-2' : 'px-16'"
+        :class="xs ? 'px-2' : 'px-16'"
         style="max-height:50vh,max-width:50vh"
       >
         <LoginForm
@@ -24,9 +19,9 @@
         />
       </v-col>
       <v-col
-        v-if="$vuetify.breakpoint.mdAndUp"
+        v-if="mdAndUp"
         cols="6"
-        class="d-flex justify-center align-center gray_100"
+        class="d-flex justify-center align-center bg-gray_100"
         style="background: $primary; height: 100%"
       >
         <v-img src="/shoping-cart.svg"></v-img>
@@ -36,10 +31,11 @@
 </template>
 <script>
 import LoginForm from '~/components/Form/LoginForm.vue'
+import { useUserStore } from '~/stores/user'
+
 export default {
   name: 'LoginPage',
   components: { LoginForm },
-  layout: 'default',
   data() {
     return {
       loading: false,
@@ -49,21 +45,17 @@ export default {
     accessToken() {
       return this.$route.query.access_token
     },
-
-    tes() {
-      return this.$store.get('user/name')
-    },
   },
   mounted() {
     if (this.accessToken) {
-      this.$cookiz.set('access_token', this.accessToken)
+      useCookie('access_token').value = this.accessToken
       this.$router.push('/')
     }
   },
   methods: {
     async handleLogin(body) {
       this.loading = true
-      const res = await this.$store.dispatch('user/login', body)
+      const res = await useUserStore().login(body)
       if (res) {
         this.loading = false
         this.$router.push('/')
@@ -73,4 +65,12 @@ export default {
     },
   },
 }
+</script>
+
+<script setup>
+import { useDisplay } from 'vuetify'
+
+definePageMeta({ layout: 'default' })
+
+const { xs, smAndDown, mdAndUp } = useDisplay()
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container fluid class="full-width-height bg-gray_100">
     <page-header
       title="Role"
       subtitle="Kelola role akses"
@@ -9,16 +9,19 @@
 
     <v-row class="px-6 pt-4">
       <div class="row-content pa-4">
-        <h1 class="gray_900--text text-24 font-weight-regular">
+        <h1 class="text-gray_900 text-24 font-weight-regular">
           Kelola Hak Akses
         </h1>
 
         <div class="mt-6">
-          <template v-for="item in roles">
-            <span :key="item?.id" class="font-weight-medium">{{
+          <template v-for="item in roles" :key="item?._id || item?.id">
+            <span class="font-weight-medium">{{
               item.title
             }}</span>
-            <v-row :key="item?._id" dense class="mt-2 gap-4 mb-4">
+            <v-row
+              density="compact"
+              class="mt-2 gap-4 mb-4"
+            >
               <v-col cols="12" sm="6" lg="2">
                 <v-checkbox
                   v-model="role[item.roleName]"
@@ -119,11 +122,11 @@
 
 <script>
 import PageHeader from '~/components/Layout/PageHeader.vue'
+import { useRoleStore } from '~/stores/role'
 
 export default {
   name: 'Role',
   components: { PageHeader },
-  layout: 'dashboard',
   data() {
     return {
       role: {
@@ -133,7 +136,7 @@ export default {
   },
   computed: {
     roles() {
-      return this.$store.get('role/roles')
+      return useRoleStore().roles
     },
   },
   mounted() {
@@ -144,7 +147,7 @@ export default {
       const params = {
         q,
       }
-      const res = await this.$store.dispatch('role/getRoles', params)
+      const res = await useRoleStore().getRoles(params)
 
       if (res) {
         this.roles.map((item) => {
@@ -158,10 +161,14 @@ export default {
         allows,
       }
 
-      await this.$store.dispatch('role/updateRole', params)
+      await useRoleStore().updateRole(params)
     },
   },
 }
+</script>
+
+<script setup>
+definePageMeta({ layout: 'dashboard' })
 </script>
 
 <style lang="scss" scoped>

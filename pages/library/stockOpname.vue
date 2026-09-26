@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container fluid class="full-width-height bg-gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text">
+      <span class="text-30 font-weight-medium text-gray_900">
         Stock Opname
       </span>
       <v-spacer></v-spacer>
@@ -9,8 +9,8 @@
         v-if="!mode.add"
         color="primary"
         height="44"
-        dense
-        depressed
+        density="compact"
+        variant="flat"
         @click="handleAdd"
       >
         <v-icon size="13" class="mr-2">$plus</v-icon>
@@ -19,10 +19,9 @@
       <div v-else>
         <v-btn
           class="mr-2"
-          outlined
+          variant="outlined"
           height="44"
-          dense
-          depressed
+          density="compact"
           @click="handleCancel"
         >
           Batal
@@ -30,8 +29,8 @@
         <v-btn
           color="primary"
           height="44"
-          dense
-          depressed
+          density="compact"
+          variant="flat"
           :loading="loading.save"
           @click="saveStockOpname"
         >
@@ -40,7 +39,7 @@
       </div>
     </v-row>
     <v-row class="px-6">
-      <span class="text-14 font-weight-normal gray_500--text">
+      <span class="text-14 font-weight-normal text-gray_500">
         Kelola stock opmane Anda
       </span>
     </v-row>
@@ -52,7 +51,7 @@
         @input="handleSearch($event)"
       />
       <template v-else>
-        <InputDate :value="$moment(payload.date).format('DD/MM/YYYY')" />
+        <InputDate :value="dayjs(payload.date).format('DD/MM/YYYY')" />
       </template>
     </v-row>
     <v-row class="px-6 pt-4">
@@ -69,20 +68,23 @@
         @apply="handleApplyStockOpname($event)"
       />
 
-      <v-card v-else-if="mode.add" width="100%" outlined class="border-8">
+      <v-card
+        v-else-if="mode.add"
+        width="100%"
+        variant="outlined"
+        class="border-8"
+      >
         <v-list-item class="mt-4">
-          <v-list-item-content>
-            <v-list-item-title class="font-weight-bold gray_900--text text-20">
-              Tambah Produk
-            </v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title class="font-weight-bold text-gray_900 text-20">
+            Tambah Produk
+          </v-list-item-title>
         </v-list-item>
 
         <v-card-text>
           <v-row>
             <v-col>
               <div
-                class="font-weight-medium mb-1 gray_700--text mt-2"
+                class="font-weight-medium mb-1 text-gray_700 mt-2"
                 style="font-size: 14px"
               >
                 Product
@@ -91,17 +93,16 @@
               <v-autocomplete
                 v-model="form.product"
                 :items="productData"
-                item-text="name"
+                item-title="name"
                 item-value="_id"
-                background-color="#fff"
-                outlined
-                dense
-                flat
+                bg-color="#fff"
+                variant="outlined"
+                density="compact"
                 height="44"
                 placeholder="Select Product"
                 :loading="loading.product"
                 :error-messages="error_message('product')"
-                @blur="$v.form.product.$touch()"
+                @blur="v$.form.product.$touch()"
                 @focus="getProduct()"
                 @keyup="autocompleteProduct($event)"
               >
@@ -109,7 +110,7 @@
             </v-col>
             <v-col>
               <div
-                class="font-weight-medium mb-1 gray_700--text mt-2"
+                class="font-weight-medium mb-1 text-gray_700 mt-2"
                 style="font-size: 14px"
               >
                 Stock Sistem
@@ -117,10 +118,9 @@
               <v-text-field
                 :value="systemQty"
                 type="number"
-                background-color="#fff"
-                outlined
-                dense
-                flat
+                bg-color="#fff"
+                variant="outlined"
+                density="compact"
                 height="44"
                 placeholder="Stock Sistem"
                 disabled
@@ -130,7 +130,7 @@
 
             <v-col>
               <div
-                class="font-weight-medium mb-1 gray_700--text mt-2"
+                class="font-weight-medium mb-1 text-gray_700 mt-2"
                 style="font-size: 14px"
               >
                 Stock Sesungguhnya
@@ -139,19 +139,18 @@
               <v-text-field
                 v-model.number="form.realQty"
                 v-types="'number'"
-                background-color="#fff"
-                outlined
-                dense
-                flat
+                bg-color="#fff"
+                variant="outlined"
+                density="compact"
                 height="44"
                 placeholder="Stock Sesungguhnya"
                 :disabled="!form.product"
                 :error-messages="error_message('realQty')"
-                @blur="$v.form.realQty.$touch()"
+                @blur="v$.form.realQty.$touch()"
               >
-                <template slot="append">
+                <template #append>
                   <v-icon
-                    v-if="$v.form.realQty.$invalid && $v.form.realQty.$dirty"
+                    v-if="v$.form.realQty.$invalid && v$.form.realQty.$dirty"
                     color="red"
                   >
                     mdi-alert-circle-outline
@@ -162,11 +161,11 @@
             <v-col cols="12" md="auto" sm="auto" xl="auto" lg="auto">
               <v-btn
                 color="primary"
-                :style="$vuetify.breakpoint.smAndUp && 'margin-top: 34px'"
-                depressed
+                :style="$vuetify.display.smAndUp && 'margin-top: 34px'"
+                variant="flat"
                 height="44"
                 block
-                :disabled="$v.form.realQty.$invalid"
+                :disabled="v$.form.realQty.$invalid"
                 @click="addProduct"
                 >Tambahkan</v-btn
               >
@@ -201,10 +200,9 @@
       <template #action>
         <v-col class="px-0 pr-1 d-flex justify-end">
           <v-btn
-            outlined
+            variant="outlined"
             height="44"
-            depressed
-            dense
+            density="compact"
             @click="modal.detailProduct = false"
           >
             Tutup
@@ -218,17 +216,18 @@
 import debounce from 'lodash/debounce'
 import Search from '~/components/Input/Search.vue'
 import directive from '~/utils/directive'
-import errorMessage from '~/utils/mixins/errorMessage'
-import { required, numeric, maxLength } from 'vuelidate/lib/validators'
+import { required, numeric, maxLength } from '@vuelidate/validators'
+import { useVuelidate } from '@vuelidate/core'
 import ProductTable from '~/components/Table/StockOpname/ProductTable.vue'
 import StockOpnameDataTable from '~/components/Table/StockOpname/Datas.vue'
 import InputDate from '~/components/Input/Date.vue'
 import Modal from '~/components/Dialog/Modal.vue'
+import { useProductStore } from '~/stores/product'
+import { useStockOpnameStore } from '~/stores/stockOpname'
 
 export default {
   components: { Search, ProductTable, InputDate, StockOpnameDataTable, Modal },
-  mixins: [directive, errorMessage],
-  layout: 'dashboard',
+  mixins: [directive],
   data() {
     return {
       mode: {
@@ -236,52 +235,53 @@ export default {
       },
       headers: [
         {
-          text: 'Id Stock Opname',
+          title: 'Id Stock Opname',
           value: 'opnameId',
         },
         {
-          text: 'Pengguna',
+          title: 'Pengguna',
           value: 'user.name',
         },
         {
-          text: 'Tanggal',
+          title: 'Tanggal',
           value: 'date',
         },
-        { text: 'Detail', value: 'product' },
-        { text: 'Aksi', value: 'action' },
+        { title: 'Detail', value: 'product' },
+        { title: 'Aksi', value: 'action' },
       ],
       headersAddProduct: [
         {
-          text: 'Product',
+          title: 'Product',
           value: 'productName',
         },
         {
-          text: 'Stok Sistem',
+          title: 'Stok Sistem',
           value: 'systemQty',
         },
         {
-          text: 'Stok Sebenarnya',
+          title: 'Stok Sebenarnya',
           value: 'realQty',
         },
-        { text: 'Perbedaan', value: 'difference' },
-        { text: 'Aksi', value: 'action' },
+        { title: 'Perbedaan', value: 'difference' },
+        { title: 'Aksi', value: 'action' },
       ],
       headersPreview: [
         {
-          text: 'Product',
+          title: 'Product',
           value: 'productName',
         },
         {
-          text: 'Stok Sistem',
+          title: 'Stok Sistem',
           value: 'systemQty',
         },
         {
-          text: 'Stok Sebenarnya',
+          title: 'Stok Sebenarnya',
           value: 'realQty',
         },
-        { text: 'Perbedaan', value: 'difference' },
+        { title: 'Perbedaan', value: 'difference' },
       ],
       form: {},
+      v$: null,
       params: {
         q: '',
         limit: 25,
@@ -307,16 +307,9 @@ export default {
       test: true,
     }
   },
-  head() {
-    return {
-      title: 'Gendut Grosir | Stock Opname',
-    }
-  },
   computed: {
     productData() {
-      const productData = JSON.parse(
-        JSON.stringify(this.$store.get('product/product'))
-      )
+      const productData = JSON.parse(JSON.stringify(useProductStore().product))
       const product = this.payload.product.map((item) => item.product)
       const filter = productData.filter((item) => !product.includes(item._id))
       return filter
@@ -336,10 +329,10 @@ export default {
       return productName
     },
     datas() {
-      return this.$store.get('stockOpname/stockOpname')
+      return useStockOpnameStore().stockOpname
     },
     paginator() {
-      return this.$store.get('stockOpname/paginator')
+      return useStockOpnameStore().paginator
     },
   },
   watch: {
@@ -347,10 +340,65 @@ export default {
       this.getDatas()
     },
   },
+  created() {
+    // Explicit useVuelidate args: the watcher runs immediately, so the
+    // validation tree exists during SSR (the no-arg + validations() path
+    // only populates in onBeforeMount, which never runs on the server).
+    this.v$ = useVuelidate(
+      {
+        form: {
+          realQty: {
+            required,
+            numeric,
+            maxLength: maxLength(20),
+          },
+          product: {
+            required,
+          },
+        },
+      },
+      { form: this.form }
+    )
+  },
   mounted() {
     this.getDatas()
   },
   methods: {
+    error_message(param) {
+      const errors = []
+
+      Object.entries(this.v$.form).forEach((entry) => {
+        const [key] = entry
+        if (key === param) {
+          const {
+            $dirty,
+            $params,
+            required,
+            email,
+            minLength,
+            numeric,
+            sameAs,
+            maxLength,
+          } = this.v$.form[key]
+          if (!$dirty) return errors
+          // required
+          required === false && errors.push('Field Tidak Boleh Kosong')
+          // email
+          email === false && errors.push(`Format email tidak valid`)
+          // minLength
+          minLength === false &&
+            errors.push(`Input minimal ${$params.minLength.min} karakter`)
+          maxLength === false &&
+            errors.push(`Input maximal ${$params.maxLength.max} karakter`)
+          // minLength
+          numeric === false && errors.push(`Input hanya boleh angka`)
+          // sameAs
+          sameAs === false &&
+            errors.push(`Input harus sama dengan ${$params?.sameAs?.eq}`)
+        }
+      })
+      return errors
+    },
     handleAdd() {
       this.payload = { date: new Date(), product: [] }
 
@@ -358,7 +406,7 @@ export default {
     },
     async getProduct() {
       this.loading.product = true
-      await this.$store.dispatch('product/getProduct', this.paramsProduct)
+      await useProductStore().getProduct(this.paramsProduct)
       this.loading.product = false
     },
     autocompleteProduct: debounce(async function (e) {
@@ -373,8 +421,8 @@ export default {
         difference: this.form.realQty - this.systemQty,
       })
 
-      this.form = {}
-      this.$v.form.$reset()
+      Object.keys(this.form).forEach((k) => delete this.form[k])
+      this.v$.form.$reset()
     },
     deleteProduct(product) {
       const index = this.payload.product.findIndex(
@@ -387,13 +435,13 @@ export default {
     },
     async saveStockOpname() {
       this.loading.save = true
-      await this.$store.dispatch('stockOpname/postStockOpname', this.payload)
+      await useStockOpnameStore().postStockOpname(this.payload)
       this.loading.save = false
       this.mode.add = false
     },
     async getDatas() {
       this.loading.datas = true
-      await this.$store.dispatch('stockOpname/getStockOpname', this.params)
+      await useStockOpnameStore().getStockOpname(this.params)
       this.loading.datas = false
     },
     handleSearch: debounce(async function () {
@@ -409,23 +457,16 @@ export default {
     },
     async handleApplyStockOpname(id) {
       this.loading.apply = id
-      await this.$store.dispatch('stockOpname/applyStockOpname', id)
+      await useStockOpnameStore().applyStockOpname(id)
       this.loading.apply = ''
     },
   },
-  validations() {
-    return {
-      form: {
-        realQty: {
-          required,
-          numeric,
-          maxLength: maxLength(20),
-        },
-        product: {
-          required,
-        },
-      },
-    }
-  },
 }
+</script>
+
+<script setup>
+import dayjs from 'dayjs'
+
+definePageMeta({ layout: 'dashboard' })
+useHead({ title: 'Gendut Grosir | Stock Opname' })
 </script>

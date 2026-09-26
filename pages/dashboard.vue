@@ -1,10 +1,10 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container fluid class="full-width-height bg-gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text"> Analitik </span>
+      <span class="text-30 font-weight-medium text-gray_900"> Analitik </span>
     </v-row>
     <v-row class="px-6">
-      <span class="text-14 font-weight-normal gray_500--text">
+      <span class="text-14 font-weight-normal text-gray_500">
         Lihat grafik penjualan Anda
       </span>
     </v-row>
@@ -19,8 +19,8 @@
       <div class="row-content pa-4">
         <LineChart
           v-if="datas?.length && !loading.firstLoad"
-          :chart-options="chartOptions"
-          :chart-data="chartData"
+          :options="chartOptions"
+          :data="chartData"
           :style="myStyles"
         />
 
@@ -40,11 +40,11 @@
         class="row-content pa-4 my-4"
       >
         <Bar
-          :chart-options="chartOptionsBar"
-          :chart-data="chartDataPendapatan"
+          :options="chartOptionsBar"
+          :data="chartDataPendapatan"
           :style="myStyles"
         />
-        <div class="d-flex justify-center gap-12 text-14 mt-4 white--text">
+        <div class="d-flex justify-center gap-12 text-14 mt-4 text-white">
           <div class="column--center blue-600 rounded-8 pa-2 px-4">
             <span class="text-20 font-weight-bold">{{
               formatRupiah(totalOmsetOnRange)
@@ -67,6 +67,8 @@ import { Line as LineChart, Bar } from 'vue-chartjs'
 import DateRangePicker from '~/components/DateRangePicker.vue'
 import Empty from '~/components/Layout/Empty.vue'
 import { formatRupiah } from '~/utils/formatRupiah'
+import dayjs from 'dayjs'
+import { useAnalyticStore } from '~/stores/analytic'
 
 export default {
   name: 'Dashboard',
@@ -76,11 +78,10 @@ export default {
     Empty,
     Bar,
   },
-  layout: 'dashboard',
   data() {
     return {
       range: {
-        start: new Date(this.$moment().startOf('month').toISOString()),
+        start: dayjs().startOf('month').toDate(),
         end: new Date(),
       },
       loading: {
@@ -223,14 +224,9 @@ export default {
       },
     }
   },
-  head() {
-    return {
-      title: 'Gendut Grosir | Dashboard',
-    }
-  },
   computed: {
     datas() {
-      return this.$store.get('analytic/analytic')
+      return useAnalyticStore().analytic
     },
     totalOmsetOnRange() {
       const data = this.datas.map((item) => item.totalSalesTurnover)
@@ -245,7 +241,9 @@ export default {
     myStyles() {
       return {
         // ==== temporary comment ====
-        height: this.$vuetify.breakpoint.smAndUp ? '300px' : '250px',
+        // NOTE: $vuetify.display (unwrapped booleans) — the useDisplay()
+        // setup bindings are not reachable via `this` in Options computed.
+        height: this.$vuetify.display.smAndUp ? '300px' : '250px',
         width: '100%',
         // position: 'relative',
         // border: '1px solid red',
@@ -254,9 +252,7 @@ export default {
     },
     chartData() {
       return {
-        labels: this.datas.map((item) =>
-          this.$moment(item._id).format('MMM D')
-        ),
+        labels: this.datas.map((item) => dayjs(item._id).format('MMM D')),
         datasets: [
           {
             label: 'Jumlah Penjualan Semua Produk',
@@ -271,9 +267,7 @@ export default {
     },
     chartDataPendapatan() {
       return {
-        labels: this.datas.map((item) =>
-          this.$moment(item._id).format('MMM D')
-        ),
+        labels: this.datas.map((item) => dayjs(item._id).format('MMM D')),
         datasets: [
           {
             label: 'Omset',
@@ -304,10 +298,7 @@ export default {
         ...this.range,
       }
       this.loading.firstLoad = true
-      const res = await this.$store.dispatch(
-        'analytic/getAnalytic',
-        this.params
-      )
+      const res = await useAnalyticStore().getAnalytic(this.params)
       if (res) {
         this.loading.firstLoad = false
       } else {
@@ -319,6 +310,17 @@ export default {
     },
   },
 }
+</script>
+
+<script setup>
+import { Chart as ChartJS, Filler } from 'chart.js'
+
+definePageMeta({ layout: 'dashboard' })
+useHead({ title: 'Gendut Grosir | Dashboard' })
+
+// `fill: true` on the line dataset needs the Filler plugin, which the
+// global chart plugin does not register.
+ChartJS.register(Filler)
 </script>
 <style lang="scss" scoped>
 .card-small {

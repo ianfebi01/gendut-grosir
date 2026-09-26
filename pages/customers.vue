@@ -1,15 +1,21 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container fluid class="full-width-height bg-gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text"> Customer </span>
+      <span class="text-30 font-weight-medium text-gray_900"> Customer </span>
       <v-spacer></v-spacer>
-      <v-btn color="primary" height="44" dense depressed @click="modal = true">
+      <v-btn
+        color="primary"
+        height="44"
+        density="compact"
+        variant="flat"
+        @click="modal = true"
+      >
         <v-icon size="13" class="mr-2">$plus</v-icon>
         Tambah Customer
       </v-btn>
     </v-row>
     <v-row class="px-6">
-      <span class="text-14 font-weight-normal gray_500--text">
+      <span class="text-14 font-weight-normal text-gray_500">
         Kelola Customer Anda
       </span>
     </v-row>
@@ -17,7 +23,7 @@
       <Search
         v-model="search"
         style="max-width: 400px"
-        @input="handleSearch($event)"
+        @update:model-value="handleSearch"
       />
     </v-row>
     <v-row class="px-6 pt-4">
@@ -44,7 +50,7 @@
           <v-avatar size="40px">
             <v-img
               alt="avatar"
-              lazy-src="lazy-loader.svg"
+              lazy-src="/lazy-loader.svg"
               :src="item?.item?.profilePicture"
             />
           </v-avatar>
@@ -55,49 +61,45 @@
         <template #[`item.action`]="item">
           <div>
             <v-btn
-              fab
-              text
-              depressed
-              small
+              icon
+              variant="text"
+              size="small"
               color="gray_500"
               :loading="item?.item._id === loadingEdit"
               @click="openEditModal(item?.item)"
-              ><v-icon small>$edit</v-icon></v-btn
+              ><v-icon size="small">$edit</v-icon></v-btn
             >
             <v-btn
-              fab
-              text
-              depressed
-              small
+              icon
+              variant="text"
+              size="small"
               color="gray_500"
               @click="openDeleteModal(item?.item)"
             >
-              <v-icon small>$trash</v-icon>
+              <v-icon size="small">$trash</v-icon>
             </v-btn>
           </div>
         </template>
-        <template #footer>
+        <template #bottom>
           <div class="d-flex align-center text-14 my-4 mx-4">
-            <span class="gray_700--text font-weight-medium">
+            <span class="text-gray_700 font-weight-medium">
               {{ 'Halaman ' + page + ' dari ' + paginator?.totalPages }}
             </span>
 
             <v-spacer></v-spacer>
             <v-btn
-              outlined
+              variant="outlined"
               height="36"
-              depressed
-              dense
+              density="compact"
               :disabled="!paginator.hasPrevPage"
               @click="page--"
               >Sebelumnya</v-btn
             >
             <v-btn
               class="ml-2"
-              outlined
+              variant="outlined"
               height="36"
-              depressed
-              dense
+              density="compact"
               :disabled="!paginator.hasNextPage"
               @click="page++"
               >Selanjutnya</v-btn
@@ -115,24 +117,23 @@
       subtitle="Add new Product for your store"
       :loading="loadingAdd"
       :error-message="errorMessage"
-      :disable="$v.form.$invalid"
+      :disable="v$.form.$invalid"
       @cancel="clearAll"
       @save="handleAdd"
-      @clearErrorMessage="$store.set('user/errorMessage', '')"
+      @clearErrorMessage="clearUserError"
     >
       <template #content>
         <v-row class="mt-2">
           <v-col cols="12" class="py-0">
             <div
-              class="font-weight-medium mb-1 gray_700--text"
+              class="font-weight-medium mb-1 text-gray_700"
               style="font-size: 14px"
             >
               Image
             </div>
             <v-card
               class="input-image"
-              outlined
-              flat
+              variant="outlined"
               width="100%"
               height="208"
               style="overflow: hidden"
@@ -140,10 +141,10 @@
             >
               <v-btn
                 v-if="imageFile"
-                dense
-                small
-                fab
-                text
+                density="compact"
+                size="small"
+                icon
+                variant="text"
                 class="clear-image"
                 @click="clearImage"
               >
@@ -160,10 +161,10 @@
                   <v-icon size="18">$upload</v-icon>
                 </div>
 
-                <span class="primary--text font-weight-bold pa-0">
+                <span class="text-primary font-weight-bold pa-0">
                   Click to upload
                 </span>
-                <span class="gray_500--text text-12 font-weight-normal pa-0">
+                <span class="text-gray_500 text-12 font-weight-normal pa-0">
                   SVG, PNG, JPG or GIF (max. 800x400px)
                 </span>
               </div>
@@ -203,26 +204,25 @@
               v-model="form[item.valueName]"
               :item="item"
               :error-messages="error_message(item?.valueName)"
-              @blur="$v.form[item.valueName].$touch()"
+              @blur="v$.form[item.valueName].$touch()"
             >
               <template #autocomplete="{ errorMessages }">
                 <v-autocomplete
                   v-model="form[item.valueName]"
                   :items="roles"
-                  item-text="roleName"
+                  item-title="roleName"
                   item-value="_id"
-                  background-color="#fff"
-                  outlined
-                  dense
-                  flat
+                  bg-color="#fff"
+                  variant="outlined"
+                  density="compact"
                   height="44"
                   placeholder="Pilih Role"
                   :loading="loading.roles"
                   :error-messages="error_message(item?.valueName)"
                   @focus="getRoles()"
-                  @blur="$v.form[item.valueName].$touch()"
+                  @blur="v$.form[item.valueName].$touch()"
                 >
-                  <template slot="append">
+                  <template #append>
                     <v-icon v-if="errorMessages[0]" color="red">
                       mdi-alert-circle-outline
                     </v-icon>
@@ -244,24 +244,23 @@
       :loading="loadingAdd"
       :error-message="errorMessage"
       :modal-prop="editModal"
-      :disable="$v.editForm.$invalid"
+      :disable="v$.editForm.$invalid"
       @cancel="clearAll"
       @save="handleEdit"
-      @clearErrorMessage="$store.set('product/errorMessage', '')"
+      @clearErrorMessage="clearUserError"
     >
       <template #content>
         <v-row class="mt-2">
           <v-col cols="12" class="py-0">
             <div
-              class="font-weight-medium mb-1 gray_700--text"
+              class="font-weight-medium mb-1 text-gray_700"
               style="font-size: 14px"
             >
               Image
             </div>
             <v-card
               class="input-image"
-              outlined
-              flat
+              variant="outlined"
               width="100%"
               height="208"
               style="overflow: hidden"
@@ -269,10 +268,10 @@
             >
               <v-btn
                 v-if="imageFile"
-                dense
-                small
-                fab
-                text
+                density="compact"
+                size="small"
+                icon
+                variant="text"
                 class="clear-image"
                 @click="clearImage"
               >
@@ -289,12 +288,12 @@
                   <v-icon size="18">$upload</v-icon>
                 </div>
 
-                <span class="primary--text font-weight-bold pa-0">
+                <span class="text-primary font-weight-bold pa-0">
                   Click to upload
                 </span>
 
                 <span
-                  class="text-center gray_500--text text-12 font-weight-normal pa-0"
+                  class="text-center text-gray_500 text-12 font-weight-normal pa-0"
                 >
                   SVG, PNG, JPG or GIF (max. 800x400px)
                 </span>
@@ -335,26 +334,25 @@
               v-model="editForm[item.valueName]"
               :item="item"
               :error-messages="error_message(item?.valueName)"
-              @blur="$v.editForm[item.valueName].$touch()"
+              @blur="v$.editForm[item.valueName].$touch()"
             >
               <template #autocomplete="{ errorMessages }">
                 <v-autocomplete
                   v-model="editForm[item.valueName]"
                   :items="roles"
-                  item-text="roleName"
+                  item-title="roleName"
                   item-value="_id"
-                  background-color="#fff"
-                  outlined
-                  dense
-                  flat
+                  bg-color="#fff"
+                  variant="outlined"
+                  density="compact"
                   height="44"
                   placeholder="Pilih Role"
                   :loading="loading.roles"
                   :error-messages="error_message(item?.valueName)"
                   @focus="getRoles()"
-                  @blur="$v.editForm[item.valueName].$touch()"
+                  @blur="v$.editForm[item.valueName].$touch()"
                 >
-                  <template slot="append">
+                  <template #append>
                     <v-icon v-if="errorMessages[0]" color="red">
                       mdi-alert-circle-outline
                     </v-icon>
@@ -369,8 +367,7 @@
     <Delete
       icon="$warning_delete"
       :loading="loadingDelete"
-      :modal-prop="deleteModal"
-      @modalProp="deleteModal = false"
+      v-model="deleteModal"
       @ok="handleDelete()"
     />
   </v-container>
@@ -386,14 +383,18 @@ import {
   numeric,
   email,
   sameAs,
-} from 'vuelidate/lib/validators'
+} from '@vuelidate/validators'
+import { computed } from 'vue'
+import { useVuelidate } from '@vuelidate/core'
 import DynamicField from '~/components/Input/DynamicField.vue'
 import { addCustomer, editCustomer } from '~/utils/fields'
+import { useUserStore } from '~/stores/user'
+import { useRoleStore } from '~/stores/role'
+import { useUploadImagesStore } from '~/stores/uploadImages'
 
 export default {
   name: 'Customers',
   components: { Search, Modal, Delete, DynamicField },
-  layout: 'dashboard',
   data() {
     return {
       image: null,
@@ -415,45 +416,41 @@ export default {
       name: '',
       form: {},
       editForm: {},
+      v$: null,
       headers: [
         {
-          text: 'Image',
+          title: 'Image',
           value: 'profilePicture',
         },
         {
-          text: 'Name',
+          title: 'Name',
           value: 'name',
         },
-        { text: 'Email', value: 'email' },
-        { text: 'Role', value: 'role.roleName' },
-        { text: 'Status', value: 'status' },
-        { text: 'Activate', value: 'activate' },
-        { text: 'Action', value: 'action' },
+        { title: 'Email', value: 'email' },
+        { title: 'Role', value: 'role.roleName' },
+        { title: 'Status', value: 'status' },
+        { title: 'Activate', value: 'activate' },
+        { title: 'Action', value: 'action' },
       ],
 
       page: 1,
     }
   },
-  head() {
-    return {
-      title: 'Gendut Grosir | Customers',
-    }
-  },
   computed: {
     datas() {
-      return this.$store.get('user/user')
+      return useUserStore().user
     },
     paginator() {
-      return this.$store.get('user/paginator')
+      return useUserStore().paginator
     },
     errorMessage() {
-      return this.$store.get('user/errorMessage')
+      return useUserStore().errorMessage
     },
     imageUrl() {
-      return this.$store.get('uploadImages/imageUrl')
+      return useUploadImagesStore().imageUrl
     },
     userDetail() {
-      return this.$store.get('user/userDetail')
+      return useUserStore().userDetail
     },
     addCustomer() {
       return addCustomer
@@ -462,7 +459,7 @@ export default {
       return editCustomer
     },
     roles() {
-      return this.$store.get('role/roles')
+      return useRoleStore().roles
     },
   },
   watch: {
@@ -470,10 +467,48 @@ export default {
       this.getAllUser()
     },
   },
+  created() {
+    // Explicit useVuelidate args: the watcher runs immediately, so the
+    // validation tree exists during SSR (the no-arg + validations() path
+    // only populates in onBeforeMount, which never runs on the server).
+    const buildRules = (fields, getState) => {
+      const rules = {}
+      fields.forEach((item) => {
+        const rule = {}
+        const { validations, valueName } = item
+        if (validations?.required === true) rule.required = required
+        if (validations?.email) rule.email = email
+        if (validations?.minLength) {
+          rule.minLength = minLength(validations.minLength)
+        }
+        if (validations?.numeric) {
+          rule.numeric = numeric
+        }
+        if (validations?.sameAs) {
+          rule.sameAs = sameAs(
+            computed(() => getState()?.[validations.sameAs]),
+            validations.sameAs
+          )
+        }
+        rules[valueName] = rule
+      })
+      return rules
+    }
+    this.v$ = useVuelidate(
+      {
+        form: buildRules(addCustomer, () => this.form),
+        editForm: buildRules(editCustomer, () => this.editForm),
+      },
+      { form: this.form, editForm: this.editForm }
+    )
+  },
   mounted() {
     this.getAllUser()
   },
   methods: {
+    clearUserError() {
+      useUserStore().errorMessage = ''
+    },
     async handleSearch() {
       await this.getAllUser()
     },
@@ -484,7 +519,7 @@ export default {
         page: this.page,
         limit: 25,
       }
-      const res = await this.$store.dispatch('user/getAllUser', params)
+      const res = await useUserStore().getAllUser(params)
       if (res) {
         this.loading.data = false
       } else {
@@ -498,17 +533,14 @@ export default {
         const formData = new FormData()
         formData.append('image', this.image)
         formData.append('path', 'gendut-grosir/profile-picture')
-        const res = await this.$store.dispatch(
-          'uploadImages/uploadImages',
-          formData
-        )
+        const res = await useUploadImagesStore().uploadImages(formData)
         if (res) {
           this.form.profilePicture = this.imageUrl[0].url
         }
       }
       const body = { ...this.form }
 
-      const res = await this.$store.dispatch('user/addUser', body)
+      const res = await useUserStore().addUser(body)
       if (res) {
         this.loadingAdd = false
         this.modal = false
@@ -524,7 +556,7 @@ export default {
     async handleDelete() {
       this.loadingDelete = true
 
-      let res = await this.$store.dispatch('user/deleteUser', this.id)
+      const res = await useUserStore().deleteUser(this.id)
       if (res) {
         this.loadingDelete = false
         this.deleteModal = false
@@ -536,15 +568,16 @@ export default {
     async openEditModal(item) {
       this.loadingEdit = item?._id
       await this.getRoles()
-      const res = await this.$store.dispatch('user/getUserbyId', item?._id)
+      const res = await useUserStore().getUserbyId(item?._id)
 
       if (res) {
         this.imageFile = this.userDetail.profilePicture
-        this.editForm = {
+        Object.keys(this.editForm).forEach((k) => delete this.editForm[k])
+        Object.assign(this.editForm, {
           ...this.userDetail,
           id: this.userDetail._id,
           role: this.userDetail.role?._id,
-        }
+        })
 
         this.editModal = true
         this.loadingEdit = ''
@@ -556,7 +589,7 @@ export default {
       this.loadingAdd = true
       // delete Images
       if (this.publicId) {
-        await this.$store.dispatch('uploadImages/deleteImages', this.publicId)
+        await useUploadImagesStore().deleteImages(this.publicId)
       }
 
       // Upload Image
@@ -564,10 +597,7 @@ export default {
         const formData = new FormData()
         formData.append('image', this.image)
         formData.append('path', 'gendut-grosir')
-        const res = await this.$store.dispatch(
-          'uploadImages/uploadImages',
-          formData
-        )
+        const res = await useUploadImagesStore().uploadImages(formData)
         if (res) {
           this.editForm.profilePicture = this.imageUrl[0].url
         }
@@ -576,7 +606,7 @@ export default {
       const body = {
         ...this.editForm,
       }
-      const res = await this.$store.dispatch('user/editUser', body)
+      const res = await useUserStore().editUser(body)
       if (res) {
         this.loadingAdd = false
         this.editModal = false
@@ -588,7 +618,8 @@ export default {
     clearAll() {
       this.clearImage()
       this.publicId = ''
-      this.form = {
+      Object.keys(this.form).forEach((k) => delete this.form[k])
+      Object.assign(this.form, {
         id: null,
         name: '',
         email: '',
@@ -596,8 +627,8 @@ export default {
         status: '',
         activate: false,
         image: null,
-      }
-      this.$v.form.$reset()
+      })
+      this.v$.form.$reset()
     },
     clearImage() {
       this.imageFile = null
@@ -611,54 +642,44 @@ export default {
       this.image = null
     },
     async imageInput(event) {
-      this.image = event
+      const file = Array.isArray(event) ? event[0] : event
+      this.image = file
 
-      if (event) {
-        this.imageFile = event ? URL.createObjectURL(event) : undefined // untuk nampilin di frontend
+      if (file) {
+        this.imageFile = file ? URL.createObjectURL(file) : undefined // untuk nampilin di frontend
       }
     },
     error_message(param) {
       const errors = []
+      const field = this.editModal
+        ? this.v$.editForm[param]
+        : this.v$.form[param]
 
-      Object.entries(this.editModal ? this.$v.editForm : this.$v.form).forEach(
-        (entry) => {
-          const [key] = entry
-          if (key === param) {
-            const {
-              $dirty,
-              $params,
-              required,
-              email,
-              minLength,
-              numeric,
-              sameAs,
-            } = this.editModal ? this.$v.editForm[key] : this.$v.form[key]
-            if (!$dirty) return errors
-            // required
-            required === false && errors.push('Field Tidak Boleh Kosong')
-            // email
-            email === false && errors.push(`Format email tidak valid`)
-            // minLength
-            minLength === false &&
-              errors.push(`Input minimal ${$params.minLength.min} karakter`)
-            // minLength
-            numeric === false && errors.push(`Input hanya boleh angka`)
-            // sameAs
-            sameAs === false &&
-              errors.push(`Input harus sama dengan ${$params?.sameAs?.eq}`)
-          }
-        }
-      )
+      if (!field || !field.$dirty) return errors
+      // required
+      field.required?.$invalid && errors.push('Field Tidak Boleh Kosong')
+      // email
+      field.email?.$invalid && errors.push(`Format email tidak valid`)
+      // minLength
+      field.minLength?.$invalid &&
+        errors.push(`Input minimal ${field.minLength.$params.min} karakter`)
+      // numeric
+      field.numeric?.$invalid && errors.push(`Input hanya boleh angka`)
+      // sameAs
+      field.sameAs?.$invalid &&
+        errors.push(
+          `Input harus sama dengan ${field.sameAs.$params.otherName}`
+        )
       return errors
     },
     async getRoles(q) {
       this.loading.roles = true
       const params = {
-        q: q,
+        q,
         page: this.page,
         limit: 25,
       }
-      const res = await this.$store.dispatch('role/getRoles', params)
+      const res = await useRoleStore().getRoles(params)
       if (res) {
         this.loading.roles = false
       } else {
@@ -666,45 +687,12 @@ export default {
       }
     },
   },
-  validations() {
-    const form = {}
-    const editForm = {}
-    let rule = {}
-    this.addCustomer.forEach((item) => {
-      rule = {}
-      const { validations, valueName } = item
-      if (validations?.required === true) rule.required = required
-      if (validations?.email) rule.email = email
-      if (validations?.minLength) {
-        rule.minLength = minLength(validations.minLength)
-      }
-      if (validations?.numeric) {
-        rule.numeric = numeric
-      }
-      if (validations?.sameAs) {
-        rule.sameAs = sameAs(validations?.sameAs)
-      }
-      form[valueName] = rule
-    })
-    this.editCustomer.forEach((item) => {
-      rule = {}
-      const { validations, valueName } = item
-      if (validations?.required === true) rule.required = required
-      if (validations?.email) rule.email = email
-      if (validations?.minLength) {
-        rule.minLength = minLength(validations.minLength)
-      }
-      if (validations?.numeric) {
-        rule.numeric = numeric
-      }
-      if (validations?.sameAs) {
-        rule.sameAs = sameAs(validations?.sameAs)
-      }
-      editForm[valueName] = rule
-    })
-    return { form, editForm }
-  },
 }
+</script>
+
+<script setup>
+definePageMeta({ layout: 'dashboard' })
+useHead({ title: 'Gendut Grosir | Customers' })
 </script>
 
 <style lang="scss" scoped>

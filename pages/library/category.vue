@@ -1,15 +1,21 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container fluid class="full-width-height bg-gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text"> Kategori </span>
+      <span class="text-30 font-weight-medium text-gray_900"> Kategori </span>
       <v-spacer></v-spacer>
-      <v-btn color="primary" height="44" dense depressed @click="modal = true">
+      <v-btn
+        color="primary"
+        height="44"
+        density="compact"
+        variant="flat"
+        @click="modal = true"
+      >
         <v-icon size="13" class="mr-2">$plus</v-icon>
         Tambah Kategori
       </v-btn>
     </v-row>
     <v-row class="px-6">
-      <span class="text-14 font-weight-normal gray_500--text">
+      <span class="text-14 font-weight-normal text-gray_500">
         Lihat semua kategori uyntuk produk Anda
       </span>
     </v-row>
@@ -34,47 +40,43 @@
         <template #[`item.action`]="item">
           <div>
             <v-btn
-              fab
-              text
-              depressed
-              small
+              icon
+              variant="text"
+              size="small"
               color="gray_500"
               @click="openEditModal(item?.item)"
-              ><v-icon small>$edit</v-icon></v-btn
+              ><v-icon size="small">$edit</v-icon></v-btn
             >
             <v-btn
-              fab
-              text
-              depressed
-              small
+              icon
+              variant="text"
+              size="small"
               color="gray_500"
               @click="openDeleteModal(item?.item?._id)"
             >
-              <v-icon small>$trash</v-icon>
+              <v-icon size="small">$trash</v-icon>
             </v-btn>
           </div>
         </template>
-        <template #footer>
+        <template #bottom>
           <div class="d-flex align-center text-14 my-4 mx-4">
-            <span class="gray_700--text font-weight-medium">{{
+            <span class="text-gray_700 font-weight-medium">{{
               'Halaman ' + page + ' dari ' + paginator?.totalPages
             }}</span>
             <v-spacer></v-spacer>
             <v-btn
-              outlined
+              variant="outlined"
               height="36"
-              depressed
-              dense
+              density="compact"
               :disabled="!paginator.hasPrevPage"
               @click="page--"
               >Sebelumnya</v-btn
             >
             <v-btn
               class="ml-2"
-              outlined
+              variant="outlined"
               height="36"
-              depressed
-              dense
+              density="compact"
               :disabled="!paginator.hasNextPage"
               @click="page++"
               >Selanjutnya</v-btn
@@ -93,21 +95,20 @@
       :error-message="errorMessage"
       @cancel="name = ''"
       @save="handleAddCategory"
-      @clearErrorMessage="$store.set('category/errorMessage', '')"
+      @clearErrorMessage="clearCategoryError"
     >
       <template #content>
         <div
-          class="font-weight-medium mb-1 gray_700--text"
+          class="font-weight-medium mb-1 text-gray_700"
           style="font-size: 14px"
         >
           Nama
         </div>
         <v-text-field
           v-model="name"
-          background-color="#fff"
-          outlined
-          dense
-          flat
+          bg-color="#fff"
+          variant="outlined"
+          density="compact"
           height="44"
           hide-details
           placeholder="Masukkan nama"
@@ -125,21 +126,20 @@
       :error-message="errorMessage"
       @cancel="name = ''"
       @save="handleEdit()"
-      @clearErrorMessage="$store.set('category/errorMessage', '')"
+      @clearErrorMessage="clearCategoryError"
     >
       <template #content>
         <div
-          class="font-weight-medium mb-1 gray_700--text"
+          class="font-weight-medium mb-1 text-gray_700"
           style="font-size: 14px"
         >
           Nama
         </div>
         <v-text-field
           v-model="name"
-          background-color="#fff"
-          outlined
-          dense
-          flat
+          bg-color="#fff"
+          variant="outlined"
+          density="compact"
           height="44"
           hide-details
           placeholder="Masukkan nama"
@@ -161,11 +161,11 @@
 import Modal from '~/components/Dialog/Modal.vue'
 import Delete from '~/components/Dialog/Delete.vue'
 import Search from '~/components/Input/Search.vue'
+import { useCategoryStore } from '~/stores/category'
 
 export default {
   name: 'Category',
   components: { Search, Modal, Delete },
-  layout: 'dashboard',
   data() {
     return {
       loadingEdit: false,
@@ -179,30 +179,25 @@ export default {
       name: '',
       headers: [
         {
-          text: 'Nama',
+          title: 'Nama',
           value: 'name',
         },
-        { text: 'Total Produk', value: 'totalProducts' },
-        { text: 'Aksi', value: 'action', width: '150px' },
+        { title: 'Total Produk', value: 'totalProducts' },
+        { title: 'Aksi', value: 'action', width: '150px' },
       ],
       loading: false,
       page: 1,
     }
   },
-  head() {
-    return {
-      title: 'Gendut Grosir | Category',
-    }
-  },
   computed: {
     category() {
-      return this.$store.get('category/category')
+      return useCategoryStore().category
     },
     paginator() {
-      return this.$store.get('category/paginator')
+      return useCategoryStore().paginator
     },
     errorMessage() {
-      return this.$store.get('category/errorMessage')
+      return useCategoryStore().errorMessage
     },
   },
   watch: {
@@ -214,6 +209,9 @@ export default {
     this.getCategory()
   },
   methods: {
+    clearCategoryError() {
+      useCategoryStore().errorMessage = ''
+    },
     async handleSearch() {
       await this.getCategory()
     },
@@ -224,7 +222,7 @@ export default {
         page: this.page,
         limit: 25,
       }
-      const res = await this.$store.dispatch('category/getCategory', params)
+      const res = await useCategoryStore().getCategory(params)
       if (res) {
         this.loading = false
       } else {
@@ -233,7 +231,7 @@ export default {
     },
     async handleAddCategory() {
       this.loadingCategory = true
-      const res = await this.$store.dispatch('category/postCategory', this.name)
+      const res = await useCategoryStore().postCategory(this.name)
       if (res) {
         this.loadingCategory = false
         this.modal = false
@@ -248,7 +246,7 @@ export default {
     },
     async handleDelete() {
       this.loadingDeleteCategory = true
-      const res = await this.$store.dispatch('category/deleteCategory', this.id)
+      const res = await useCategoryStore().deleteCategory(this.id)
       if (res) {
         this.loadingDeleteCategory = false
         this.deleteModal = false
@@ -267,7 +265,7 @@ export default {
         id: this.id,
         name: this.name,
       }
-      const res = await this.$store.dispatch('category/editCategory', params)
+      const res = await useCategoryStore().editCategory(params)
       if (res) {
         this.loadingEdit = false
         this.editModal = false
@@ -277,4 +275,9 @@ export default {
     },
   },
 }
+</script>
+
+<script setup>
+definePageMeta({ layout: 'dashboard' })
+useHead({ title: 'Gendut Grosir | Category' })
 </script>

@@ -1,10 +1,10 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container fluid class="full-width-height bg-gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text"> Orders </span>
+      <span class="text-30 font-weight-medium text-gray_900"> Orders </span>
     </v-row>
     <v-row class="px-6">
-      <span class="text-14 font-weight-normal gray_500--text">
+      <span class="text-14 font-weight-normal text-gray_500">
         Lihat orderan yang masuk
       </span>
     </v-row>
@@ -13,7 +13,7 @@
         v-model="params.q"
         placeholder="Cari Id Order"
         style="max-width: 400px"
-        @input="handleSearch($event)"
+        @update:model-value="handleSearch"
       />
     </v-row>
     <v-row class="px-6 pt-4 pb-4">
@@ -53,9 +53,8 @@
         <template #[`item.details.length`]="item">
           <div>
             <v-btn
-              outlined
-              depressed
-              small
+              variant="outlined"
+              size="small"
               @click="openDetailProductModal(item?.item)"
             >
               {{ item?.item?.details?.length + ' Produk' }}
@@ -63,15 +62,15 @@
           </div>
         </template>
         <template #[`item.status`]="item">
-          <v-tooltip bottom>
-            <template #activator="{ on, attrs }">
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
               <v-btn
-                depressed
+                variant="flat"
                 :color="statusOrderButtonColor(item)"
                 :class="`'text-12 rounded-full ${statusOrderButtonTextColor(
                   item
                 )}`"
-                small
+                size="small"
                 width="80px"
                 :loading="loading.status === item?.item?.orderId"
                 :disabled="
@@ -79,8 +78,7 @@
                   loading.cancelOrder !== '' ||
                   loading.downloadInvoice !== ''
                 "
-                v-bind="attrs"
-                v-on="on"
+                v-bind="props"
                 @click="
                   changeStatusOrder(item?.item?.orderId, item?.item?.status)
                 "
@@ -93,9 +91,8 @@
         </template>
         <template #[`item.invoice`]="item">
           <v-btn
-            depressed
-            outlined
-            small
+            variant="outlined"
+            size="small"
             :disabled="
               item?.item?.status !== 'complete' ||
               loading.downloadInvoice !== '' ||
@@ -111,9 +108,8 @@
         </template>
         <template #[`item.action`]="item">
           <v-btn
-            depressed
-            outlined
-            small
+            variant="outlined"
+            size="small"
             :disabled="
               item?.item?.status === 'complete' ||
               item?.item?.status === 'cancel' ||
@@ -128,28 +124,26 @@
             Batalkan
           </v-btn>
         </template>
-        <template #footer>
+        <template #bottom>
           <div class="d-flex align-center text-14 my-4 mx-4">
-            <span class="gray_700--text font-weight-medium">
+            <span class="text-gray_700 font-weight-medium">
               {{ 'Halaman ' + params.page + ' dari ' + paginator?.totalPages }}
             </span>
 
             <v-spacer></v-spacer>
             <v-btn
-              outlined
+              variant="outlined"
               height="36"
-              depressed
-              dense
+              density="compact"
               :disabled="!paginator.hasPrevPage || loading.data"
               @click="params.page--"
               >Sebelumnya</v-btn
             >
             <v-btn
               class="ml-2"
-              outlined
+              variant="outlined"
               height="36"
-              depressed
-              dense
+              density="compact"
               :disabled="!paginator.hasNextPage || loading.data"
               @click="params.page++"
               >Selanjutnya</v-btn
@@ -171,45 +165,43 @@
             :key="item?._id"
             class="border mb-2"
           >
-            <v-list-item-avatar height="50" width="50" class="border-radius-8">
-              <v-img
-                lazy-src="lazy-loader.svg"
-                :src="$changeImageSize(item?.product?.image, 'sm')"
-              />
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title
-                class="font-weight-medium letter-spacing-normal"
-              >
-                {{ item?.product?.name }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ 'Jumlah : ' + item?.qty }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text
-                class="font-weight-bold text-14 gray_900--text"
+            <template #prepend>
+              <v-avatar size="50" class="border-radius-8">
+                <v-img
+                  lazy-src="/lazy-loader.svg"
+                  :src="$changeImageSize(item?.product?.image, 'sm')"
+                />
+              </v-avatar>
+            </template>
+            <v-list-item-title
+              class="font-weight-medium letter-spacing-normal"
+            >
+              {{ item?.product?.name }}
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              {{ 'Jumlah : ' + item?.qty }}
+            </v-list-item-subtitle>
+            <template #append>
+              <span
+                class="font-weight-bold text-14 text-gray_900"
               >
                 {{ formatRupiah(item?.price) }}
-              </v-list-item-action-text>
-            </v-list-item-action>
+              </span>
+            </template>
           </v-list-item>
         </v-list>
         <v-list>
           <v-list-item class="border">
-            <v-list-item-content>
-              <v-list-item-title class="font-weight-bold text-14">
-                Total
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text
-                class="font-weight-bold text-14 gray_900--text"
+            <v-list-item-title class="font-weight-bold text-14">
+              Total
+            </v-list-item-title>
+            <template #append>
+              <span
+                class="font-weight-bold text-14 text-gray_900"
               >
                 {{ formatRupiah(detailsProduct.total) }}
-              </v-list-item-action-text>
-            </v-list-item-action>
+              </span>
+            </template>
           </v-list-item>
         </v-list>
       </template>
@@ -222,11 +214,11 @@ import Modal from '~/components/Dialog/Modal.vue'
 import Search from '~/components/Input/Search.vue'
 import { capitalizeFirstLetter } from '~/utils/capitalizeFirstLetter'
 import { formatRupiah } from '~/utils/formatRupiah'
+import { useOrderStore } from '~/stores/order'
 
 export default {
   name: 'Orders',
   components: { Modal, Search },
-  layout: 'dashboard',
   data() {
     return {
       modal: {
@@ -249,44 +241,39 @@ export default {
       },
       headers: [
         {
-          text: 'No.',
+          title: 'No.',
           value: '_id',
           width: '75px',
         },
         {
-          text: 'Nama',
+          title: 'Nama',
           value: 'user.name',
           width: '202px',
         },
         {
-          text: 'ID Order',
+          title: 'ID Order',
           value: 'orderId',
           width: '180px',
         },
-        { text: 'Total Order', value: 'details.length', width: '150px' },
-        { text: 'Total Harga', value: 'total', width: '130px' },
-        { text: 'Status', value: 'user.status', width: '130px' },
-        { text: 'Tanggal', value: 'createdAt', width: '200px' },
-        { text: 'Status Order', value: 'status', width: '150px' },
-        { text: 'Invoice', value: 'invoice' },
-        { text: 'Aksi', value: 'action' },
+        { title: 'Total Order', value: 'details.length', width: '150px' },
+        { title: 'Total Harga', value: 'total', width: '130px' },
+        { title: 'Status', value: 'user.status', width: '130px' },
+        { title: 'Tanggal', value: 'createdAt', width: '200px' },
+        { title: 'Status Order', value: 'status', width: '150px' },
+        { title: 'Invoice', value: 'invoice' },
+        { title: 'Aksi', value: 'action' },
       ],
-    }
-  },
-  head() {
-    return {
-      title: 'Gendut Grosir | Category',
     }
   },
   computed: {
     datas() {
-      return this.$store.get('order/order')
+      return useOrderStore().order
     },
     paginator() {
-      return this.$store.get('order/paginator')
+      return useOrderStore().paginator
     },
     errorMessage() {
-      return this.$store.get('order/errorMessage')
+      return useOrderStore().errorMessage
     },
   },
   watch: {
@@ -308,7 +295,7 @@ export default {
     async getOrder() {
       this.loading.data = true
 
-      const res = await this.$store.dispatch('order/getOrder', this.params)
+      const res = await useOrderStore().getOrder(this.params)
       if (res) {
         this.loading.data = false
       } else {
@@ -334,10 +321,10 @@ export default {
     },
     statusOrderButtonTextColor(item) {
       return item?.item?.status === 'complete'
-        ? 'success_600--text cursor-normal'
+        ? 'text-success_600 cursor-normal'
         : item?.item?.status === 'process'
-        ? 'blue-600--text'
-        : 'orange-600--text cursor-normal'
+        ? 'text-blue-600'
+        : 'text-orange-600 cursor-normal'
     },
     statusOrderTooltips(item) {
       return item?.item?.status === 'process'
@@ -351,23 +338,30 @@ export default {
       if (status === 'complete' || status === 'cancel') return
 
       this.loading.status = orderId
-      await this.$store.dispatch('order/changeStatusOrder', orderId)
+      await useOrderStore().changeStatusOrder(orderId)
       this.loading.status = ''
     },
     async cancelOrder(orderId) {
       this.loading.cancelOrder = orderId
-      await this.$store.dispatch('order/cancelOrder', orderId)
+      await useOrderStore().cancelOrder(orderId)
       this.loading.cancelOrder = ''
     },
     async downloadInvoice(orderId) {
       this.loading.downloadInvoice = orderId
-      await this.$store.dispatch('order/downloadInvoice', {
+      await useOrderStore().downloadInvoice({
         orderId,
       })
       this.loading.downloadInvoice = ''
     },
   },
 }
+</script>
+
+<script setup>
+definePageMeta({ layout: 'dashboard' })
+useHead({ title: 'Gendut Grosir | Category' })
+
+const { $formatDate, $changeImageSize } = useNuxtApp()
 </script>
 
 <style lang="scss" scoped>

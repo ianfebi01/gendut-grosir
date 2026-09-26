@@ -1,21 +1,27 @@
 <template>
   <v-container
     fluid
-    class="full-width-height gray_100"
+    class="full-width-height bg-gray_100"
     style="width: 100% !important"
   >
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text">
+      <span class="text-30 font-weight-medium text-gray_900">
         Dynamic Form
       </span>
       <v-spacer></v-spacer>
-      <v-btn color="primary" height="44" dense depressed @click="modal = true">
+      <v-btn
+        color="primary"
+        height="44"
+        density="compact"
+        variant="flat"
+        @click="modal = true"
+      >
         <v-icon size="13" class="mr-2">$plus</v-icon>
         Tambah Customer
       </v-btn>
     </v-row>
     <v-row class="px-6">
-      <span class="text-14 font-weight-normal gray_500--text">
+      <span class="text-14 font-weight-normal text-gray_500">
         Membuat multiple row dengan object
       </span>
     </v-row>
@@ -30,7 +36,7 @@
                 style="width: 100%"
                 :item="item"
                 :error-messages="error_message(item?.valueName)"
-                @blur="$v.form[item.valueName].$touch()"
+                @blur="v$.form[item.valueName].$touch()"
               />
             </div>
           </div>
@@ -46,7 +52,7 @@
             v-model="form[item.valueName]"
             :item="item"
             :error-messages="error_message(item?.valueName)"
-            @blur="$v.form[item.valueName].$touch()"
+            @blur="v$.form[item.valueName].$touch()"
           />
         </v-col> -->
         <v-col>
@@ -54,9 +60,9 @@
             type="submit"
             height="44"
             color="primary"
-            depressed
+            variant="flat"
             block
-            :disabled="$v.form.$invalid"
+            :disabled="v$.form.$invalid"
             @click="$emit('handleSubmit', form)"
           >
             Submit
@@ -69,7 +75,7 @@
       <v-col cols="6"
         ><div
           style="font-size: 14px"
-          class="font-weight-medium mb-1 gray_700--text mt-2"
+          class="font-weight-medium mb-1 text-gray_700 mt-2"
         >
           Object field
         </div>
@@ -78,7 +84,7 @@
       <v-col cols="6">
         <div
           style="font-size: 14px"
-          class="font-weight-medium mb-1 gray_700--text mt-2"
+          class="font-weight-medium mb-1 text-gray_700 mt-2"
         >
           Hasil Form
         </div>
@@ -88,6 +94,7 @@
   </v-container>
 </template>
 <script>
+import { computed } from 'vue'
 import directive from '@/utils/directive'
 import {
   required,
@@ -95,41 +102,169 @@ import {
   numeric,
   email,
   sameAs,
-} from 'vuelidate/lib/validators'
+} from '@vuelidate/validators'
+import { useVuelidate } from '@vuelidate/core'
 import DynamicField from '~/components/Input/DynamicField.vue'
 export default {
   name: 'DynamicForm',
   components: { DynamicField },
   mixins: [directive],
-  layout: 'dashboard',
   data() {
     return {
       form: {},
+      v$: null,
+      defaultFields: [
+        {
+          valueName: 'name',
+          fieldType: 'textField',
+          type: 'text',
+          label: 'Name',
+          placeholder: 'Masukkan Nama',
+          validations: {
+            required: true,
+            minLength: 6,
+          },
+        },
+        {
+          valueName: 'email',
+          fieldType: 'textField',
+          type: 'email',
+          label: 'Email',
+          placeholder: 'Masukkan Email',
+          validations: {
+            required: true,
+            minLength: 6,
+            email: true,
+          },
+        },
+        {
+          valueName: 'noHp',
+          fieldType: 'textField',
+          type: 'number',
+          label: 'Nomor Hp',
+          placeholder: 'Masukkan Nomor Hp Anda',
+          validations: {
+            required: true,
+            minLength: 9,
+            numeric: true,
+          },
+        },
+        {
+          valueName: 'gender',
+          fieldType: 'select',
+          label: 'Gender',
+          placeholder: 'Pilih Gender',
+          items: [
+            {
+              name: 'Pria',
+              value: 'pria',
+            },
+            {
+              name: 'Wanita',
+              value: 'wanita',
+            },
+          ],
+          validations: {
+            required: true,
+          },
+        },
+        {
+          valueName: 'password',
+          fieldType: 'textField',
+          type: 'password',
+          label: 'Password',
+          placeholder: 'Enter Password',
+          validations: {
+            required: true,
+            minLength: 6,
+          },
+        },
+        {
+          valueName: 'confirmPassword',
+          fieldType: 'textField',
+          type: 'password',
+          label: 'Confirm Password',
+          placeholder: 'Enter Confirm Password',
+          validations: {
+            required: true,
+            minLength: 6,
+            sameAs: 'password',
+          },
+        },
+        {
+          valueName: 'activate',
+          fieldType: 'switch',
+          label: 'Activate Acount',
+          placeholder: ['Active', 'Not Active'],
+        },
+        {
+          valueName: 'followUpdate',
+          fieldType: 'checkbox',
+          label: 'Pilih Layanan',
+          checkboxItem: [
+            {
+              name: 'Pinjaman',
+              value: 'pinjaman',
+            },
+            {
+              name: 'Pinjol',
+              value: 'pinjol',
+            },
+            {
+              name: 'Kredit',
+              value: 'kredit',
+            },
+          ],
+        },
+      ],
     }
   },
   computed: {
     datas() {
-      let col = this.$vuetify.breakpoint.xs
+      let col = this.$vuetify.display.xs
         ? 1
-        : this.$vuetify.breakpoint.sm
+        : this.$vuetify.display.sm
         ? 2
-        : this.$vuetify.breakpoint.md
+        : this.$vuetify.display.md
         ? 2
-        : this.$vuetify.breakpoint.lg
+        : this.$vuetify.display.lg
         ? 3
         : 5
 
       return this.generateMansory(col, this.defaultFields)
     },
   },
-
+  created() {
+    // Explicit useVuelidate args: the watcher runs immediately, so the
+    // validation tree exists during SSR (the no-arg + validations() path
+    // only populates in onBeforeMount, which never runs on the server).
+    const formRules = {}
+    this.defaultFields.forEach((item) => {
+      const rule = {}
+      const { validations, valueName } = item
+      if (validations?.required === true) rule.required = required
+      if (validations?.email) rule.email = email
+      if (validations?.minLength) {
+        rule.minLength = minLength(validations.minLength)
+      }
+      if (validations?.numeric) {
+        rule.numeric = numeric
+      }
+      if (validations?.sameAs) {
+        rule.sameAs = sameAs(computed(() => this.form[validations?.sameAs]))
+      }
+      formRules[valueName] = rule
+    })
+    this.v$ = useVuelidate({ form: formRules }, { form: this.form })
+  },
   methods: {
     handleSubmit(form) {
-      this.form = form
+      Object.keys(this.form).forEach((k) => delete this.form[k])
+      Object.assign(this.form, { ...form })
     },
     error_message(param) {
       const errors = []
-      Object.entries(this.$v.form).forEach((entry) => {
+      Object.entries(this.v$.form).forEach((entry) => {
         const [key] = entry
         if (key === param) {
           const {
@@ -140,7 +275,7 @@ export default {
             minLength,
             numeric,
             sameAs,
-          } = this.$v.form[key]
+          } = this.v$.form[key]
           if (!$dirty) return errors
           // required
           required === false && errors.push('Field Tidak Boleh Kosong')
@@ -171,29 +306,13 @@ export default {
       return columnWrapper
     },
   },
-  validations() {
-    const form = {}
-    let rule = {}
-    this.defaultFields.forEach((item) => {
-      rule = {}
-      const { validations, valueName } = item
-      if (validations?.required === true) rule.required = required
-      if (validations?.email) rule.email = email
-      if (validations?.minLength) {
-        rule.minLength = minLength(validations.minLength)
-      }
-      if (validations?.numeric) {
-        rule.numeric = numeric
-      }
-      if (validations?.sameAs) {
-        rule.sameAs = sameAs(validations?.sameAs)
-      }
-      form[valueName] = rule
-    })
-    return { form }
-  },
 }
 </script>
+
+<script setup>
+definePageMeta({ layout: 'dashboard' })
+</script>
+
 <style lang="scss" scoped>
 @use '@/assets/scss/abstracts/variables.scss' as v;
 .containere {

@@ -1,10 +1,5 @@
 <template>
-  <v-container
-    fluid
-    style="height: 100vh; width: 100%"
-    class="pa-0 ma-0"
-    fill-height
-  >
+  <v-container fluid style="height: 100vh; width: 100%" class="pa-0 ma-0">
     <v-row
       align="center"
       justify="center"
@@ -12,17 +7,17 @@
       class="px-0"
     >
       <v-col
-        :cols="$vuetify.breakpoint.smAndDown ? '12' : '6'"
+        :cols="smAndDown ? '12' : '6'"
         align-self="center"
-        :class="$vuetify.breakpoint.xs ? 'px-2' : 'px-16'"
+        :class="xs ? 'px-2' : 'px-16'"
         style="max-height:50vh,max-width:50vh"
       >
         <RegisterForm :loading="loading" />
       </v-col>
       <v-col
-        v-if="$vuetify.breakpoint.mdAndUp"
+        v-if="mdAndUp"
         cols="6"
-        class="d-flex justify-center align-center gray_100"
+        class="d-flex justify-center align-center bg-gray_100"
         style="background: $primary; height: 100%"
       >
         <v-img src="/shoping-cart.svg"></v-img>
@@ -32,10 +27,11 @@
 </template>
 <script>
 import RegisterForm from '~/components/Form/RegisterForm.vue'
+import { useRoleStore } from '~/stores/role'
+
 export default {
   name: 'LoginPage',
   components: { RegisterForm },
-  layout: 'default',
   data() {
     return {
       loading: false,
@@ -51,7 +47,7 @@ export default {
   },
   mounted() {
     if (this.accessToken) {
-      this.$cookiz.set('access_token', this.accessToken)
+      useCookie('access_token').value = this.accessToken
       this.$router.push('/')
     } else {
       this.getRoles()
@@ -59,8 +55,16 @@ export default {
   },
   methods: {
     async getRoles() {
-      await this.$store.dispatch('role/getRoles')
+      await useRoleStore().getRoles()
     },
   },
 }
+</script>
+
+<script setup>
+import { useDisplay } from 'vuetify'
+
+definePageMeta({ layout: 'default' })
+
+const { xs, smAndDown, mdAndUp } = useDisplay()
 </script>

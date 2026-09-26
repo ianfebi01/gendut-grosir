@@ -1,17 +1,23 @@
 <template>
-  <v-container fluid class="full-width-height gray_100">
+  <v-container fluid class="full-width-height bg-gray_100">
     <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text">
+      <span class="text-30 font-weight-medium text-gray_900">
         Dynamic Form
       </span>
       <v-spacer></v-spacer>
-      <v-btn color="primary" height="44" dense depressed @click="modal = true">
+      <v-btn
+        color="primary"
+        height="44"
+        density="compact"
+        variant="flat"
+        @click="modal = true"
+      >
         <v-icon size="13" class="mr-2">$plus</v-icon>
         Tambah Customer
       </v-btn>
     </v-row>
     <v-row class="px-6">
-      <span class="text-14 font-weight-normal gray_500--text">
+      <span class="text-14 font-weight-normal text-gray_500">
         Membuat multiple row dengan object
       </span>
     </v-row>
@@ -20,7 +26,7 @@
       <v-col cols="6"
         ><div
           style="font-size: 14px"
-          class="font-weight-medium mb-1 gray_700--text mt-2"
+          class="font-weight-medium mb-1 text-gray_700 mt-2"
         >
           Object field
         </div>
@@ -29,7 +35,7 @@
       <v-col cols="6">
         <div
           style="font-size: 14px"
-          class="font-weight-medium mb-1 gray_700--text mt-2"
+          class="font-weight-medium mb-1 text-gray_700 mt-2"
         >
           Hasil Form
         </div>
@@ -43,7 +49,6 @@ import CustomField from '~/components/CustomField.vue'
 export default {
   name: 'DynamicForm',
   components: { CustomField },
-  layout: 'dashboard',
   data() {
     return {
       form: {},
@@ -159,4 +164,8 @@ export default {
     },
   },
 }
+</script>
+
+<script setup>
+definePageMeta({ layout: 'dashboard' })
 </script>
