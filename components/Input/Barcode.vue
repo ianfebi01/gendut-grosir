@@ -4,9 +4,7 @@
     ref="barcode"
     v-model="model"
     v-barcode
-    bg-color="#fff"
     variant="outlined"
-    height="44px"
     density="compact"
     :label="label && label"
     :placeholder="placeholder"
@@ -64,12 +62,3 @@ const model = computed({
   set: (val) => emit('update:modelValue', val),
 })
 </script>
-<style lang="scss" scoped>
-:deep(.v-label.v-label--active) {
-  background: #fff;
-  padding: 0 5px;
-}
-:deep(.v-label:not(v-label--active)) {
-  transform: translateY(3px);
-}
-</style>

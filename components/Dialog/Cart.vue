@@ -29,61 +29,56 @@
           <v-list-item
             v-for="item in datas"
             :key="item?._id"
-            class="border mb-2"
+            class="border mb-2 px-2"
           >
             <template #prepend>
-              <v-avatar height="50" width="50" style="border-radius: 8px">
                 <v-img
                   lazy-src="/lazy-loader.svg"
-                  :src="$changeImageSize(item?.image, 'xs')"
+                  :src="$changeImageSize(item?.image, 'md')"
+                  style="width: 80px; height: 80px; margin-right: 8px;"
+                  contain
                 ></v-img>
-              </v-avatar>
             </template>
 
             <v-list-item-title
               class="text-gray_900 text-16 font-weight-medium mb-2"
               >{{ item?.name }}</v-list-item-title
             >
-            <div class="action">
-              <v-btn
-                size="small"
-                icon
-                variant="outlined"
-                color="primary_300"
-                @click="handleMinus(item?._id)"
-              >
-                <v-icon class="qty" size="15">mdi-minus</v-icon>
-              </v-btn>
-
-              <span class="font-weight-bold mx-2 text-16">{{ item?.qty }}</span>
-
-              <v-btn
-                size="small"
-                icon
-                variant="outlined"
-                color="primary_300"
-                @click="handlePlus(item?._id)"
-              >
-                <v-icon class="qty" size="15">mdi-plus</v-icon>
-              </v-btn>
-            </div>
-            <template #append>
-              <v-btn
-                variant="text"
-                size="small"
-                icon
-                @click="handleDelete(item?._id)"
-              >
-                <v-icon size="15">$trash</v-icon>
-              </v-btn>
-              <v-list-item-title class="font-weight-bold text-14">
+            <div class="d-flex justify-space-between">
+              <span class="font-weight-bold text-16">
                 {{
                   customer?.status === 'retail'
                     ? formatRupiah(item?.retailPrice)
                     : formatRupiah(item?.wholesalerPrice)
                 }}
-              </v-list-item-title>
-            </template>
+              </span>
+
+              <div class="action">
+                <v-btn
+                  size="small"
+                  icon
+                  variant="outlined"
+                  color="primary_300"
+                  @click="handleMinus(item?._id)"
+                >
+                  <v-icon class="qty" size="15">mdi-minus</v-icon>
+                </v-btn>
+
+                <span class="mx-2 text-16">{{
+                  item?.qty
+                }}</span>
+
+                <v-btn
+                  size="small"
+                  icon
+                  variant="outlined"
+                  color="primary_300"
+                  @click="handlePlus(item?._id)"
+                >
+                  <v-icon class="qty" size="15">mdi-plus</v-icon>
+                </v-btn>
+              </div>
+            </div>
           </v-list-item>
         </v-list>
         <v-list>
@@ -290,6 +285,7 @@ const { $changeImageSize } = useNuxtApp()
 
 <style lang="scss" scoped>
 @use '@/assets/scss/abstracts/variables.scss' as v;
+
 .icon {
   display: flex;
   align-items: center;
@@ -300,16 +296,19 @@ const { $changeImageSize } = useNuxtApp()
   height: 58px;
   border: 8px solid v.$primary_50;
 }
+
 .border {
   border: 1px solid v.$primary_300;
   border-radius: 8px !important;
 }
+
 :deep(.action .v-btn) {
   min-width: unset !important;
   min-height: unset !important;
   height: unset !important;
   width: unset !important;
 }
+
 :deep(.v-label.v-label--active) {
   background: #fff;
   padding: 0 5px;
