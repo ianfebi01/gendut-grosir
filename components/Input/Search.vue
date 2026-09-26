@@ -3,11 +3,7 @@
     id="search"
     :model-value="modelValue"
     :placeholder="placeholder"
-    bg-color="#fff"
     hide-details
-    variant="outlined"
-    height="44px"
-    density="compact"
     @keyup="debounceInput($event)"
   >
     <template #prepend-inner>

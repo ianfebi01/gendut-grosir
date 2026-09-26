@@ -43,7 +43,19 @@ export default defineVuetifyConfiguration({
     },
   },
   defaults: {
-    VBtn: { style: "text-transform: none; letter-spacing: normal;" },
+    // Shared Untitled UI look: 8px radius everywhere, no uppercase buttons.
+    // Heights: buttons and inputs both 44px (see VTextField/VSelect/
+    // VAutocomplete height + the height="44"/size="large" used on buttons).
+    VBtn: {
+      rounded: 'xs',
+      elevation: '0',
+      height: 40
+    },
+    VTextField: {
+      rounded: 'xs',
+      variant: 'solo',
+      density: 'compact',
+    },
   },
   icons: {
     defaultSet: 'mdi',
