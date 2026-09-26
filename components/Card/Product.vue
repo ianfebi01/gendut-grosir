@@ -4,7 +4,7 @@
       <v-card
         v-bind="props"
         variant="flat"
-        style="overflow: hidden; transition: all 150ms;"
+        style="overflow: hidden; transition: all 150ms"
         class="border h-100"
         :style="!isHovering && 'border-color: transparent'"
         :loading="loading === item?.id"
@@ -30,22 +30,7 @@
             height="150px"
             width="100%"
             cover
-          >
-            <v-card-actions class="d-flex justify-end">
-              <v-btn
-                icon
-                size="small"
-                active-class="color:primary !important"
-                class="pa-2"
-                variant="flat"
-                color="primary"
-              >
-                <span class="text-white font-weight-bold">{{
-                  item?.stock
-                }}</span>
-              </v-btn>
-            </v-card-actions>
-          </v-img>
+          />
 
           <v-card-title
             class="text-title mt-2 letter-spacing-normal text-18 text-gray_900 px-3"
@@ -60,8 +45,7 @@
               class="px-0 d-flex align-center justify-space-between"
             >
               <div class="d-flex flex-column justify-center">
-                <span class="text-secondary text-subtitle-2">Price:</span>
-                <span class="text-gray_900 font-weight-bold">
+                <span class="font-weight-bold text-20 text-primary">
                   {{
                     customerStatus === 'retail'
                       ? formatRupiah(item?.retailPrice)

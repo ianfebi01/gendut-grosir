@@ -65,6 +65,7 @@
       v-if="datas?.length && !loading.loadingProduct"
       class="pt-4 py-6 align-self-center"
       justify="left"
+      gap="12"
       style="width: 100%; max-width: 960px; flex-grow: 0"
     >
       <v-col
