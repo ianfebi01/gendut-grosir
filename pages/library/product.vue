@@ -1,1110 +1,659 @@
 <template>
-  <v-container fluid class="full-width-height bg-gray_100">
-    <v-row class=" pt-4">
-      <div class="d-flex flex-column">
-        <span class="text-30 font-weight-medium text-gray_900"> Produk </span>
-        <span class="text-14 font-weight-normal text-gray_500">
-          Kelola produk anda
-        </span>
+  <div>
+    <PageHeader
+      title="Produk"
+      subtitle="Kelola produk anda"
+      add-text="Tambah Produk"
+      :model-value="search"
+      @update:model-value="search = $event"
+      @add="openAddModal"
+    />
+
+    <div class="flex flex-wrap items-end gap-3 pt-1">
+      <div class="w-56">
+        <USelect
+          v-model="categoryFilter"
+          :items="categoryFilterItems"
+          label-key="label"
+          value-key="value"
+          placeholder="Semua Kategori"
+          size="md"
+          class="w-full"
+        />
       </div>
-      <v-spacer></v-spacer>
-      <barcode
-        v-model="barcode"
-        style="max-width: 200px"
-        class="mr-4"
-        placeholder="Tambah stok"
-        :success-message="successMessage.barcode"
-        :loading="loading.barcode"
-        :error-message="barcodeErrorMessage"
-        @handleBarcodeinput="handleBarcodeinput"
-      />
-      <v-btn
-        color="primary"
-        height="44"
-        density="compact"
-        variant="flat"
-        @click="modal = true"
-      >
-        <v-icon size="13" class="mr-2">$plus</v-icon>
-        Tambah Produk
-      </v-btn>
-    </v-row>
+      <div class="w-64">
+        <UInput
+          v-model="barcode"
+          placeholder="Scan barcode tambah stok"
+          icon="i-heroicons-qr-code-20-solid"
+          size="md"
+          class="w-full"
+          :loading="addStockByBarcode.isPending.value"
+          @keyup.enter="handleBarcodeInput"
+        />
+        <p v-if="barcodeSuccess" class="mt-1 text-xs text-green-600">
+          {{ barcodeSuccess }}
+        </p>
+        <p v-if="barcodeError" class="mt-1 text-xs text-red-500">
+          {{ barcodeError }}
+        </p>
+      </div>
+    </div>
 
-    <v-row class=" pt-4">
-      <Search
-        v-model="search"
-        style="max-width: 400px"
-        @input="handleSearch($event)"
-      />
-    </v-row>
-
-    <v-row class=" py-4">
-      <v-data-table
-        :headers="headers"
-        :items="datas"
-        :loading="loading.datas"
-        :items-per-page="paginator?.limit"
-        hide-default-footer
-        no-data-text="No Data"
-        disable-sort
-        class="data-table fixed-non-select-col"
+    <div class="pt-4">
+      <UTable
+        :data="items"
+        :columns="columns"
+        :loading="isPending"
+        class="data-table"
+        :ui="{ th: 'text-ink-900! border-b-0!', td: 'text-ink-900' }"
       >
-        <template #[`item.image`]="item">
-          <v-img
-            lazy-src="/lazy-loader.svg"
-            height="40"
-            width="40"
-            :src="$changeImageSize(item?.item?.image, 'xs')"
+        <template #image-cell="{ row }">
+          <UAvatar
+            :src="thumb(row.original?.image)"
+            :alt="row.original?.name"
+            size="md"
+            class="bg-gray-100"
+            icon="i-heroicons-photo-20-solid"
           />
         </template>
-        <template #[`item.retailPrice`]="item">
-          <p>{{ $formatRupiah(item.item?.retailPrice) }}</p>
+        <template #category-cell="{ row }">
+          <span>{{ row.original?.category?.name ?? '-' }}</span>
         </template>
-        <template #[`item.wholesalerPrice`]="item">
-          <p>{{ $formatRupiah(item.item?.wholesalerPrice) }}</p>
+        <template #buyPrice-cell="{ row }">
+          <span>{{ formatRupiah(row.original?.buyPrice) }}</span>
         </template>
-        <template #[`item.action`]="item">
+        <template #retailPrice-cell="{ row }">
+          <span>{{ formatRupiah(row.original?.retailPrice) }}</span>
+        </template>
+        <template #wholesalerPrice-cell="{ row }">
+          <span>{{ formatRupiah(row.original?.wholesalerPrice) }}</span>
+        </template>
+        <template #action-cell="{ row }">
+          <div class="flex gap-1">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="openEditModal(row.original)"
+            >
+              <template #leading
+                ><UIcon name="i-heroicons-pencil-20-solid" class="size-4"
+              /></template>
+            </UButton>
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="openDeleteModal(row.original)"
+            >
+              <template #leading
+                ><UIcon name="i-heroicons-trash-20-solid" class="size-4"
+              /></template>
+            </UButton>
+          </div>
+        </template>
+      </UTable>
+      <div class="my-4 flex items-center text-sm">
+        <span class="font-medium text-gray-700"
+          >Halaman {{ page }} dari {{ paginator?.totalPages }}</span
+        >
+        <div class="flex-1" />
+        <UButton
+          variant="outline"
+          color="neutral"
+          size="sm"
+          :disabled="!paginator?.hasPrevPage"
+          @click="page--"
+          >Sebelumnya</UButton
+        >
+        <UButton
+          variant="outline"
+          color="neutral"
+          size="sm"
+          class="ml-2"
+          :disabled="!paginator?.hasNextPage"
+          @click="page++"
+          >Selanjutnya</UButton
+        >
+      </div>
+    </div>
+
+    <!-- Add / Edit -->
+    <UModal
+      v-model:open="modal"
+      :ui="{ content: 'rounded-xl max-w-3xl w-full' }"
+    >
+      <template #content>
+        <div class="flex flex-col items-center px-6 pt-6 text-center">
+          <div class="icon-default mb-4 mt-2">
+            <UIcon
+              name="i-heroicons-cube-20-solid"
+              class="size-6 text-primary-600"
+            />
+          </div>
+          <h3 class="mb-2 text-[18px] font-bold leading-5 text-gray-900">
+            {{ isEdit ? 'Edit Produk' : 'Tambahkan Produk' }}
+          </h3>
+          <p class="text-sm font-normal leading-5 text-gray-500">
+            {{
+              isEdit
+                ? 'Ubah produk di toko anda'
+                : 'Tambahkan produk untuk toko anda'
+            }}
+          </p>
+          <UAlert
+            v-if="mutationError"
+            color="error"
+            variant="soft"
+            :title="mutationError"
+            class="mt-3 w-full"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 px-6 py-4 md:grid-cols-2">
           <div>
-            <v-btn
-              icon
-              variant="text"
-              size="small"
-              color="gray_500"
-              :loading="item?.item._id === loading.edit"
-              @click="openEditModal(item?.item)"
-              ><v-icon size="small">$edit</v-icon></v-btn
+            <label class="mb-1 block text-sm font-medium text-gray-700"
+              >Gambar</label
             >
-            <v-btn
-              icon
-              variant="text"
-              size="small"
-              color="gray_500"
-              @click="openDeleteModal(item?.item)"
-            >
-              <v-icon size="small">$trash</v-icon>
-            </v-btn>
-          </div>
-        </template>
-        <template #bottom>
-          <div class="d-flex align-center text-14 my-4 mx-4">
-            <span class="text-gray_700 font-weight-medium">{{
-              'Page ' + page + ' of ' + paginator?.totalPages
-            }}</span>
-            <v-spacer></v-spacer>
-            <v-btn
-              variant="outlined"
-              height="36"
-              density="compact"
-              :disabled="!paginator.hasPrevPage || loading.datas"
-              @click="page--"
-              >Previous</v-btn
-            >
-            <v-btn
-              class="ml-2"
-              variant="outlined"
-              height="36"
-              density="compact"
-              :disabled="!paginator.hasNextPage || loading.datas"
-              @click="page++"
-              >Next</v-btn
-            >
-          </div>
-        </template>
-      </v-data-table>
-    </v-row>
-
-    <!-- Add -->
-    <Modal
-      v-model="modal"
-      title="Tambahkan Produk"
-      width="800px"
-      subtitle="Tambahkan produk untuk toko anda"
-      :loading="loading.add"
-      :error-message="errorMessage"
-      :modal-prop="modal"
-      :disable="v$.form.$invalid"
-      :fullscreen="$vuetify.display.xs"
-      @cancel="clearAll"
-      @save="handleAdd"
-      @clearErrorMessage="clearProductError"
-    >
-      <template #content>
-        <v-row class="mt-2">
-          <v-col cols="12" md="6">
             <div
-              class="font-weight-medium mb-1 text-gray_700"
-              style="font-size: 14px"
+              class="relative flex h-[201px] w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
+              @click="triggerFileInput"
             >
-              Gambar
-            </div>
-            <v-card
-              class="input-image"
-              variant="outlined"
-              width="432"
-              height="201"
-              style="overflow: hidden"
-              @click="''"
-            >
-              <v-btn
-                v-if="imageFile"
-                density="compact"
-                size="small"
-                icon
-                variant="text"
-                class="clear-image"
-                @click="clearImage"
+              <UButton
+                v-if="imagePreview"
+                variant="ghost"
+                color="neutral"
+                size="xs"
+                class="absolute right-1 top-1 z-10"
+                @click.stop="clearImage"
               >
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-
+                <template #leading
+                  ><UIcon name="i-heroicons-x-mark-20-solid" class="size-4"
+                /></template>
+              </UButton>
               <div
-                v-if="!imageFile"
-                class="d-flex flex-column align-center justify-center"
-                style="width: 100%; height: 100%"
-                @click="$refs.inputImage.$refs.input.click()"
+                v-if="!imagePreview"
+                class="flex flex-col items-center justify-center px-4 text-center"
               >
-                <div class="icon">
-                  <v-icon size="18">$upload</v-icon>
+                <div
+                  class="flex h-10 w-10 items-center justify-center rounded-full border-8 border-gray-50 bg-gray-100"
+                >
+                  <UIcon
+                    name="i-heroicons-arrow-up-tray-20-solid"
+                    class="size-4 text-gray-500"
+                  />
                 </div>
-
-                <span class="text-primary font-weight-bold pa-0">
-                  Klik untuk upload foto
-                </span>
-                <span class="text-gray_500 text-12 font-weight-normal pa-0">
-                  SVG, PNG, JPG or GIF (max. 800x400px)
-                </span>
+                <span class="mt-2 text-sm font-bold text-primary-600"
+                  >Klik untuk upload foto</span
+                >
+                <span class="text-xs font-normal text-gray-500"
+                  >SVG, PNG, JPG or GIF (max. 800x400px)</span
+                >
               </div>
-              <v-img
-                v-else-if="imageFile"
-                :src="imageFile"
-                width="432"
-                height="123"
-              ></v-img>
-            </v-card>
-            <v-file-input
-              ref="inputImage"
-              accept="image/*"
-              class="d-none"
+              <img
+                v-else
+                :src="imagePreview"
+                alt="preview"
+                class="h-full w-full object-contain"
+              />
+            </div>
+            <input
+              ref="fileInput"
               type="file"
-              @change="imageInput"
-            ></v-file-input>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Nama
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.name"
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              placeholder="Enter Product name"
-              :hide-details="v$.form.name.$error ? false : true"
-              :error-messages="
-                v$.form.name.required.$invalid && v$.form.name.$dirty
-                  ? 'Name is required'
-                  : v$.form.name.minLength.$invalid && v$.form.name.$dirty
-                  ? 'Minimum length is 2 characters'
-                  : v$.form.name.maxLength.$invalid && v$.form.name.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : []
-              "
-              @blur="v$.form.name.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="v$.form.name.$invalid && v$.form.name.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Kategori
-              <span style="color: red !important">*</span>
-            </div>
-            <v-autocomplete
-              v-model="form.category"
-              :items="category"
-              item-title="name"
-              item-value="_id"
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              :hide-details="v$.form.category.$error ? false : true"
-              placeholder="Select Category"
-              :error-messages="
-                v$.form.category.required.$invalid && v$.form.category.$dirty
-                  ? 'Category is required'
-                  : []
-              "
-              @keyup="autocompleteCategories($event)"
-              @focus="getCategory()"
-              @blur="v$.form.category.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="v$.form.category.$invalid && v$.form.category.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-autocomplete>
-          </v-col>
-          <v-col cols="12" md="6">
-            <div
-              class="font-weight-medium mb-1 text-gray_700"
-              style="font-size: 14px"
-            >
-              Stok
-            </div>
-            <v-text-field
-              v-model="form.stock"
-              bg-color="#fff"
-              variant="outlined"
-              type="number"
-              density="compact"
-              height="44"
-              placeholder="Enter Buy Price"
-              hide-details
-            >
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Harga modal
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.buyPrice"
-              bg-color="#fff"
-              variant="outlined"
-              type="number"
-              density="compact"
-              height="44"
-              placeholder="Enter Buy Price"
-              :hide-details="v$.form.buyPrice.$error ? false : true"
-              :error-messages="
-                v$.form.buyPrice.required.$invalid && v$.form.buyPrice.$dirty
-                  ? 'Buy Price is required'
-                  : v$.form.buyPrice.maxLength.$invalid && v$.form.buyPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : v$.form.buyPrice.numeric.$invalid && v$.form.buyPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="v$.form.buyPrice.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="v$.form.buyPrice.$invalid && v$.form.buyPrice.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Jual ke sales
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.wholesalerPrice"
-              type="number"
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              placeholder="Enter Sales Price"
-              :hide-details="v$.form.wholesalerPrice.$error ? false : true"
-              :error-messages="
-                v$.form.wholesalerPrice.required.$invalid &&
-                v$.form.wholesalerPrice.$dirty
-                  ? 'Sales Price is required'
-                  : v$.form.wholesalerPrice.maxLength.$invalid &&
-                    v$.form.wholesalerPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : v$.form.wholesalerPrice.numeric.$invalid &&
-                    v$.form.wholesalerPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="v$.form.wholesalerPrice.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="
-                    v$.form.wholesalerPrice.$invalid &&
-                    v$.form.wholesalerPrice.$dirty
-                  "
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Jual ke retail
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.retailPrice"
-              type="number"
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              placeholder="Enter Retail Price"
-              :hide-details="v$.form.retailPrice.$error ? false : true"
-              :error-messages="
-                v$.form.retailPrice.required.$invalid && v$.form.retailPrice.$dirty
-                  ? 'Retail Price is required'
-                  : v$.form.retailPrice.maxLength.$invalid && v$.form.retailPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : v$.form.retailPrice.numeric.$invalid && v$.form.retailPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="v$.form.retailPrice.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="
-                    v$.form.retailPrice.$invalid && v$.form.retailPrice.$dirty
-                  "
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Barcode
-            </div>
-            <v-text-field
-              v-model="form.barcode"
-              v-barcode
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              placeholder="Enter Barcode"
-            >
-            </v-text-field>
-          </v-col>
-          <v-col v-if="uploadProgress" cols="12">
-            <v-progress-linear
-              :model-value="uploadProgress"
-              color="primary"
-              height="25"
-            >
-              <template #default="{ value }">
-                <strong class="text-white">{{ value }}%</strong>
-              </template>
-            </v-progress-linear>
-          </v-col>
-        </v-row>
-      </template>
-    </Modal>
-
-    <!-- Edit -->
-    <Modal
-      v-model="editModal"
-      title="Edit Product"
-      width="800px"
-      subtitle="Edit Product on your store"
-      :loading="loading.add"
-      :error-message="errorMessage"
-      :modal-prop="editModal"
-      :disable="v$.form.$invalid"
-      :fullscreen="$vuetify.display.xs"
-      @cancel="clearAll"
-      @save="handleEdit"
-      @clearErrorMessage="clearProductError"
-    >
-      <template #content>
-        <v-row class="mt-2">
-          <v-col cols="12" sm="6">
-            <div
-              class="font-weight-medium mb-1 text-gray_700"
-              style="font-size: 14px"
-            >
-              Gambar
-            </div>
-            <v-card
-              class="input-image"
-              variant="outlined"
-              width="432"
-              height="201"
-              style="overflow: hidden"
-              @click="''"
-            >
-              <v-btn
-                v-if="imageFile"
-                density="compact"
-                size="small"
-                icon
-                variant="text"
-                class="clear-image"
-                @click="clearImageEdit"
-              >
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-
-              <div
-                v-if="!imageFile"
-                class="d-flex flex-column align-center justify-center"
-                style="width: 100%; height: 100%"
-                @click="$refs.inputImage.$refs.input.click()"
-              >
-                <div class="icon">
-                  <v-icon size="18">$upload</v-icon>
-                </div>
-
-                <span class="text-primary font-weight-bold pa-0">
-                  Click to upload
-                </span>
-                <span class="text-gray_500 text-12 font-weight-normal pa-0">
-                  SVG, PNG, JPG or GIF (max. 800x400px)
-                </span>
-              </div>
-              <v-img
-                v-else-if="imageFile"
-                :src="imageFile"
-                width="432"
-                height="123"
-              ></v-img>
-            </v-card>
-            <v-file-input
-              ref="inputImage"
               accept="image/*"
-              class="d-none"
-              type="file"
-              @change="imageInput"
-            ></v-file-input>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
+              class="hidden"
+              @change="onImageInput"
+            />
+
+            <UFormField
+              label="Nama"
+              required
+              :error="(touched.name && errors.name) || undefined"
             >
-              Nama
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.name"
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              placeholder="Enter Product name"
-              :hide-details="v$.form.name.$error ? false : true"
-              :error-messages="
-                v$.form.name.required.$invalid && v$.form.name.$dirty
-                  ? 'Name is required'
-                  : v$.form.name.minLength.$invalid && v$.form.name.$dirty
-                  ? 'Minimum length is 2 characters'
-                  : v$.form.name.maxLength.$invalid && v$.form.name.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : []
+              <UInput
+                v-model="form.name"
+                placeholder="Masukkan nama produk"
+                size="md"
+                class="w-full"
+                @blur="touched.name = true"
+              />
+            </UFormField>
+            <UFormField
+              label="Kategori"
+              required
+              :error="(touched.category && errors.category) || undefined"
+              class="mt-2"
+            >
+              <USelect
+                v-model="form.category"
+                :items="categoryOptions"
+                label-key="label"
+                value-key="value"
+                placeholder="Pilih Kategori"
+                size="md"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField label="Deskripsi" class="mt-2">
+              <UTextarea
+                v-model="form.description"
+                placeholder="Deskripsi produk (opsional)"
+                size="md"
+                class="w-full"
+                :rows="3"
+              />
+            </UFormField>
+          </div>
+
+          <div>
+            <UFormField label="Stok" :error="errors.stock || undefined">
+              <UInput
+                v-model="form.stock"
+                type="number"
+                placeholder="Masukkan stok"
+                size="md"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField
+              label="Harga Modal"
+              required
+              :error="(touched.buyPrice && errors.buyPrice) || undefined"
+              class="mt-2"
+            >
+              <UInput
+                v-model="form.buyPrice"
+                type="number"
+                placeholder="Masukkan harga modal"
+                size="md"
+                class="w-full"
+                @blur="touched.buyPrice = true"
+              />
+            </UFormField>
+            <UFormField
+              label="Jual ke Sales"
+              required
+              :error="
+                (touched.wholesalerPrice && errors.wholesalerPrice) || undefined
               "
-              @blur="v$.form.name.$touch()"
+              class="mt-2"
             >
-              <template #append>
-                <v-icon
-                  v-if="v$.form.name.$invalid && v$.form.name.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
+              <UInput
+                v-model="form.wholesalerPrice"
+                type="number"
+                placeholder="Masukkan harga sales"
+                size="md"
+                class="w-full"
+                @blur="touched.wholesalerPrice = true"
+              />
+            </UFormField>
+            <UFormField
+              label="Jual ke Retail"
+              required
+              :error="(touched.retailPrice && errors.retailPrice) || undefined"
+              class="mt-2"
             >
-              Kategori
-              <span style="color: red !important">*</span>
-            </div>
-            <v-autocomplete
-              v-model="form.category"
-              :items="category"
-              item-title="name"
-              item-value="_id"
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              :hide-details="v$.form.category.$error ? false : true"
-              placeholder="Select Category"
-              :error-messages="
-                v$.form.category.required.$invalid && v$.form.category.$dirty
-                  ? 'Category is required'
-                  : []
-              "
-              @keyup="autocompleteCategories($event)"
-              @focus="getCategory()"
-              @blur="v$.form.category.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="v$.form.category.$invalid && v$.form.category.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-autocomplete>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <div
-              class="font-weight-medium mb-1 text-gray_700"
-              style="font-size: 14px"
-            >
-              Stok
-            </div>
-            <v-text-field
-              v-model="form.stock"
-              bg-color="#fff"
-              variant="outlined"
-              type="number"
-              density="compact"
-              height="44"
-              placeholder="Enter Buy Price"
-              hide-details
-            >
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Harga modal
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.buyPrice"
-              bg-color="#fff"
-              variant="outlined"
-              type="number"
-              density="compact"
-              height="44"
-              placeholder="Enter Buy Price"
-              :hide-details="v$.form.buyPrice.$error ? false : true"
-              :error-messages="
-                v$.form.buyPrice.required.$invalid && v$.form.buyPrice.$dirty
-                  ? 'Buy Price is required'
-                  : v$.form.buyPrice.maxLength.$invalid && v$.form.buyPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : v$.form.buyPrice.numeric.$invalid && v$.form.buyPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="v$.form.buyPrice.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="v$.form.buyPrice.$invalid && v$.form.buyPrice.$dirty"
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Jual ke sales
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.wholesalerPrice"
-              type="number"
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              placeholder="Enter Sales Price"
-              :hide-details="v$.form.wholesalerPrice.$error ? false : true"
-              :error-messages="
-                v$.form.wholesalerPrice.required.$invalid &&
-                v$.form.wholesalerPrice.$dirty
-                  ? 'Sales Price is required'
-                  : v$.form.wholesalerPrice.maxLength.$invalid &&
-                    v$.form.wholesalerPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : v$.form.wholesalerPrice.numeric.$invalid &&
-                    v$.form.wholesalerPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="v$.form.wholesalerPrice.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="
-                    v$.form.wholesalerPrice.$invalid &&
-                    v$.form.wholesalerPrice.$dirty
-                  "
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Jual ke retail
-              <span style="color: red !important">*</span>
-            </div>
-            <v-text-field
-              v-model="form.retailPrice"
-              type="number"
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              placeholder="Enter Retail Price"
-              :hide-details="v$.form.retailPrice.$error ? false : true"
-              :error-messages="
-                v$.form.retailPrice.required.$invalid && v$.form.retailPrice.$dirty
-                  ? 'Retail Price is required'
-                  : v$.form.retailPrice.maxLength.$invalid && v$.form.retailPrice.$dirty
-                  ? 'Maximum length is 20 characters'
-                  : v$.form.retailPrice.numeric.$invalid && v$.form.retailPrice.$dirty
-                  ? 'Must be a number'
-                  : []
-              "
-              @blur="v$.form.retailPrice.$touch()"
-            >
-              <template #append>
-                <v-icon
-                  v-if="
-                    v$.form.retailPrice.$invalid && v$.form.retailPrice.$dirty
-                  "
-                  color="red"
-                >
-                  mdi-alert-circle-outline
-                </v-icon>
-              </template>
-            </v-text-field>
-            <div
-              class="font-weight-medium mb-1 text-gray_700 mt-2"
-              style="font-size: 14px"
-            >
-              Barcode
-            </div>
-            <v-text-field
-              v-model="form.barcode"
-              v-barcode
-              bg-color="#fff"
-              variant="outlined"
-              density="compact"
-              height="44"
-              placeholder="Enter Barcode"
-            >
-            </v-text-field>
-          </v-col>
-          <v-col v-if="uploadProgress" cols="12">
-            <v-progress-linear
-              :model-value="uploadProgress"
-              color="primary"
-              height="25"
-            >
-              <template #default="{ value }">
-                <strong class="text-white">{{ value }}%</strong>
-              </template>
-            </v-progress-linear>
-          </v-col>
-        </v-row>
+              <UInput
+                v-model="form.retailPrice"
+                type="number"
+                placeholder="Masukkan harga retail"
+                size="md"
+                class="w-full"
+                @blur="touched.retailPrice = true"
+              />
+            </UFormField>
+            <UFormField label="Barcode" class="mt-2">
+              <UInput
+                v-model="form.barcode"
+                placeholder="Masukkan barcode"
+                size="md"
+                class="w-full"
+              />
+            </UFormField>
+          </div>
+        </div>
+
+        <div class="flex gap-2 px-6 pb-6">
+          <UButton
+            block
+            variant="outline"
+            color="neutral"
+            size="lg"
+            :disabled="saving"
+            @click="closeModal"
+            >Batal</UButton
+          >
+          <UButton
+            block
+            color="primary"
+            size="lg"
+            :loading="saving"
+            :disabled="!valid"
+            @click="handleSave"
+            >Simpan</UButton
+          >
+        </div>
       </template>
-    </Modal>
-    <Delete
+    </UModal>
+
+    <DialogDelete
       v-model="deleteModal"
-      icon="$warning_delete"
-      :loading="loading.delete"
-      @ok="handleDelete()"
+      :loading="deleteProduct.isPending.value"
+      @ok="handleDelete"
     />
-  </v-container>
+  </div>
 </template>
 
-<script>
-import Modal from '~/components/Dialog/Modal.vue'
-import Delete from '~/components/Dialog/Delete.vue'
-import Search from '~/components/Input/Search.vue'
-import { required, minLength, maxLength, numeric } from '@vuelidate/validators'
-import { useVuelidate } from '@vuelidate/core'
-import debounce from 'lodash/debounce'
-import directive from '~/utils/directive'
-import replaceChar from '~/utils/mixins/replaceChar'
-import Barcode from '~/components/Input/Barcode.vue'
-import { useProductStore } from '~/stores/product'
-import { useCategoryStore } from '~/stores/category'
-import { useUploadImagesStore } from '~/stores/uploadImages'
+<script setup lang="ts">
+import { refDebounced } from '@vueuse/core'
+import PageHeader from '~/components/Layout/PageHeader.vue'
+import DialogDelete from '~/components/Dialog/Delete.vue'
+import {
+  useProducts,
+  useProductMutations,
+} from '@/composables/queries/useProducts'
+import { useCategories } from '@/composables/queries/useCategories'
+import { useUploadImageMutations } from '@/composables/queries/useLibrary'
+import { formatRupiah } from '~/utils/formatRupiah'
 
-export default {
-  name: 'Product',
-  components: { Search, Modal, Delete, Barcode },
-  mixins: [directive, replaceChar],
-  data() {
-    return {
-      image: null,
-      imageFile: null,
-      form: {
-        id: null,
-        name: '',
-        category: '',
-        stock: null,
-        buyPrice: null,
-        wholesalerPrice: null,
-        retailPrice: null,
-        barcode: null,
-      },
-      v$: null,
-      loading: {
-        barcode: false,
-        category: false,
-        edit: false,
-        add: false,
-        delete: false,
-        datas: false,
-      },
-      successMessage: {
-        barcode: '',
-      },
-      barcodeErrorMessage: '',
-      barcode: null,
-      id: '',
-      editModal: false,
-      publicId: null,
-      deleteModal: false,
-      modal: false,
-      search: '',
-      name: '',
-      headers: [
-        {
-          title: 'Gambar',
-          value: 'image',
-          width: '120px',
-        },
-        {
-          title: 'Nama',
-          value: 'name',
-          width: '200px',
-          sort: false,
-        },
-        { title: 'Stok', value: 'stock', width: '100px' },
-        {
-          title: 'Kategori',
-          value: 'category.name',
-          width: '150px',
-        },
-        {
-          title: 'Harga Retail',
-          value: 'retailPrice',
-          width: '150px',
-        },
-        {
-          title: 'Harga Sales',
-          value: 'wholesalerPrice',
-          width: '150px',
-          sort: false,
-        },
-        { title: 'Aksi', value: 'action', width: '150px', sort: false },
-      ],
-      page: 1,
-    }
-  },
-  computed: {
-    datas() {
-      return useProductStore().product
-    },
-    paginator() {
-      return useProductStore().paginator
-    },
-    errorMessage() {
-      return useProductStore().errorMessage
-    },
-    uploadProgress() {
-      return useProductStore().uploadProgress
-    },
-    category() {
-      return useCategoryStore().category
-    },
-    imageUrl() {
-      return useUploadImagesStore().imageUrl
-    },
-    productDetails() {
-      return useProductStore().productDetails
-    },
-  },
-  watch: {
-    page() {
-      this.getProduct()
-    },
-  },
-  created() {
-    // Explicit useVuelidate args: the watcher runs immediately, so the
-    // validation tree exists during SSR (the no-arg + validations() path
-    // only populates in onBeforeMount, which never runs on the server).
-    this.v$ = useVuelidate(
-      {
-        form: {
-          name: {
-            required,
-            minLength: minLength(2),
-            maxLength: maxLength(50),
-          },
-          category: {
-            required,
-          },
-          buyPrice: {
-            required,
-            maxLength: maxLength(50),
-            numeric,
-          },
-          wholesalerPrice: {
-            required,
-            maxLength: maxLength(50),
-            numeric,
-          },
-          retailPrice: {
-            required,
-            maxLength: maxLength(50),
-            numeric,
-          },
-        },
-      },
-      { form: this.form }
-    )
-  },
-  mounted() {
-    this.getProduct()
-  },
-  methods: {
-    clearProductError() {
-      useProductStore().errorMessage = ''
-    },
-    async handleSearch() {
-      await this.getProduct()
-    },
-    async getProduct() {
-      this.loading.datas = true
-      const params = {
-        q: this.search,
-        page: this.page,
-        limit: 25,
-      }
-      const res = await useProductStore().getProduct(params)
-      if (res) {
-        this.loading.datas = false
-      } else {
-        this.loading.datas = false
-      }
-    },
-    async handleAdd() {
-      this.loading.add = true
-
-      const formData = new FormData()
-      if (this.image) {
-        formData.append('image', this.image)
-      }
-      Object.keys(this.form).forEach((key) => {
-        if (this.form[key] !== null) {
-          formData.append(key, this.form[key])
-        }
-      })
-      const res = await useProductStore().addProduct(formData)
-      // const body = { ...this.form }
-
-      // const res = await useProductStore().addProduct(body)
-      if (res) {
-        this.loading.add = false
-        this.modal = false
-        this.clearAll()
-      } else {
-        this.loading.add = false
-      }
-    },
-    openDeleteModal(item) {
-      this.id = item._id
-      this.publicId = item.image?.match(
-        /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
-      )?.[0]
-      this.deleteModal = true
-    },
-    async handleDelete() {
-      this.loading.delete = true
-      const res = await useProductStore().deleteProduct(this.id)
-      await useUploadImagesStore().deleteImages(this.publicId)
-      if (res) {
-        this.loading.delete = false
-        this.deleteModal = false
-      } else {
-        this.loading.delete = false
-      }
-    },
-    async openEditModal(item) {
-      this.loading.edit = item?._id
-      const res = await useProductStore().getProductById(item?._id)
-
-      if (res) {
-        this.imageFile = this.productDetails.image
-        Object.keys(this.form).forEach((k) => delete this.form[k])
-        Object.assign(this.form, {
-          ...this.productDetails,
-          category: this.productDetails.category._id,
-        })
-        await this.getCategory(this.productDetails.category.name)
-        this.editModal = true
-        this.loading.edit = ''
-      } else {
-        this.loading.edit = ''
-      }
-    },
-    async handleEdit() {
-      this.loading.add = true
-
-      // Upload Image
-      const formData = new FormData()
-      if (this.image) {
-        formData.append('image', this.image)
-      }
-      Object.keys(this.form).forEach((key) => {
-        if (this.form[key] !== null) {
-          formData.append(key, this.form[key])
-        }
-      })
-      const res = await useProductStore().editProduct(formData)
-
-      if (res) {
-        this.loading.add = false
-        this.editModal = false
-        this.clearAll()
-      } else {
-        this.loading.add = false
-      }
-    },
-    async getCategory(q) {
-      this.loading.category = true
-      const params = {
-        q: q,
-        page: 1,
-        limit: 25,
-      }
-      const res = await useCategoryStore().getCategory(params)
-      if (res) {
-        this.loading.category = false
-      } else {
-        this.loading.category = false
-      }
-    },
-    autocompleteCategories: debounce(function (event) {
-      this.getCategory(event.target._value)
-    }, 500),
-    async imageInput(event) {
-      this.image = event
-      if (event) {
-        this.imageFile = event ? URL.createObjectURL(event) : undefined // untuk nampilin di frontend
-      }
-    },
-    clearImage() {
-      this.imageFile = null
-      this.image = null
-    },
-    async clearImageEdit() {
-      this.publicId = this.productDetails.image.match(
-        /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
-      )?.[0]
-      this.imageFile = null
-      this.image = null
-    },
-    clearAll() {
-      this.clearImage()
-      this.publicId = ''
-      Object.keys(this.form).forEach((k) => delete this.form[k])
-      Object.assign(this.form, {
-        name: '',
-        category: '',
-        buyPrice: null,
-        wholesalerPrice: null,
-        retailPrice: null,
-        barcode: null,
-        image: null,
-      })
-      this.v$.form.$reset()
-    },
-    handleBarcodeinput: debounce(async function () {
-      this.successMessage.barcode = ''
-      this.loading.barcode = true
-      this.barcode = this.onlyNumber(this.barcode)
-      const res = await useProductStore().addStockById(this.barcode)
-      // if success get product
-      if (res) {
-        this.successMessage.barcode = 'Stock produk ' + res + ' ditambahkan 1'
-        this.barcodeErrorMessage = ''
-        this.barcode = null
-      } else {
-        this.barcodeErrorMessage = useProductStore().errorMessage
-      }
-      this.loading.barcode = false
-    }, 500),
-  },
-}
-</script>
-
-<script setup>
-definePageMeta({ layout: 'dashboard' })
+definePageMeta({ layout: 'dashboard', title: 'Produk' })
 useHead({ title: 'Gendut Grosir | Produk' })
 
-const { $formatRupiah, $changeImageSize } = useNuxtApp()
+const { $changeImageSize } = useNuxtApp()
+const toast = useToast()
+
+const search = ref('')
+const debouncedSearch = refDebounced(search, 500)
+const page = ref(1)
+// 'all' = no filter (Select items can't use an empty-string value)
+const categoryFilter = ref('all')
+const modal = ref(false)
+const deleteModal = ref(false)
+const isEdit = ref(false)
+const deleteId = ref('')
+const deleteImageUrl = ref('')
+
+const barcode = ref('')
+const barcodeSuccess = ref('')
+const barcodeError = ref('')
+
+const form = reactive({
+  _id: '' as string,
+  name: '',
+  category: '' as string,
+  stock: null as number | null,
+  buyPrice: null as number | null,
+  wholesalerPrice: null as number | null,
+  retailPrice: null as number | null,
+  barcode: '',
+  description: '',
+})
+const touched = reactive({
+  name: false,
+  category: false,
+  buyPrice: false,
+  wholesalerPrice: false,
+  retailPrice: false,
+})
+
+const imageFile = ref<File | null>(null)
+const imagePreview = ref<string>('')
+const fileInput = ref<HTMLInputElement | null>(null)
+
+const params = computed(() => ({
+  q: debouncedSearch.value,
+  category: categoryFilter.value === 'all' ? undefined : categoryFilter.value,
+  page: page.value,
+  limit: 25,
+}))
+const { data, isPending } = useProducts(params)
+const items = computed(() => data.value?.items ?? [])
+const paginator = computed(() => data.value?.paginator ?? {})
+
+const { data: categoryData } = useCategories(computed(() => ({ limit: 100 })))
+const categoryOptions = computed(() =>
+  ((categoryData.value as any)?.items ?? []).map((c: any) => ({
+    label: c.name,
+    value: c._id,
+  })),
+)
+const categoryFilterItems = computed(() => [
+  { label: 'Semua Kategori', value: 'all' },
+  ...categoryOptions.value,
+])
+
+const { createProduct, updateProduct, deleteProduct, addStockByBarcode } =
+  useProductMutations()
+const { deleteImage } = useUploadImageMutations()
+
+const saving = computed(
+  () => createProduct.isPending.value || updateProduct.isPending.value,
+)
+const mutationError = computed(() => {
+  const e: any = createProduct.error.value ?? updateProduct.error.value
+  return e?.data?.message ?? e?.message ?? ''
+})
+
+const errors = computed(() => ({
+  name: !form.name
+    ? 'Nama wajib diisi'
+    : form.name.length < 2
+      ? 'Minimal 2 karakter'
+      : '',
+  category: !form.category ? 'Kategori wajib diisi' : '',
+  buyPrice:
+    form.buyPrice === null || form.buyPrice === ('' as any)
+      ? 'Harga modal wajib diisi'
+      : isNaN(Number(form.buyPrice))
+        ? 'Harus angka'
+        : '',
+  wholesalerPrice:
+    form.wholesalerPrice === null || form.wholesalerPrice === ('' as any)
+      ? 'Harga sales wajib diisi'
+      : isNaN(Number(form.wholesalerPrice))
+        ? 'Harus angka'
+        : '',
+  retailPrice:
+    form.retailPrice === null || form.retailPrice === ('' as any)
+      ? 'Harga retail wajib diisi'
+      : isNaN(Number(form.retailPrice))
+        ? 'Harus angka'
+        : '',
+  stock:
+    form.stock !== null &&
+    form.stock !== ('' as any) &&
+    isNaN(Number(form.stock))
+      ? 'Harus angka'
+      : '',
+}))
+const valid = computed(
+  () =>
+    !errors.value.name &&
+    !errors.value.category &&
+    !errors.value.buyPrice &&
+    !errors.value.wholesalerPrice &&
+    !errors.value.retailPrice &&
+    !errors.value.stock,
+)
+
+const columns = [
+  { accessorKey: 'image', header: 'Gambar' },
+  { accessorKey: 'name', header: 'Nama' },
+  { accessorKey: 'stock', header: 'Stok' },
+  { accessorKey: 'category', header: 'Kategori' },
+  { accessorKey: 'buyPrice', header: 'Harga Modal' },
+  { accessorKey: 'retailPrice', header: 'Harga Retail' },
+  { accessorKey: 'wholesalerPrice', header: 'Harga Sales' },
+  { accessorKey: 'barcode', header: 'Barcode' },
+  { id: 'action', header: 'Aksi' },
+]
+
+watch([search, categoryFilter], () => {
+  page.value = 1
+})
+
+function thumb(url: string) {
+  if (!url) return ''
+  try {
+    return ($changeImageSize as any)?.(url, 'xs') ?? url
+  } catch {
+    return url
+  }
+}
+
+function resetForm() {
+  form._id = ''
+  form.name = ''
+  form.category = ''
+  form.stock = null
+  form.buyPrice = null
+  form.wholesalerPrice = null
+  form.retailPrice = null
+  form.barcode = ''
+  form.description = ''
+  touched.name =
+    touched.category =
+    touched.buyPrice =
+    touched.wholesalerPrice =
+    touched.retailPrice =
+      false
+  clearImage()
+  createProduct.reset()
+  updateProduct.reset()
+}
+
+function closeModal() {
+  modal.value = false
+  resetForm()
+}
+
+function openAddModal() {
+  resetForm()
+  isEdit.value = false
+  modal.value = true
+}
+
+function openEditModal(item: any) {
+  resetForm()
+  isEdit.value = true
+  form._id = item?._id ?? ''
+  form.name = item?.name ?? ''
+  form.category = item?.category?._id ?? item?.category ?? ''
+  form.stock = item?.stock ?? null
+  form.buyPrice = item?.buyPrice ?? null
+  form.wholesalerPrice = item?.wholesalerPrice ?? null
+  form.retailPrice = item?.retailPrice ?? null
+  form.barcode = item?.barcode ?? ''
+  form.description = item?.description ?? ''
+  imagePreview.value = item?.image ?? ''
+  modal.value = true
+}
+
+function openDeleteModal(item: any) {
+  deleteId.value = item?._id ?? ''
+  deleteImageUrl.value = item?.image ?? ''
+  deleteModal.value = true
+}
+
+async function handleDelete() {
+  try {
+    await deleteProduct.mutateAsync(deleteId.value)
+    const publicId = deleteImageUrl.value?.match(
+      /(gendut-grosir)\/([a-zA-Z0-9]*)/,
+    )?.[0]
+    if (publicId) {
+      try {
+        await deleteImage.mutateAsync(publicId)
+      } catch {}
+    }
+    toast.add({ title: 'Produk dihapus', color: 'success' })
+    deleteModal.value = false
+  } catch {
+    toast.add({ title: 'Gagal menghapus produk', color: 'error' })
+  }
+}
+
+function buildFormData() {
+  const fd = new FormData()
+  if (imageFile.value) fd.append('image', imageFile.value)
+  if (isEdit.value && form._id) fd.append('_id', form._id)
+  fd.append('name', form.name)
+  fd.append('category', form.category)
+  if (form.stock !== null && form.stock !== '')
+    fd.append('stock', String(form.stock))
+  fd.append('buyPrice', String(form.buyPrice))
+  fd.append('wholesalerPrice', String(form.wholesalerPrice))
+  fd.append('retailPrice', String(form.retailPrice))
+  if (form.barcode) fd.append('barcode', form.barcode)
+  if (form.description) fd.append('description', form.description)
+  return fd
+}
+
+async function handleSave() {
+  touched.name =
+    touched.category =
+    touched.buyPrice =
+    touched.wholesalerPrice =
+    touched.retailPrice =
+      true
+  if (!valid.value) return
+  try {
+    if (isEdit.value) {
+      await updateProduct.mutateAsync(buildFormData())
+      toast.add({ title: 'Produk diperbarui', color: 'success' })
+    } else {
+      await createProduct.mutateAsync(buildFormData())
+      toast.add({ title: 'Produk ditambahkan', color: 'success' })
+    }
+    modal.value = false
+    resetForm()
+  } catch {}
+}
+
+function triggerFileInput() {
+  fileInput.value?.click()
+}
+
+function onImageInput(event: Event) {
+  const file = (event.target as HTMLInputElement)?.files?.[0]
+  if (!file) return
+  imageFile.value = file
+  imagePreview.value = URL.createObjectURL(file)
+}
+
+function clearImage() {
+  imageFile.value = null
+  imagePreview.value = ''
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+async function handleBarcodeInput() {
+  barcodeSuccess.value = ''
+  barcodeError.value = ''
+  const code = String(barcode.value ?? '').trim()
+  if (!code) return
+  try {
+    const res: any = await addStockByBarcode.mutateAsync(code)
+    const name = res?.name ?? res?.data?.name ?? code
+    barcodeSuccess.value = `Stok produk ${name} ditambahkan 1`
+    barcode.value = ''
+  } catch (e: any) {
+    barcodeError.value =
+      e?.data?.message ?? e?.message ?? 'Barcode tidak ditemukan'
+  }
+}
 </script>
 
-<style lang="scss" scoped>
-@use '@/assets/scss/abstracts/variables.scss' as v;
-.input-image {
-  border-radius: 8px !important;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #d0d5dd;
-  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
-  color: v.$gray_500;
-}
-.icon {
+<style scoped>
+.icon-default {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50% !important;
-  background: v.$gray_100;
-  width: 40px;
-  height: 40px;
-  border: 8px solid v.$gray_50;
-}
-.clear-image {
-  position: absolute;
-  right: 5px;
-  top: 5px;
-  z-index: 1;
+  border-radius: 50%;
+  background: var(--color-primary-100);
+  width: 58px;
+  height: 58px;
+  border: 8px solid var(--color-primary-50);
 }
 </style>

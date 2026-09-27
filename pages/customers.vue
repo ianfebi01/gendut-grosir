@@ -1,726 +1,586 @@
 <template>
-  <v-container fluid class="full-width-height bg-gray_100">
-    <v-row class=" pt-4">
-      <span class="text-30 font-weight-medium text-gray_900"> Customer </span>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        height="44"
-        density="compact"
-        variant="flat"
-        @click="modal = true"
-      >
-        <v-icon size="13" class="mr-2">$plus</v-icon>
-        Tambah Customer
-      </v-btn>
-    </v-row>
-    <v-row class="">
-      <span class="text-14 font-weight-normal text-gray_500">
-        Kelola Customer Anda
-      </span>
-    </v-row>
-    <v-row class=" pt-4">
-      <Search
-        v-model="search"
-        style="max-width: 400px"
-        @update:model-value="handleSearch"
-      />
-    </v-row>
-    <v-row class=" pt-4">
-      <v-data-table
-        :headers="headers"
-        :items="datas"
-        :loading="loading.data"
-        :items-per-page="paginator?.limit"
-        hide-default-footer
-        no-data-text="No Data"
-        disable-sort
-        class="data-table fixed-non-select-col"
-      >
-        <template #[`item.status`]="item">
-          <span>{{
-            item?.item?.status == 'retail'
-              ? 'Retail'
-              : item?.item?.status == 'wholesaler'
-              ? 'Sales'
-              : '-'
-          }}</span>
-        </template>
-        <template #[`item.profilePicture`]="item">
-          <v-avatar size="40px">
-            <v-img
-              alt="avatar"
-              lazy-src="/lazy-loader.svg"
-              :src="item?.item?.profilePicture"
-            />
-          </v-avatar>
-        </template>
-        <template #[`item.role.roleName`]="item">{{
-          item.item?.role?.title
-        }}</template>
-        <template #[`item.action`]="item">
-          <div>
-            <v-btn
-              icon
-              variant="text"
-              size="small"
-              color="gray_500"
-              :loading="item?.item._id === loadingEdit"
-              @click="openEditModal(item?.item)"
-              ><v-icon size="small">$edit</v-icon></v-btn
-            >
-            <v-btn
-              icon
-              variant="text"
-              size="small"
-              color="gray_500"
-              @click="openDeleteModal(item?.item)"
-            >
-              <v-icon size="small">$trash</v-icon>
-            </v-btn>
-          </div>
-        </template>
-        <template #bottom>
-          <div class="d-flex align-center text-14 my-4 mx-4">
-            <span class="text-gray_700 font-weight-medium">
-              {{ 'Halaman ' + page + ' dari ' + paginator?.totalPages }}
-            </span>
-
-            <v-spacer></v-spacer>
-            <v-btn
-              variant="outlined"
-              height="36"
-              density="compact"
-              :disabled="!paginator.hasPrevPage"
-              @click="page--"
-              >Sebelumnya</v-btn
-            >
-            <v-btn
-              class="ml-2"
-              variant="outlined"
-              height="36"
-              density="compact"
-              :disabled="!paginator.hasNextPage"
-              @click="page++"
-              >Selanjutnya</v-btn
-            >
-          </div>
-        </template>
-      </v-data-table>
-    </v-row>
-
-    <!-- Add -->
-    <Modal
-      v-model="modal"
-      title="Add Product"
-      width="800px"
-      subtitle="Add new Product for your store"
-      :loading="loadingAdd"
-      :error-message="errorMessage"
-      :disable="v$.form.$invalid"
-      @cancel="clearAll"
-      @save="handleAdd"
-      @clearErrorMessage="clearUserError"
-    >
-      <template #content>
-        <v-row class="mt-2">
-          <v-col cols="12" class="py-0">
-            <div
-              class="font-weight-medium mb-1 text-gray_700"
-              style="font-size: 14px"
-            >
-              Image
-            </div>
-            <v-card
-              class="input-image"
-              variant="outlined"
-              width="100%"
-              height="208"
-              style="overflow: hidden"
-              @click="''"
-            >
-              <v-btn
-                v-if="imageFile"
-                density="compact"
-                size="small"
-                icon
-                variant="text"
-                class="clear-image"
-                @click="clearImage"
-              >
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-
-              <div
-                v-if="!imageFile"
-                class="d-flex flex-column align-center justify-center"
-                style="width: 100%; height: 100%"
-                @click="$refs.inputImage.$refs.input.click()"
-              >
-                <div class="icon">
-                  <v-icon size="18">$upload</v-icon>
-                </div>
-
-                <span class="text-primary font-weight-bold pa-0">
-                  Click to upload
-                </span>
-                <span class="text-gray_500 text-12 font-weight-normal pa-0">
-                  SVG, PNG, JPG or GIF (max. 800x400px)
-                </span>
-              </div>
-              <div
-                v-else-if="imageFile"
-                class="border"
-                style="width: 200px; height: 200px; overflow: hidden"
-              >
-                <v-img
-                  :src="imageFile"
-                  aspect-ratio="1/1"
-                  height="200"
-                  width="200"
-                ></v-img>
-              </div>
-            </v-card>
-            <v-file-input
-              ref="inputImage"
-              accept="image/*"
-              class="d-none"
-              type="file"
-              @change="imageInput"
-            ></v-file-input>
-          </v-col>
-
-          <v-col
-            v-for="(item, i) in addCustomer"
-            :key="i"
-            class="py-0"
-            cols="12"
-            md="6"
-            lg="6"
-            xl="6"
-            sm="12"
-          >
-            <DynamicField
-              v-model="form[item.valueName]"
-              :item="item"
-              :error-messages="error_message(item?.valueName)"
-              @blur="v$.form[item.valueName].$touch()"
-            >
-              <template #autocomplete="{ errorMessages }">
-                <v-autocomplete
-                  v-model="form[item.valueName]"
-                  :items="roles"
-                  item-title="roleName"
-                  item-value="_id"
-                  bg-color="#fff"
-                  variant="outlined"
-                  density="compact"
-                  height="44"
-                  placeholder="Pilih Role"
-                  :loading="loading.roles"
-                  :error-messages="error_message(item?.valueName)"
-                  @focus="getRoles()"
-                  @blur="v$.form[item.valueName].$touch()"
-                >
-                  <template #append>
-                    <v-icon v-if="errorMessages[0]" color="red">
-                      mdi-alert-circle-outline
-                    </v-icon>
-                  </template>
-                </v-autocomplete>
-              </template>
-            </DynamicField>
-          </v-col>
-        </v-row>
-      </template>
-    </Modal>
-
-    <!-- Edit -->
-    <Modal
-      v-model="editModal"
-      title="Edit Product"
-      width="800px"
-      subtitle="Edit Product on your store"
-      :loading="loadingAdd"
-      :error-message="errorMessage"
-      :modal-prop="editModal"
-      :disable="v$.editForm.$invalid"
-      @cancel="clearAll"
-      @save="handleEdit"
-      @clearErrorMessage="clearUserError"
-    >
-      <template #content>
-        <v-row class="mt-2">
-          <v-col cols="12" class="py-0">
-            <div
-              class="font-weight-medium mb-1 text-gray_700"
-              style="font-size: 14px"
-            >
-              Image
-            </div>
-            <v-card
-              class="input-image"
-              variant="outlined"
-              width="100%"
-              height="208"
-              style="overflow: hidden"
-              @click="''"
-            >
-              <v-btn
-                v-if="imageFile"
-                density="compact"
-                size="small"
-                icon
-                variant="text"
-                class="clear-image"
-                @click="clearImage"
-              >
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-
-              <div
-                v-if="!imageFile"
-                class="d-flex flex-column align-center justify-center"
-                style="width: 100%; height: 100%"
-                @click="$refs.inputImage.$refs.input.click()"
-              >
-                <div class="icon">
-                  <v-icon size="18">$upload</v-icon>
-                </div>
-
-                <span class="text-primary font-weight-bold pa-0">
-                  Click to upload
-                </span>
-
-                <span
-                  class="text-center text-gray_500 text-12 font-weight-normal pa-0"
-                >
-                  SVG, PNG, JPG or GIF (max. 800x400px)
-                </span>
-              </div>
-              <div
-                v-else-if="imageFile"
-                class="border"
-                style="width: 200px; height: 200px; overflow: hidden"
-              >
-                <v-img
-                  :src="imageFile"
-                  aspect-ratio="1/1"
-                  height="200"
-                  width="200"
-                ></v-img>
-              </div>
-            </v-card>
-            <v-file-input
-              ref="inputImage"
-              accept="image/*"
-              class="d-none"
-              type="file"
-              @change="imageInput"
-            ></v-file-input>
-          </v-col>
-
-          <v-col
-            v-for="(item, i) in editCustomer"
-            :key="i"
-            class="py-0"
-            cols="12"
-            md="6"
-            lg="6"
-            xl="6"
-            sm="12"
-          >
-            <DynamicField
-              v-model="editForm[item.valueName]"
-              :item="item"
-              :error-messages="error_message(item?.valueName)"
-              @blur="v$.editForm[item.valueName].$touch()"
-            >
-              <template #autocomplete="{ errorMessages }">
-                <v-autocomplete
-                  v-model="editForm[item.valueName]"
-                  :items="roles"
-                  item-title="roleName"
-                  item-value="_id"
-                  bg-color="#fff"
-                  variant="outlined"
-                  density="compact"
-                  height="44"
-                  placeholder="Pilih Role"
-                  :loading="loading.roles"
-                  :error-messages="error_message(item?.valueName)"
-                  @focus="getRoles()"
-                  @blur="v$.editForm[item.valueName].$touch()"
-                >
-                  <template #append>
-                    <v-icon v-if="errorMessages[0]" color="red">
-                      mdi-alert-circle-outline
-                    </v-icon>
-                  </template>
-                </v-autocomplete>
-              </template>
-            </DynamicField>
-          </v-col>
-        </v-row>
-      </template>
-    </Modal>
-    <Delete
-      icon="$warning_delete"
-      :loading="loadingDelete"
-      v-model="deleteModal"
-      @ok="handleDelete()"
+  <div>
+    <PageHeader
+      title="Customer"
+      subtitle="Kelola Customer Anda"
+      add-text="Tambah Customer"
+      :model-value="search"
+      @update:model-value="search = $event"
+      @add="openAddModal"
     />
-  </v-container>
+
+    <div class="pt-4">
+      <UTable
+        :data="items"
+        :columns="columns"
+        :loading="isPending"
+        class="data-table"
+        :ui="{ th: 'text-ink-900! border-b-0!', td: 'text-ink-900' }"
+      >
+        <template #profilePicture-cell="{ row }">
+          <UAvatar :src="row.original?.profilePicture" alt="avatar" size="md" />
+        </template>
+        <template #status-cell="{ row }">
+          <span>{{ statusLabel(row.original?.status) }}</span>
+        </template>
+        <template #role-cell="{ row }">
+          <span>{{ row.original?.role?.title ?? '-' }}</span>
+        </template>
+        <template #action-cell="{ row }">
+          <div class="flex gap-1">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="openEditModal(row.original)"
+            >
+              <template #leading
+                ><UIcon name="i-heroicons-pencil-20-solid" class="size-4"
+              /></template>
+            </UButton>
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="openDeleteModal(row.original?._id)"
+            >
+              <template #leading
+                ><UIcon name="i-heroicons-trash-20-solid" class="size-4"
+              /></template>
+            </UButton>
+          </div>
+        </template>
+      </UTable>
+      <div class="my-4 flex items-center text-sm">
+        <span class="font-medium text-gray-700"
+          >Halaman {{ page }} dari {{ paginator?.totalPages }}</span
+        >
+        <div class="flex-1" />
+        <UButton
+          variant="outline"
+          color="neutral"
+          size="sm"
+          :disabled="!paginator?.hasPrevPage"
+          @click="page--"
+          >Sebelumnya</UButton
+        >
+        <UButton
+          variant="outline"
+          color="neutral"
+          size="sm"
+          class="ml-2"
+          :disabled="!paginator?.hasNextPage"
+          @click="page++"
+          >Selanjutnya</UButton
+        >
+      </div>
+    </div>
+
+    <DialogModal
+      v-model="modal"
+      title="Tambah Customer"
+      subtitle="Tambah customer baru untuk toko Anda"
+      :loading="createUser.isPending.value"
+      :error-message="mutationError"
+      :disable="!addValid"
+      @save="handleAdd"
+      @clear-error-message="createUser.reset()"
+    >
+      <template #icon
+        ><UIcon
+          name="i-heroicons-user-plus-20-solid"
+          class="size-6 text-primary-600"
+      /></template>
+      <template #content>
+        <div class="space-y-4">
+          <UFormField label="Image">
+            <div
+              class="relative flex h-52 w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
+            >
+              <UButton
+                v-if="imagePreview"
+                variant="ghost"
+                color="neutral"
+                size="xs"
+                class="absolute top-2 right-2 z-10"
+                @click="clearImage"
+              >
+                <template #leading
+                  ><UIcon name="i-heroicons-x-mark-20-solid" class="size-4"
+                /></template>
+              </UButton>
+              <div
+                v-if="!imagePreview"
+                class="flex h-full w-full cursor-pointer flex-col items-center justify-center"
+                @click="addFileInput?.click()"
+              >
+                <div
+                  class="flex size-10 items-center justify-center rounded-full bg-gray-100 ring-8 ring-gray-50"
+                >
+                  <UIcon
+                    name="i-heroicons-arrow-up-tray-20-solid"
+                    class="size-4 text-gray-500"
+                  />
+                </div>
+                <span class="mt-2 text-sm font-bold text-primary-600"
+                  >Click to upload</span
+                >
+                <span class="text-xs font-normal text-gray-500"
+                  >SVG, PNG, JPG or GIF (max. 800x400px)</span
+                >
+              </div>
+              <img
+                v-else
+                :src="imagePreview"
+                class="size-[200px] rounded border object-cover"
+                alt="preview"
+              />
+            </div>
+            <input
+              ref="addFileInput"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="onImageInput"
+            />
+          </UFormField>
+          <UFormField
+            label="Nama"
+            required
+            :error="
+              touched.name && form.name.trim().length < 3
+                ? 'Minimal 3 karakter'
+                : undefined
+            "
+          >
+            <UInput
+              v-model="form.name"
+              placeholder="Masukkan Nama"
+              size="md"
+              class="w-full"
+              @blur="touched.name = true"
+            />
+          </UFormField>
+          <UFormField
+            label="Email"
+            required
+            :error="
+              touched.email && !emailRe.test(form.email)
+                ? 'Format email tidak valid'
+                : undefined
+            "
+          >
+            <UInput
+              v-model="form.email"
+              type="email"
+              placeholder="Masukkan Email"
+              size="md"
+              class="w-full"
+              @blur="touched.email = true"
+            />
+          </UFormField>
+          <UFormField label="Status">
+            <USelect
+              v-model="form.status"
+              :items="statusItems"
+              value-key="value"
+              label-key="name"
+              placeholder="Pilih status Customer"
+              size="md"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField
+            label="Password"
+            required
+            :error="
+              touched.password && form.password.length < 6
+                ? 'Minimal 6 karakter'
+                : undefined
+            "
+          >
+            <UInput
+              v-model="form.password"
+              type="password"
+              placeholder="Masukan Password"
+              size="md"
+              class="w-full"
+              @blur="touched.password = true"
+            />
+          </UFormField>
+          <UFormField
+            label="Konfirmasi Password"
+            required
+            :error="
+              touched.confirmPassword && form.confirmPassword !== form.password
+                ? 'Harus sama dengan password'
+                : undefined
+            "
+          >
+            <UInput
+              v-model="form.confirmPassword"
+              type="password"
+              placeholder="Enter Confirm Password"
+              size="md"
+              class="w-full"
+              @blur="touched.confirmPassword = true"
+            />
+          </UFormField>
+        </div>
+      </template>
+    </DialogModal>
+
+    <DialogModal
+      v-model="editModal"
+      title="Edit Customer"
+      subtitle="Edit customer pada toko Anda"
+      :loading="updateUser.isPending.value"
+      :error-message="mutationError"
+      :disable="!editValid"
+      @save="handleEdit"
+      @clear-error-message="updateUser.reset()"
+    >
+      <template #icon
+        ><UIcon
+          name="i-heroicons-user-plus-20-solid"
+          class="size-6 text-primary-600"
+      /></template>
+      <template #content>
+        <div class="space-y-4">
+          <UFormField label="Image">
+            <div
+              class="relative flex h-52 w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
+            >
+              <UButton
+                v-if="imagePreview"
+                variant="ghost"
+                color="neutral"
+                size="xs"
+                class="absolute top-2 right-2 z-10"
+                @click="clearImage"
+              >
+                <template #leading
+                  ><UIcon name="i-heroicons-x-mark-20-solid" class="size-4"
+                /></template>
+              </UButton>
+              <div
+                v-if="!imagePreview"
+                class="flex h-full w-full cursor-pointer flex-col items-center justify-center"
+                @click="editFileInput?.click()"
+              >
+                <div
+                  class="flex size-10 items-center justify-center rounded-full bg-gray-100 ring-8 ring-gray-50"
+                >
+                  <UIcon
+                    name="i-heroicons-arrow-up-tray-20-solid"
+                    class="size-4 text-gray-500"
+                  />
+                </div>
+                <span class="mt-2 text-sm font-bold text-primary-600"
+                  >Click to upload</span
+                >
+                <span class="text-xs font-normal text-gray-500"
+                  >SVG, PNG, JPG or GIF (max. 800x400px)</span
+                >
+              </div>
+              <img
+                v-else
+                :src="imagePreview"
+                class="size-[200px] rounded border object-cover"
+                alt="preview"
+              />
+            </div>
+            <input
+              ref="editFileInput"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="onImageInput"
+            />
+          </UFormField>
+          <UFormField
+            label="Nama"
+            required
+            :error="
+              touched.name && editForm.name.trim().length < 3
+                ? 'Minimal 3 karakter'
+                : undefined
+            "
+          >
+            <UInput
+              v-model="editForm.name"
+              placeholder="Masukkan Nama"
+              size="md"
+              class="w-full"
+              @blur="touched.name = true"
+            />
+          </UFormField>
+          <UFormField
+            label="Email"
+            required
+            :error="
+              touched.email && !emailRe.test(editForm.email)
+                ? 'Format email tidak valid'
+                : undefined
+            "
+          >
+            <UInput
+              v-model="editForm.email"
+              type="email"
+              placeholder="Masukkan Email"
+              size="md"
+              class="w-full"
+              @blur="touched.email = true"
+            />
+          </UFormField>
+          <UFormField label="Status">
+            <USelect
+              v-model="editForm.status"
+              :items="statusItems"
+              value-key="value"
+              label-key="name"
+              placeholder="Pilih status Customer"
+              size="md"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField
+            label="Password"
+            hint="Kosongkan jika tidak diubah"
+            :error="
+              touched.password &&
+              editForm.password &&
+              editForm.password.length < 6
+                ? 'Minimal 6 karakter'
+                : undefined
+            "
+          >
+            <UInput
+              v-model="editForm.password"
+              type="password"
+              placeholder="Password baru (opsional)"
+              size="md"
+              class="w-full"
+              @blur="touched.password = true"
+            />
+          </UFormField>
+        </div>
+      </template>
+    </DialogModal>
+
+    <DialogDelete
+      v-model="deleteModal"
+      :loading="deleteUser.isPending.value"
+      @ok="handleDelete"
+    />
+  </div>
 </template>
 
-<script>
-import Modal from '~/components/Dialog/Modal.vue'
-import Delete from '~/components/Dialog/Delete.vue'
-import Search from '~/components/Input/Search.vue'
-import {
-  required,
-  minLength,
-  numeric,
-  email,
-  sameAs,
-} from '@vuelidate/validators'
-import { computed } from 'vue'
-import { useVuelidate } from '@vuelidate/core'
-import DynamicField from '~/components/Input/DynamicField.vue'
-import { addCustomer, editCustomer } from '~/utils/fields'
-import { useUserStore } from '~/stores/user'
-import { useRoleStore } from '~/stores/role'
-import { useUploadImagesStore } from '~/stores/uploadImages'
+<script setup lang="ts">
+import { refDebounced } from '@vueuse/core'
+import PageHeader from '~/components/Layout/PageHeader.vue'
+import DialogModal from '~/components/Dialog/Modal.vue'
+import DialogDelete from '~/components/Dialog/Delete.vue'
+import { useUsers, useUserMutations } from '@/composables/queries/useUsers'
+import { useUploadImageMutations } from '@/composables/queries/useLibrary'
 
-export default {
-  name: 'Customers',
-  components: { Search, Modal, Delete, DynamicField },
-  data() {
-    return {
-      image: null,
-      imageFile: null,
-      loadingCategory: false,
-      loadingEdit: false,
-      loading: {
-        roles: false,
-        data: false,
-      },
-      id: '',
-      editModal: false,
-      publicId: null,
-      deleteModal: false,
-      modal: false,
-      loadingDelete: false,
-      loadingAdd: false,
-      search: '',
-      name: '',
-      form: {},
-      editForm: {},
-      v$: null,
-      headers: [
-        {
-          title: 'Image',
-          value: 'profilePicture',
-        },
-        {
-          title: 'Name',
-          value: 'name',
-        },
-        { title: 'Email', value: 'email' },
-        { title: 'Role', value: 'role.roleName' },
-        { title: 'Status', value: 'status' },
-        { title: 'Activate', value: 'activate' },
-        { title: 'Action', value: 'action' },
-      ],
-
-      page: 1,
-    }
-  },
-  computed: {
-    datas() {
-      return useUserStore().user
-    },
-    paginator() {
-      return useUserStore().paginator
-    },
-    errorMessage() {
-      return useUserStore().errorMessage
-    },
-    imageUrl() {
-      return useUploadImagesStore().imageUrl
-    },
-    userDetail() {
-      return useUserStore().userDetail
-    },
-    addCustomer() {
-      return addCustomer
-    },
-    editCustomer() {
-      return editCustomer
-    },
-    roles() {
-      return useRoleStore().roles
-    },
-  },
-  watch: {
-    page() {
-      this.getAllUser()
-    },
-  },
-  created() {
-    // Explicit useVuelidate args: the watcher runs immediately, so the
-    // validation tree exists during SSR (the no-arg + validations() path
-    // only populates in onBeforeMount, which never runs on the server).
-    const buildRules = (fields, getState) => {
-      const rules = {}
-      fields.forEach((item) => {
-        const rule = {}
-        const { validations, valueName } = item
-        if (validations?.required === true) rule.required = required
-        if (validations?.email) rule.email = email
-        if (validations?.minLength) {
-          rule.minLength = minLength(validations.minLength)
-        }
-        if (validations?.numeric) {
-          rule.numeric = numeric
-        }
-        if (validations?.sameAs) {
-          rule.sameAs = sameAs(
-            computed(() => getState()?.[validations.sameAs]),
-            validations.sameAs
-          )
-        }
-        rules[valueName] = rule
-      })
-      return rules
-    }
-    this.v$ = useVuelidate(
-      {
-        form: buildRules(addCustomer, () => this.form),
-        editForm: buildRules(editCustomer, () => this.editForm),
-      },
-      { form: this.form, editForm: this.editForm }
-    )
-  },
-  mounted() {
-    this.getAllUser()
-  },
-  methods: {
-    clearUserError() {
-      useUserStore().errorMessage = ''
-    },
-    async handleSearch() {
-      await this.getAllUser()
-    },
-    async getAllUser() {
-      this.loading.data = true
-      const params = {
-        q: this.search,
-        page: this.page,
-        limit: 25,
-      }
-      const res = await useUserStore().getAllUser(params)
-      if (res) {
-        this.loading.data = false
-      } else {
-        this.loading.data = false
-      }
-    },
-    async handleAdd() {
-      this.loadingAdd = true
-
-      if (this.image) {
-        const formData = new FormData()
-        formData.append('image', this.image)
-        formData.append('path', 'gendut-grosir/profile-picture')
-        const res = await useUploadImagesStore().uploadImages(formData)
-        if (res) {
-          this.form.profilePicture = this.imageUrl[0].url
-        }
-      }
-      const body = { ...this.form }
-
-      const res = await useUserStore().addUser(body)
-      if (res) {
-        this.loadingAdd = false
-        this.modal = false
-        this.clearAll()
-      } else {
-        this.loadingAdd = false
-      }
-    },
-    openDeleteModal(item) {
-      this.id = item._id
-      this.deleteModal = true
-    },
-    async handleDelete() {
-      this.loadingDelete = true
-
-      const res = await useUserStore().deleteUser(this.id)
-      if (res) {
-        this.loadingDelete = false
-        this.deleteModal = false
-        this.id = ''
-      } else {
-        this.loadingDelete = false
-      }
-    },
-    async openEditModal(item) {
-      this.loadingEdit = item?._id
-      await this.getRoles()
-      const res = await useUserStore().getUserbyId(item?._id)
-
-      if (res) {
-        this.imageFile = this.userDetail.profilePicture
-        Object.keys(this.editForm).forEach((k) => delete this.editForm[k])
-        Object.assign(this.editForm, {
-          ...this.userDetail,
-          id: this.userDetail._id,
-          role: this.userDetail.role?._id,
-        })
-
-        this.editModal = true
-        this.loadingEdit = ''
-      } else {
-        this.loadingEdit = ''
-      }
-    },
-    async handleEdit() {
-      this.loadingAdd = true
-      // delete Images
-      if (this.publicId) {
-        await useUploadImagesStore().deleteImages(this.publicId)
-      }
-
-      // Upload Image
-      if (this.image) {
-        const formData = new FormData()
-        formData.append('image', this.image)
-        formData.append('path', 'gendut-grosir')
-        const res = await useUploadImagesStore().uploadImages(formData)
-        if (res) {
-          this.editForm.profilePicture = this.imageUrl[0].url
-        }
-      }
-      // Make body
-      const body = {
-        ...this.editForm,
-      }
-      const res = await useUserStore().editUser(body)
-      if (res) {
-        this.loadingAdd = false
-        this.editModal = false
-        this.clearAll()
-      } else {
-        this.loadingAdd = false
-      }
-    },
-    clearAll() {
-      this.clearImage()
-      this.publicId = ''
-      Object.keys(this.form).forEach((k) => delete this.form[k])
-      Object.assign(this.form, {
-        id: null,
-        name: '',
-        email: '',
-        role: '',
-        status: '',
-        activate: false,
-        image: null,
-      })
-      this.v$.form.$reset()
-    },
-    clearImage() {
-      this.imageFile = null
-      this.image = null
-    },
-    async clearImageEdit() {
-      this.publicId = this.userDetail.image.match(
-        /(gendut-grosir)\/([a-zA-Z0-9]*)/gm
-      )[0]
-      this.imageFile = null
-      this.image = null
-    },
-    async imageInput(event) {
-      const file = Array.isArray(event) ? event[0] : event
-      this.image = file
-
-      if (file) {
-        this.imageFile = file ? URL.createObjectURL(file) : undefined // untuk nampilin di frontend
-      }
-    },
-    error_message(param) {
-      const errors = []
-      const field = this.editModal
-        ? this.v$.editForm[param]
-        : this.v$.form[param]
-
-      if (!field || !field.$dirty) return errors
-      // required
-      field.required?.$invalid && errors.push('Field Tidak Boleh Kosong')
-      // email
-      field.email?.$invalid && errors.push(`Format email tidak valid`)
-      // minLength
-      field.minLength?.$invalid &&
-        errors.push(`Input minimal ${field.minLength.$params.min} karakter`)
-      // numeric
-      field.numeric?.$invalid && errors.push(`Input hanya boleh angka`)
-      // sameAs
-      field.sameAs?.$invalid &&
-        errors.push(
-          `Input harus sama dengan ${field.sameAs.$params.otherName}`
-        )
-      return errors
-    },
-    async getRoles(q) {
-      this.loading.roles = true
-      const params = {
-        q,
-        page: this.page,
-        limit: 25,
-      }
-      const res = await useRoleStore().getRoles(params)
-      if (res) {
-        this.loading.roles = false
-      } else {
-        this.loading.roles = false
-      }
-    },
-  },
-}
-</script>
-
-<script setup>
-definePageMeta({ layout: 'dashboard' })
+definePageMeta({ layout: 'dashboard', title: 'Customer' })
 useHead({ title: 'Gendut Grosir | Customers' })
-</script>
 
-<style lang="scss" scoped>
-@use '@/assets/scss/abstracts/variables.scss' as v;
-.input-image {
-  border-radius: 8px !important;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #d0d5dd;
-  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
-  color: v.$gray_500;
+const search = ref('')
+const debouncedSearch = refDebounced(search, 500)
+const page = ref(1)
+const modal = ref(false)
+const editModal = ref(false)
+const deleteModal = ref(false)
+const id = ref('')
+
+const form = reactive({
+  name: '',
+  email: '',
+  status: '',
+  password: '',
+  confirmPassword: '',
+})
+const editForm = reactive({ name: '', email: '', status: '', password: '' })
+const touched = reactive({
+  name: false,
+  email: false,
+  password: false,
+  confirmPassword: false,
+})
+
+const image = ref<any>(null)
+const imagePreview = ref('')
+const addFileInput = ref<any>(null)
+const editFileInput = ref<any>(null)
+
+const params = computed(() => ({
+  q: debouncedSearch.value,
+  page: page.value,
+  limit: 25,
+}))
+const { data, isPending } = useUsers(params)
+const items = computed(() => data.value?.items ?? [])
+const paginator = computed(() => data.value?.paginator ?? {})
+
+const { createUser, updateUser, deleteUser } = useUserMutations()
+const { uploadImages } = useUploadImageMutations()
+const toast = useToast()
+const mutationError = computed(() => {
+  const e: any = createUser.error.value ?? updateUser.error.value
+  return e?.data?.message ?? e?.message ?? ''
+})
+
+const statusItems = [
+  { name: 'Retail', value: 'retail' },
+  { name: 'Sales', value: 'wholesaler' },
+]
+
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const addValid = computed(
+  () =>
+    form.name.trim().length >= 3 &&
+    emailRe.test(form.email) &&
+    form.password.length >= 6 &&
+    form.confirmPassword === form.password,
+)
+const editValid = computed(
+  () =>
+    editForm.name.trim().length >= 3 &&
+    emailRe.test(editForm.email) &&
+    (!editForm.password || editForm.password.length >= 6),
+)
+
+const columns = [
+  { accessorKey: 'profilePicture', header: 'Image' },
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'email', header: 'Email' },
+  { id: 'role', header: 'Role' },
+  { id: 'status', header: 'Status' },
+  { id: 'action', header: 'Action' },
+]
+
+watch([search], () => {
+  page.value = 1
+})
+
+function statusLabel(s: string) {
+  return s === 'retail' ? 'Retail' : s === 'wholesaler' ? 'Sales' : '-'
 }
-.icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50% !important;
-  background: v.$gray_100;
-  width: 40px;
-  height: 40px;
-  border: 8px solid v.$gray_50;
+
+function onImageInput(e: any) {
+  const file = e?.target?.files?.[0]
+  if (!file) return
+  image.value = file
+  imagePreview.value = URL.createObjectURL(file)
 }
-.clear-image {
-  position: absolute;
-  right: 5px;
-  top: 5px;
-  z-index: 1;
+
+function clearImage() {
+  image.value = null
+  imagePreview.value = ''
+  if (addFileInput.value) addFileInput.value.value = ''
+  if (editFileInput.value) editFileInput.value.value = ''
 }
-</style>
+
+function resetTouched() {
+  touched.name =
+    touched.email =
+    touched.password =
+    touched.confirmPassword =
+      false
+}
+
+function openAddModal() {
+  Object.assign(form, {
+    name: '',
+    email: '',
+    status: '',
+    password: '',
+    confirmPassword: '',
+  })
+  clearImage()
+  resetTouched()
+  modal.value = true
+}
+
+async function uploadImageIfNeeded(fallback: string) {
+  if (!image.value) return fallback
+  const fd = new FormData()
+  fd.append('image', image.value)
+  fd.append('path', 'gendut-grosir/profile-picture')
+  const res: any = await uploadImages.mutateAsync(fd)
+  return (
+    res?.data?.[0]?.url ??
+    res?.[0]?.url ??
+    res?.data?.url ??
+    res?.url ??
+    fallback
+  )
+}
+
+async function handleAdd() {
+  try {
+    const profilePicture = await uploadImageIfNeeded('')
+    await createUser.mutateAsync({
+      name: form.name,
+      email: form.email,
+      status: form.status,
+      password: form.password,
+      profilePicture,
+    })
+    toast.add({ title: 'Customer ditambahkan', color: 'success' })
+    modal.value = false
+    clearImage()
+  } catch {}
+}
+
+function openEditModal(item: any) {
+  id.value = item?._id
+  Object.assign(editForm, {
+    name: item?.name ?? '',
+    email: item?.email ?? '',
+    status: item?.status ?? '',
+    password: '',
+  })
+  image.value = null
+  imagePreview.value = item?.profilePicture ?? ''
+  resetTouched()
+  editModal.value = true
+}
+
+async function handleEdit() {
+  try {
+    const profilePicture = await uploadImageIfNeeded(
+      imagePreview.value && !image.value ? imagePreview.value : '',
+    )
+    const body: any = {
+      id: id.value,
+      name: editForm.name,
+      email: editForm.email,
+      status: editForm.status,
+      profilePicture,
+    }
+    if (editForm.password) body.password = editForm.password
+    await updateUser.mutateAsync(body)
+    toast.add({ title: 'Customer diperbarui', color: 'success' })
+    editModal.value = false
+    clearImage()
+  } catch {}
+}
+
+function openDeleteModal(userId: string) {
+  id.value = userId
+  deleteModal.value = true
+}
+
+async function handleDelete() {
+  try {
+    await deleteUser.mutateAsync(id.value)
+    toast.add({ title: 'Customer dihapus', color: 'success' })
+    deleteModal.value = false
+  } catch {
+    toast.add({ title: 'Gagal menghapus', color: 'error' })
+  }
+}
+</script>

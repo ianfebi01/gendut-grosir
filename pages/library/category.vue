@@ -1,283 +1,214 @@
 <template>
-  <v-container fluid class="full-width-height bg-gray_100">
-    <v-row class=" pt-4">
-      <span class="text-30 font-weight-medium text-gray_900"> Kategori </span>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        height="44"
-        density="compact"
-        variant="flat"
-        @click="modal = true"
-      >
-        <v-icon size="13" class="mr-2">$plus</v-icon>
-        Tambah Kategori
-      </v-btn>
-    </v-row>
-    <v-row class="">
-      <span class="text-14 font-weight-normal text-gray_500">
-        Lihat semua kategori uyntuk produk Anda
-      </span>
-    </v-row>
-    <v-row class=" pt-4">
-      <Search
-        v-model="search"
-        style="max-width: 400px"
-        @input="handleSearch($event)"
-      />
-    </v-row>
-    <v-row class=" pt-4">
-      <v-data-table
-        :headers="headers"
-        :items="category"
-        :loading="loading"
-        :items-per-page="paginator?.limit"
-        hide-default-footer
-        no-data-text="No Data"
-        disable-sort
-        class="data-table fixed-non-select-col"
-      >
-        <template #[`item.action`]="item">
-          <div>
-            <v-btn
-              icon
-              variant="text"
-              size="small"
-              color="gray_500"
-              @click="openEditModal(item?.item)"
-              ><v-icon size="small">$edit</v-icon></v-btn
-            >
-            <v-btn
-              icon
-              variant="text"
-              size="small"
-              color="gray_500"
-              @click="openDeleteModal(item?.item?._id)"
-            >
-              <v-icon size="small">$trash</v-icon>
-            </v-btn>
-          </div>
-        </template>
-        <template #bottom>
-          <div class="d-flex align-center text-14 my-4 mx-4">
-            <span class="text-gray_700 font-weight-medium">{{
-              'Halaman ' + page + ' dari ' + paginator?.totalPages
-            }}</span>
-            <v-spacer></v-spacer>
-            <v-btn
-              variant="outlined"
-              height="36"
-              density="compact"
-              :disabled="!paginator.hasPrevPage"
-              @click="page--"
-              >Sebelumnya</v-btn
-            >
-            <v-btn
-              class="ml-2"
-              variant="outlined"
-              height="36"
-              density="compact"
-              :disabled="!paginator.hasNextPage"
-              @click="page++"
-              >Selanjutnya</v-btn
-            >
-          </div>
-        </template>
-      </v-data-table>
-    </v-row>
+  <div>
+    <PageHeader
+      title="Kategori"
+      subtitle="Lihat semua kategori untuk produk Anda"
+      add-text="Tambah Kategori"
+      :model-value="search"
+      @update:model-value="search = $event"
+      @add="modal = true"
+    />
 
-    <!-- Add -->
-    <Modal
+    <div class="pt-4">
+      <UTable
+        :data="items"
+        :columns="columns"
+        :loading="isPending"
+        class="data-table"
+        :ui="{ th: 'text-ink-900! border-b-0!', td: 'text-ink-900' }"
+      >
+        <template #action-cell="{ row }">
+          <div class="flex gap-1">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="openEditModal(row.original)"
+            >
+              <template #leading
+                ><UIcon name="i-heroicons-pencil-20-solid" class="size-4"
+              /></template>
+            </UButton>
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="openDeleteModal(row.original?._id)"
+            >
+              <template #leading
+                ><UIcon name="i-heroicons-trash-20-solid" class="size-4"
+              /></template>
+            </UButton>
+          </div>
+        </template>
+      </UTable>
+      <div class="my-4 flex items-center text-sm">
+        <span class="font-medium text-gray-700"
+          >Halaman {{ page }} dari {{ paginator?.totalPages }}</span
+        >
+        <div class="flex-1" />
+        <UButton
+          variant="outline"
+          color="neutral"
+          size="sm"
+          :disabled="!paginator?.hasPrevPage"
+          @click="page--"
+          >Sebelumnya</UButton
+        >
+        <UButton
+          variant="outline"
+          color="neutral"
+          size="sm"
+          class="ml-2"
+          :disabled="!paginator?.hasNextPage"
+          @click="page++"
+          >Selanjutnya</UButton
+        >
+      </div>
+    </div>
+
+    <DialogModal
       v-model="modal"
       title="Tambah Kategori"
       subtitle="Masukkan nama kategori"
-      :loading="loadingCategory"
-      :error-message="errorMessage"
-      @cancel="name = ''"
+      :loading="createCategory.isPending.value"
+      :error-message="mutationError"
+      :disable="!name"
       @save="handleAddCategory"
-      @clearErrorMessage="clearCategoryError"
+      @clear-error-message="createCategory.reset()"
     >
+      <template #icon
+        ><UIcon name="i-heroicons-tag-20-solid" class="size-6 text-primary-600"
+      /></template>
       <template #content>
-        <div
-          class="font-weight-medium mb-1 text-gray_700"
-          style="font-size: 14px"
-        >
-          Nama
-        </div>
-        <v-text-field
-          v-model="name"
-          bg-color="#fff"
-          variant="outlined"
-          density="compact"
-          height="44"
-          hide-details
-          placeholder="Masukkan nama"
-        >
-        </v-text-field>
+        <UFormField label="Nama">
+          <UInput
+            v-model="name"
+            placeholder="Masukkan nama"
+            size="md"
+            class="w-full"
+          />
+        </UFormField>
       </template>
-    </Modal>
+    </DialogModal>
 
-    <!-- Edit -->
-    <Modal
+    <DialogModal
       v-model="editModal"
       title="Edit Nama Kategori"
       subtitle="Masukkan nama kategori"
-      :loading="loadingEdit"
-      :error-message="errorMessage"
-      @cancel="name = ''"
-      @save="handleEdit()"
-      @clearErrorMessage="clearCategoryError"
+      :loading="updateCategory.isPending.value"
+      :error-message="mutationError"
+      :disable="!name"
+      @save="handleEdit"
     >
+      <template #icon
+        ><UIcon name="i-heroicons-tag-20-solid" class="size-6 text-primary-600"
+      /></template>
       <template #content>
-        <div
-          class="font-weight-medium mb-1 text-gray_700"
-          style="font-size: 14px"
-        >
-          Nama
-        </div>
-        <v-text-field
-          v-model="name"
-          bg-color="#fff"
-          variant="outlined"
-          density="compact"
-          height="44"
-          hide-details
-          placeholder="Masukkan nama"
-        >
-        </v-text-field>
+        <UFormField label="Nama">
+          <UInput
+            v-model="name"
+            placeholder="Masukkan nama"
+            size="md"
+            class="w-full"
+          />
+        </UFormField>
       </template>
-    </Modal>
-    <!-- DeleteModal -->
-    <Delete
+    </DialogModal>
+
+    <DialogDelete
       v-model="deleteModal"
-      icon="$warning_delete"
-      :loading="loadingDeleteCategory"
-      @ok="handleDelete()"
+      :loading="deleteCategory.isPending.value"
+      @ok="handleDelete"
     />
-  </v-container>
+  </div>
 </template>
 
-<script>
-import Modal from '~/components/Dialog/Modal.vue'
-import Delete from '~/components/Dialog/Delete.vue'
-import Search from '~/components/Input/Search.vue'
-import { useCategoryStore } from '~/stores/category'
+<script setup lang="ts">
+import { refDebounced } from '@vueuse/core'
+import PageHeader from '~/components/Layout/PageHeader.vue'
+import DialogModal from '~/components/Dialog/Modal.vue'
+import DialogDelete from '~/components/Dialog/Delete.vue'
+import {
+  useCategories,
+  useCategoryMutations,
+} from '@/composables/queries/useCategories'
 
-export default {
-  name: 'Category',
-  components: { Search, Modal, Delete },
-  data() {
-    return {
-      loadingEdit: false,
-      id: '',
-      editModal: false,
-      deleteModal: false,
-      modal: false,
-      loadingDeleteCategory: false,
-      loadingCategory: false,
-      search: '',
-      name: '',
-      headers: [
-        {
-          title: 'Nama',
-          value: 'name',
-        },
-        { title: 'Total Produk', value: 'totalProducts' },
-        { title: 'Aksi', value: 'action', width: '150px' },
-      ],
-      loading: false,
-      page: 1,
-    }
-  },
-  computed: {
-    category() {
-      return useCategoryStore().category
-    },
-    paginator() {
-      return useCategoryStore().paginator
-    },
-    errorMessage() {
-      return useCategoryStore().errorMessage
-    },
-  },
-  watch: {
-    page() {
-      this.getCategory()
-    },
-  },
-  mounted() {
-    this.getCategory()
-  },
-  methods: {
-    clearCategoryError() {
-      useCategoryStore().errorMessage = ''
-    },
-    async handleSearch() {
-      await this.getCategory()
-    },
-    async getCategory() {
-      this.loading = true
-      const params = {
-        q: this.search,
-        page: this.page,
-        limit: 25,
-      }
-      const res = await useCategoryStore().getCategory(params)
-      if (res) {
-        this.loading = false
-      } else {
-        this.loading = false
-      }
-    },
-    async handleAddCategory() {
-      this.loadingCategory = true
-      const res = await useCategoryStore().postCategory(this.name)
-      if (res) {
-        this.loadingCategory = false
-        this.modal = false
-        this.name = ''
-      } else {
-        this.loadingCategory = false
-      }
-    },
-    openDeleteModal(id) {
-      this.id = id
-      this.deleteModal = true
-    },
-    async handleDelete() {
-      this.loadingDeleteCategory = true
-      const res = await useCategoryStore().deleteCategory(this.id)
-      if (res) {
-        this.loadingDeleteCategory = false
-        this.deleteModal = false
-      } else {
-        this.loadingDeleteCategory = false
-      }
-    },
-    openEditModal(item) {
-      this.editModal = true
-      this.id = item?._id
-      this.name = item?.name
-    },
-    async handleEdit() {
-      this.loadingEdit = true
-      const params = {
-        id: this.id,
-        name: this.name,
-      }
-      const res = await useCategoryStore().editCategory(params)
-      if (res) {
-        this.loadingEdit = false
-        this.editModal = false
-      } else {
-        this.loadingEdit = false
-      }
-    },
-  },
-}
-</script>
-
-<script setup>
-definePageMeta({ layout: 'dashboard' })
+definePageMeta({ layout: 'dashboard', title: 'Kategori' })
 useHead({ title: 'Gendut Grosir | Category' })
+
+const search = ref('')
+const debouncedSearch = refDebounced(search, 500)
+const page = ref(1)
+const modal = ref(false)
+const editModal = ref(false)
+const deleteModal = ref(false)
+const name = ref('')
+const id = ref('')
+
+const params = computed(() => ({
+  q: debouncedSearch.value,
+  page: page.value,
+  limit: 25,
+}))
+const { data, isPending } = useCategories(params)
+const items = computed(() => data.value?.items ?? [])
+const paginator = computed(() => data.value?.paginator ?? {})
+
+const { createCategory, updateCategory, deleteCategory } =
+  useCategoryMutations()
+const toast = useToast()
+const mutationError = computed(() => {
+  const e: any = createCategory.error.value ?? updateCategory.error.value
+  return e?.data?.message ?? e?.message ?? ''
+})
+
+const columns = [
+  { accessorKey: 'name', header: 'Nama' },
+  { accessorKey: 'totalProducts', header: 'Total Produk' },
+  { id: 'action', header: 'Aksi' },
+]
+
+watch([search], () => {
+  page.value = 1
+})
+
+async function handleAddCategory() {
+  try {
+    await createCategory.mutateAsync(name.value)
+    toast.add({ title: 'Kategori ditambahkan', color: 'success' })
+    modal.value = false
+    name.value = ''
+  } catch {}
+}
+
+function openDeleteModal(categoryId: string) {
+  id.value = categoryId
+  deleteModal.value = true
+}
+
+async function handleDelete() {
+  try {
+    await deleteCategory.mutateAsync(id.value)
+    toast.add({ title: 'Kategori dihapus', color: 'success' })
+    deleteModal.value = false
+  } catch {
+    toast.add({ title: 'Gagal menghapus', color: 'error' })
+  }
+}
+
+function openEditModal(item: any) {
+  editModal.value = true
+  id.value = item?._id
+  name.value = item?.name
+}
+
+async function handleEdit() {
+  try {
+    await updateCategory.mutateAsync({ id: id.value, name: name.value })
+    toast.add({ title: 'Kategori diperbarui', color: 'success' })
+    editModal.value = false
+    name.value = ''
+  } catch {}
+}
 </script>
