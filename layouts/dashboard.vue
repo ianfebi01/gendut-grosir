@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen">
-    <LayoutSidebar v-model:open="drawer" />
+    <LayoutSidebar />
     <div
       :class="[
         'min-h-screen transition-all',
