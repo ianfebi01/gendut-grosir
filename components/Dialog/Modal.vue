@@ -1,23 +1,53 @@
 <template>
-  <UModal v-model:open="modal" :ui="{ content: 'rounded-xl max-w-[408px] w-full' }">
+  <UModal
+    v-model:open="modal"
+    :ui="{ content: 'rounded-xl max-w-[408px] w-full' }"
+  >
     <template #content>
-      <div class="flex flex-col items-center px-6 pt-6 text-center">
-        <div :class="type === 'oke' ? 'icon-oke' : 'icon-default'" class="mb-4 mt-2">
+      <div class="flex flex-col items-center px-6 pt-6 text-center pb-4">
+        <div
+          :class="type === 'oke' ? 'icon-oke' : 'icon-default'"
+          class="mb-4 mt-2"
+        >
           <slot name="icon" />
         </div>
-        <h3 class="mb-2 text-[18px] font-bold leading-5 text-gray-900">{{ title }}</h3>
-        <p class="text-sm font-normal leading-5 text-gray-500">{{ subtitle }}</p>
-        <UAlert v-if="errorMessage" color="error" variant="soft" :title="errorMessage" class="mt-3 w-full" />
+        <h3 class="mb-2 text-[18px] font-bold leading-5 text-gray-900">
+          {{ title }}
+        </h3>
+        <p class="text-sm font-normal leading-5 text-gray-500">
+          {{ subtitle }}
+        </p>
+        <UAlert
+          v-if="errorMessage"
+          color="error"
+          variant="soft"
+          :title="errorMessage"
+          class="mt-3 w-full"
+        />
       </div>
       <div class="px-6 py-4">
         <slot name="content" />
       </div>
-      <div class="flex gap-2 px-6 pb-6">
+      <div class="flex gap-2 px-6 pb-6 mt-4">
         <slot name="action">
-          <UButton block variant="outline" color="neutral" size="lg" :disabled="loading" @click="cancel">
+          <UButton
+            block
+            variant="outline"
+            color="neutral"
+            size="lg"
+            :disabled="loading"
+            @click="cancel"
+          >
             {{ cancelText }}
           </UButton>
-          <UButton block color="primary" size="lg" :loading="loading" :disabled="disable" @click="save">
+          <UButton
+            block
+            color="primary"
+            size="lg"
+            :loading="loading"
+            :disabled="disable"
+            @click="save"
+          >
             {{ saveText }}
           </UButton>
         </slot>
@@ -38,7 +68,12 @@ const props = defineProps({
   saveText: { type: String, default: 'Simpan' },
   cancelText: { type: String, default: 'Batal' },
 })
-const emit = defineEmits(['update:model-value', 'cancel', 'save', 'clearErrorMessage'])
+const emit = defineEmits([
+  'update:model-value',
+  'cancel',
+  'save',
+  'clearErrorMessage',
+])
 
 const modal = computed({
   get: () => props.modelValue,
