@@ -1,45 +1,40 @@
 <template>
-  <NuxtLayout>
-    <v-app>
-      <v-main>
-        <v-container class="fill-height">
-          <v-row align="center" justify="center">
-            <v-col cols="12" class="text-center">
-              <h1 v-if="error?.statusCode === 404">
-                {{ pageNotFound }}
-              </h1>
-              <h1 v-else>
-                {{ otherError }}
-              </h1>
-              <NuxtLink to="/">Home page</NuxtLink>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-main>
-    </v-app>
-  </NuxtLayout>
+  <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <UCard class="w-full max-w-md text-center">
+      <template #header>
+        <h1 class="text-3xl font-bold text-gray-900">
+          {{ error?.statusCode === 404 ? '404 Not Found' : 'An error occurred' }}
+        </h1>
+      </template>
+
+      <p class="text-sm text-gray-500">
+        {{ error?.statusCode === 404
+          ? 'The page you are looking for does not exist.'
+          : (error?.message || 'Something went wrong.') }}
+      </p>
+
+      <template #footer>
+        <div class="flex justify-center gap-2">
+          <UButton color="primary" @click="handleError">Home page</UButton>
+        </div>
+      </template>
+    </UCard>
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
   error: {
-    type: Object,
+    type: Object as PropType<{ statusCode?: number; message?: string } | null>,
     default: null,
   },
 })
 
-const pageNotFound = '404 Not Found'
-const otherError = 'An error occurred'
-
 const title = computed(() =>
-  props.error?.statusCode === 404 ? pageNotFound : otherError
+  props.error?.statusCode === 404 ? '404 Not Found' : 'An error occurred'
 )
 
 useHead({ title })
-</script>
 
-<style scoped>
-h1 {
-  font-size: 20px;
-}
-</style>
+const handleError = () => clearError({ redirect: '/' })
+</script>

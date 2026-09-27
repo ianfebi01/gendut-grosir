@@ -5,25 +5,31 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
+  // Full SPA — no SSR for this app
+  ssr: false,
+
   devServer: {
     port: 3001,
     host: '0.0.0.0',
   },
 
-  css: ['@/assets/scss/main.scss', '@mdi/font/css/materialdesignicons.css'],
+  css: ['~/assets/css/main.css'],
 
   components: true,
 
-  modules: ['vuetify-nuxt-module', '@pinia/nuxt'],
+  modules: ['@nuxt/ui', '@pinia/nuxt', '@nuxt/eslint'],
 
-  vuetify: {
-    moduleOptions: {
-      styles: { configFile: 'assets/scss/abstracts/vuetify-settings.scss' },
-      // useLayout collides with Nuxt's built-in useLayout auto-import;
-      // prefix only Vuetify's copy (no code uses it, so nothing else changes).
-      prefixComposables: ['useLayout'],
+  eslint: {
+    config: { stylistic: false },
+  },
+
+  ui: {
+    // Light-only app (matches the old Vuetify light theme):
+    // guarantees white surfaces (#fff) and readable slate text.
+    colorMode: false,
+    theme: {
+      colors: ['primary', 'secondary', 'success', 'info', 'warning', 'error'],
     },
-    vuetifyOptions: './vuetify.config.ts',
   },
 
   runtimeConfig: {
@@ -33,14 +39,7 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    devProxy: {
-      '/api/': {
-        target: `${process.env.API_BASE_URL || 'http://localhost:8000'}/`,
-        changeOrigin: true,
-        prependPath: true,
-        rewrite: (path: string) => path.replace(/^\/api\//, '/'),
-      },
-    },
+    // /api/users -> ${API_BASE_URL}/users (prefix is stripped; works in dev and prod)
     routeRules: {
       '/api/**': {
         proxy: `${process.env.API_BASE_URL || 'http://localhost:8000'}/**`,
@@ -58,18 +57,13 @@ export default defineNuxtConfig({
         { name: 'description', content: '' },
         { name: 'format-detection', content: 'telephone=no' },
       ],
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
-    },
-  },
-
-  vite: {
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: 'modern-compiler',
-          silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin', 'color-functions'],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap',
         },
-      },
+      ],
     },
   },
 })

@@ -1,0 +1,206 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+/* ------------------------------------------------------------------
+   Taskk theme — Nuxt UI v4
+   Monochrome, soft-grey surfaces, white "lifted" active states,
+   pastel tag accents. Brand is near-black (#0a0a0a).
+------------------------------------------------------------------- */
+
+@theme static {
+  --font-sans: 'Work Sans', ui-sans-serif, system-ui, sans-serif;
+  --tracking-normal: -0.025em;
+
+  /* Brand (was --color-primary-*; renamed so Nuxt UI can alias it) */
+  --color-brand-50: #f5f5f5;
+  --color-brand-100: #e5e5e5;
+  --color-brand-200: #cccccc;
+  --color-brand-300: #a3a3a3;
+  --color-brand-400: #737373;
+  --color-brand-500: #0a0a0a; /* brand */
+  --color-brand-600: #080808;
+  --color-brand-700: #060606;
+  --color-brand-800: #040404;
+  --color-brand-900: #020202;
+  --color-brand-950: #000000;
+
+  /* Neutral greys sampled from the design (true grey, no blue tint) */
+  --color-ink-50: #fafafa; /* column / card header bg      */
+  --color-ink-100: #f5f5f5; /* sidebar panel                */
+  --color-ink-200: #ececec; /* search input, page backdrop  */
+  --color-ink-300: #e3e3e3; /* borders                      */
+  --color-ink-400: #b5b5b5; /* chevrons, dimmed icons       */
+  --color-ink-500: #8a8a8a; /* meta text (4, 50%, 4d)       */
+  --color-ink-600: #666666; /* inactive nav labels          */
+  --color-ink-700: #454545;
+  --color-ink-800: #262626;
+  --color-ink-900: #141414; /* headings, active labels      */
+  --color-ink-950: #0a0a0a; /* tooltip, logo                */
+
+  /* Tag accents: Web / Saas / Mobile */
+  --color-sky-50: #eef7fd;
+  --color-sky-500: #1e90d6;
+  --color-sky-600: #1777b4;
+  --color-amber-50: #fdf5e6;
+  --color-amber-500: #d98a0b;
+  --color-amber-600: #b87305;
+  --color-violet-50: #f2effd;
+  --color-violet-500: #6e56cf;
+  --color-violet-600: #5a43b8;
+
+  /* Radii hierarchy: panel > card > control */
+  --radius-panel: 1.5rem;
+  --radius-card: 0.875rem;
+  --radius-control: 0.625rem;
+
+  --shadow-lift: 0 1px 2px rgb(20 20 20 / 0.04), 0 1px 3px rgb(20 20 20 / 0.06);
+}
+
+:root {
+  --ui-radius: 0.5rem;
+
+  --ui-text-dimmed: var(--ui-color-neutral-400);
+  --ui-text-muted: var(--ui-color-neutral-500);
+  --ui-text-toned: var(--ui-color-neutral-600);
+  --ui-text: var(--ui-color-neutral-800);
+  --ui-text-highlighted: var(--ui-color-neutral-900);
+  --ui-text-inverted: #ffffff;
+
+  --ui-bg: #ffffff;
+  --ui-bg-muted: var(--ui-color-neutral-50);
+  --ui-bg-elevated: var(--ui-color-neutral-100);
+  --ui-bg-accented: var(--ui-color-neutral-200);
+  --ui-bg-inverted: var(--ui-color-neutral-950);
+
+  --ui-border: var(--ui-color-neutral-300);
+  --ui-border-muted: var(--ui-color-neutral-200);
+  --ui-border-accented: var(--ui-color-neutral-400);
+  --ui-border-inverted: var(--ui-color-neutral-950);
+}
+
+.dark {
+  --ui-text-dimmed: var(--ui-color-neutral-600);
+  --ui-text-muted: var(--ui-color-neutral-400);
+  --ui-text-toned: var(--ui-color-neutral-300);
+  --ui-text: var(--ui-color-neutral-200);
+  --ui-text-highlighted: #ffffff;
+  --ui-text-inverted: var(--ui-color-neutral-950);
+
+  --ui-bg: var(--ui-color-neutral-900);
+  --ui-bg-muted: #1a1a1a;
+  --ui-bg-elevated: var(--ui-color-neutral-800);
+  --ui-bg-accented: var(--ui-color-neutral-700);
+  --ui-bg-inverted: #ffffff;
+
+  --ui-border: var(--ui-color-neutral-800);
+  --ui-border-muted: var(--ui-color-neutral-800);
+  --ui-border-accented: var(--ui-color-neutral-700);
+  --ui-border-inverted: #ffffff;
+}
+
+/* Bare `border` utilities use the theme border instead of currentColor */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--ui-border);
+  }
+}
+
+body {
+  background-color: var(--color-ink-100);
+  color: var(--ui-text);
+  -webkit-font-smoothing: antialiased;
+}
+.dark body {
+  background-color: var(--color-ink-950);
+}
+
+/* ---------- Layout helpers for this design ---------- */
+
+@utility panel {
+  background: var(--ui-bg-elevated);
+  border-radius: var(--radius-panel);
+}
+
+@utility lifted {
+  background: var(--ui-bg);
+  box-shadow: var(--shadow-lift);
+  outline: 1px solid var(--ui-border-muted);
+}
+
+/* Coloured bar before board column titles: <span class="column-bar bg-info" /> */
+@utility column-bar {
+  display: inline-block;
+  width: 3px;
+  height: 1.25rem;
+  border-radius: 9999px;
+}
+
+/* ---------- Legacy helpers, now token-based ---------- */
+
+.text-error {
+  color: var(--ui-error);
+  font-size: 12px;
+  position: absolute;
+}
+
+.border-soft {
+  border-radius: var(--radius-control);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--shadow-lift);
+}
+
+.border-active {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-control);
+  color: var(--ui-text-highlighted);
+  background: var(--ui-bg);
+  box-shadow: var(--shadow-lift);
+}
+
+.data-table {
+  width: 100%;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--ui-border-muted);
+  box-shadow: var(--shadow-lift);
+  font-size: 14px;
+  line-height: 24px;
+  overflow: hidden;
+  background: var(--ui-bg);
+}
+.data-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table table th {
+  background: var(--ui-bg-muted);
+  color: var(--ui-text-muted);
+  border-bottom: 1px solid var(--ui-border-muted);
+  font-weight: 500;
+  text-align: left;
+  padding: 10px 14px;
+}
+.data-table table tr td {
+  border-bottom: 1px solid var(--ui-border-muted);
+  padding: 10px 14px;
+}
+.data-table table tr:last-child td {
+  border-bottom: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-in-out;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: none;
+  }
+}
