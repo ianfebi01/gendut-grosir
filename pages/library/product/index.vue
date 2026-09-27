@@ -6,7 +6,7 @@
       add-text="Tambah Produk"
       :model-value="search"
       @update:model-value="search = $event"
-      @add="openAddModal"
+      @add="navigateTo('/library/product/create')"
     />
 
     <div class="flex flex-wrap items-end gap-3 pt-1">
@@ -75,7 +75,7 @@
               variant="ghost"
               color="neutral"
               size="xs"
-              @click="openEditModal(row.original)"
+              @click="navigateTo(`/library/product/${row.original?._id}/edit`)"
             >
               <template #leading
                 ><UIcon name="i-heroicons-pencil-20-solid" class="size-4"
@@ -119,224 +119,6 @@
       </div>
     </div>
 
-    <!-- Add / Edit -->
-    <UModal
-      v-model:open="modal"
-      :ui="{ content: 'rounded-xl max-w-3xl w-full' }"
-    >
-      <template #content>
-        <div class="flex flex-col items-center px-6 pt-6 text-center">
-          <div class="icon-default mb-4 mt-2">
-            <UIcon
-              name="i-heroicons-cube-20-solid"
-              class="size-6 text-primary-600"
-            />
-          </div>
-          <h3 class="mb-2 text-[18px] font-bold leading-5 text-gray-900">
-            {{ isEdit ? 'Edit Produk' : 'Tambahkan Produk' }}
-          </h3>
-          <p class="text-sm font-normal leading-5 text-gray-500">
-            {{
-              isEdit
-                ? 'Ubah produk di toko anda'
-                : 'Tambahkan produk untuk toko anda'
-            }}
-          </p>
-          <UAlert
-            v-if="mutationError"
-            color="error"
-            variant="soft"
-            :title="mutationError"
-            class="mt-3 w-full"
-          />
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 px-6 py-4 md:grid-cols-2">
-          <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
-              >Gambar</label
-            >
-            <div
-              class="relative flex h-[201px] w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm"
-              @click="triggerFileInput"
-            >
-              <UButton
-                v-if="imagePreview"
-                variant="ghost"
-                color="neutral"
-                size="xs"
-                class="absolute right-1 top-1 z-10"
-                @click.stop="clearImage"
-              >
-                <template #leading
-                  ><UIcon name="i-heroicons-x-mark-20-solid" class="size-4"
-                /></template>
-              </UButton>
-              <div
-                v-if="!imagePreview"
-                class="flex flex-col items-center justify-center px-4 text-center"
-              >
-                <div
-                  class="flex h-10 w-10 items-center justify-center rounded-full border-8 border-gray-50 bg-gray-100"
-                >
-                  <UIcon
-                    name="i-heroicons-arrow-up-tray-20-solid"
-                    class="size-4 text-gray-500"
-                  />
-                </div>
-                <span class="mt-2 text-sm font-bold text-primary-600"
-                  >Klik untuk upload foto</span
-                >
-                <span class="text-xs font-normal text-gray-500"
-                  >SVG, PNG, JPG or GIF (max. 800x400px)</span
-                >
-              </div>
-              <img
-                v-else
-                :src="imagePreview"
-                alt="preview"
-                class="h-full w-full object-contain"
-              />
-            </div>
-            <input
-              ref="fileInput"
-              type="file"
-              accept="image/*"
-              class="hidden"
-              @change="onImageInput"
-            />
-
-            <UFormField
-              label="Nama"
-              required
-              :error="(touched.name && errors.name) || undefined"
-            >
-              <UInput
-                v-model="form.name"
-                placeholder="Masukkan nama produk"
-                size="md"
-                class="w-full"
-                @blur="touched.name = true"
-              />
-            </UFormField>
-            <UFormField
-              label="Kategori"
-              required
-              :error="(touched.category && errors.category) || undefined"
-              class="mt-2"
-            >
-              <USelect
-                v-model="form.category"
-                :items="categoryOptions"
-                label-key="label"
-                value-key="value"
-                placeholder="Pilih Kategori"
-                size="md"
-                class="w-full"
-              />
-            </UFormField>
-            <UFormField label="Deskripsi" class="mt-2">
-              <UTextarea
-                v-model="form.description"
-                placeholder="Deskripsi produk (opsional)"
-                size="md"
-                class="w-full"
-                :rows="3"
-              />
-            </UFormField>
-          </div>
-
-          <div>
-            <UFormField label="Stok" :error="errors.stock || undefined">
-              <UInput
-                v-model="form.stock"
-                type="number"
-                placeholder="Masukkan stok"
-                size="md"
-                class="w-full"
-              />
-            </UFormField>
-            <UFormField
-              label="Harga Modal"
-              required
-              :error="(touched.buyPrice && errors.buyPrice) || undefined"
-              class="mt-2"
-            >
-              <UInput
-                v-model="form.buyPrice"
-                type="number"
-                placeholder="Masukkan harga modal"
-                size="md"
-                class="w-full"
-                @blur="touched.buyPrice = true"
-              />
-            </UFormField>
-            <UFormField
-              label="Jual ke Sales"
-              required
-              :error="
-                (touched.wholesalerPrice && errors.wholesalerPrice) || undefined
-              "
-              class="mt-2"
-            >
-              <UInput
-                v-model="form.wholesalerPrice"
-                type="number"
-                placeholder="Masukkan harga sales"
-                size="md"
-                class="w-full"
-                @blur="touched.wholesalerPrice = true"
-              />
-            </UFormField>
-            <UFormField
-              label="Jual ke Retail"
-              required
-              :error="(touched.retailPrice && errors.retailPrice) || undefined"
-              class="mt-2"
-            >
-              <UInput
-                v-model="form.retailPrice"
-                type="number"
-                placeholder="Masukkan harga retail"
-                size="md"
-                class="w-full"
-                @blur="touched.retailPrice = true"
-              />
-            </UFormField>
-            <UFormField label="Barcode" class="mt-2">
-              <UInput
-                v-model="form.barcode"
-                placeholder="Masukkan barcode"
-                size="md"
-                class="w-full"
-              />
-            </UFormField>
-          </div>
-        </div>
-
-        <div class="flex gap-2 px-6 pb-6">
-          <UButton
-            block
-            variant="outline"
-            color="neutral"
-            size="lg"
-            :disabled="saving"
-            @click="closeModal"
-            >Batal</UButton
-          >
-          <UButton
-            block
-            color="primary"
-            size="lg"
-            :loading="saving"
-            :disabled="!valid"
-            @click="handleSave"
-            >Simpan</UButton
-          >
-        </div>
-      </template>
-    </UModal>
-
     <DialogDelete
       v-model="deleteModal"
       :loading="deleteProduct.isPending.value"
@@ -368,38 +150,13 @@ const debouncedSearch = refDebounced(search, 500)
 const page = ref(1)
 // 'all' = no filter (Select items can't use an empty-string value)
 const categoryFilter = ref('all')
-const modal = ref(false)
 const deleteModal = ref(false)
-const isEdit = ref(false)
 const deleteId = ref('')
 const deleteImageUrl = ref('')
 
 const barcode = ref('')
 const barcodeSuccess = ref('')
 const barcodeError = ref('')
-
-const form = reactive({
-  _id: '' as string,
-  name: '',
-  category: '' as string,
-  stock: null as number | null,
-  buyPrice: null as number | null,
-  wholesalerPrice: null as number | null,
-  retailPrice: null as number | null,
-  barcode: '',
-  description: '',
-})
-const touched = reactive({
-  name: false,
-  category: false,
-  buyPrice: false,
-  wholesalerPrice: false,
-  retailPrice: false,
-})
-
-const imageFile = ref<File | null>(null)
-const imagePreview = ref<string>('')
-const fileInput = ref<HTMLInputElement | null>(null)
 
 const params = computed(() => ({
   q: debouncedSearch.value,
@@ -423,59 +180,8 @@ const categoryFilterItems = computed(() => [
   ...categoryOptions.value,
 ])
 
-const { createProduct, updateProduct, deleteProduct, addStockByBarcode } =
-  useProductMutations()
+const { deleteProduct, addStockByBarcode } = useProductMutations()
 const { deleteImage } = useUploadImageMutations()
-
-const saving = computed(
-  () => createProduct.isPending.value || updateProduct.isPending.value,
-)
-const mutationError = computed(() => {
-  const e: any = createProduct.error.value ?? updateProduct.error.value
-  return e?.data?.message ?? e?.message ?? ''
-})
-
-const errors = computed(() => ({
-  name: !form.name
-    ? 'Nama wajib diisi'
-    : form.name.length < 2
-      ? 'Minimal 2 karakter'
-      : '',
-  category: !form.category ? 'Kategori wajib diisi' : '',
-  buyPrice:
-    form.buyPrice === null || form.buyPrice === ('' as any)
-      ? 'Harga modal wajib diisi'
-      : isNaN(Number(form.buyPrice))
-        ? 'Harus angka'
-        : '',
-  wholesalerPrice:
-    form.wholesalerPrice === null || form.wholesalerPrice === ('' as any)
-      ? 'Harga sales wajib diisi'
-      : isNaN(Number(form.wholesalerPrice))
-        ? 'Harus angka'
-        : '',
-  retailPrice:
-    form.retailPrice === null || form.retailPrice === ('' as any)
-      ? 'Harga retail wajib diisi'
-      : isNaN(Number(form.retailPrice))
-        ? 'Harus angka'
-        : '',
-  stock:
-    form.stock !== null &&
-    form.stock !== ('' as any) &&
-    isNaN(Number(form.stock))
-      ? 'Harus angka'
-      : '',
-}))
-const valid = computed(
-  () =>
-    !errors.value.name &&
-    !errors.value.category &&
-    !errors.value.buyPrice &&
-    !errors.value.wholesalerPrice &&
-    !errors.value.retailPrice &&
-    !errors.value.stock,
-)
 
 const columns = [
   { accessorKey: 'image', header: 'Gambar' },
@@ -502,54 +208,6 @@ function thumb(url: string) {
   }
 }
 
-function resetForm() {
-  form._id = ''
-  form.name = ''
-  form.category = ''
-  form.stock = null
-  form.buyPrice = null
-  form.wholesalerPrice = null
-  form.retailPrice = null
-  form.barcode = ''
-  form.description = ''
-  touched.name =
-    touched.category =
-    touched.buyPrice =
-    touched.wholesalerPrice =
-    touched.retailPrice =
-      false
-  clearImage()
-  createProduct.reset()
-  updateProduct.reset()
-}
-
-function closeModal() {
-  modal.value = false
-  resetForm()
-}
-
-function openAddModal() {
-  resetForm()
-  isEdit.value = false
-  modal.value = true
-}
-
-function openEditModal(item: any) {
-  resetForm()
-  isEdit.value = true
-  form._id = item?._id ?? ''
-  form.name = item?.name ?? ''
-  form.category = item?.category?._id ?? item?.category ?? ''
-  form.stock = item?.stock ?? null
-  form.buyPrice = item?.buyPrice ?? null
-  form.wholesalerPrice = item?.wholesalerPrice ?? null
-  form.retailPrice = item?.retailPrice ?? null
-  form.barcode = item?.barcode ?? ''
-  form.description = item?.description ?? ''
-  imagePreview.value = item?.image ?? ''
-  modal.value = true
-}
-
 function openDeleteModal(item: any) {
   deleteId.value = item?._id ?? ''
   deleteImageUrl.value = item?.image ?? ''
@@ -574,60 +232,6 @@ async function handleDelete() {
   }
 }
 
-function buildFormData() {
-  const fd = new FormData()
-  if (imageFile.value) fd.append('image', imageFile.value)
-  if (isEdit.value && form._id) fd.append('_id', form._id)
-  fd.append('name', form.name)
-  fd.append('category', form.category)
-  if (form.stock !== null && form.stock !== '')
-    fd.append('stock', String(form.stock))
-  fd.append('buyPrice', String(form.buyPrice))
-  fd.append('wholesalerPrice', String(form.wholesalerPrice))
-  fd.append('retailPrice', String(form.retailPrice))
-  if (form.barcode) fd.append('barcode', form.barcode)
-  if (form.description) fd.append('description', form.description)
-  return fd
-}
-
-async function handleSave() {
-  touched.name =
-    touched.category =
-    touched.buyPrice =
-    touched.wholesalerPrice =
-    touched.retailPrice =
-      true
-  if (!valid.value) return
-  try {
-    if (isEdit.value) {
-      await updateProduct.mutateAsync(buildFormData())
-      toast.add({ title: 'Produk diperbarui', color: 'success' })
-    } else {
-      await createProduct.mutateAsync(buildFormData())
-      toast.add({ title: 'Produk ditambahkan', color: 'success' })
-    }
-    modal.value = false
-    resetForm()
-  } catch {}
-}
-
-function triggerFileInput() {
-  fileInput.value?.click()
-}
-
-function onImageInput(event: Event) {
-  const file = (event.target as HTMLInputElement)?.files?.[0]
-  if (!file) return
-  imageFile.value = file
-  imagePreview.value = URL.createObjectURL(file)
-}
-
-function clearImage() {
-  imageFile.value = null
-  imagePreview.value = ''
-  if (fileInput.value) fileInput.value.value = ''
-}
-
 async function handleBarcodeInput() {
   barcodeSuccess.value = ''
   barcodeError.value = ''
@@ -644,16 +248,3 @@ async function handleBarcodeInput() {
   }
 }
 </script>
-
-<style scoped>
-.icon-default {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--color-primary-100);
-  width: 58px;
-  height: 58px;
-  border: 8px solid var(--color-primary-50);
-}
-</style>
