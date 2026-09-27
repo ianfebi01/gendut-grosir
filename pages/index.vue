@@ -160,8 +160,7 @@
       subtitle="Berikut adalah detail order Anda."
       save-text="Print Invoice"
       cancel-text="Tutup"
-      :loading="downloadInvoice.isPending.value"
-      @save="handleDownloadInvoice"
+      @save="handlePrintInvoice"
     >
       <template #icon>
         <UIcon
@@ -217,7 +216,7 @@ import EmptyState from '~/components/Layout/Empty.vue'
 import LoadingState from '~/components/Layout/Loading.vue'
 import { useInfiniteProducts } from '@/composables/queries/useProducts'
 import { useInfiniteUsers } from '@/composables/queries/useUsers'
-import { useOrderMutations } from '@/composables/queries/useOrders'
+import { printInvoice } from '~/utils/invoice'
 import { formatRupiah } from '~/utils/formatRupiah'
 import { useIntersectionObserver, useMediaQuery } from '@vueuse/core'
 
@@ -282,8 +281,6 @@ const {
 const users: any = computed(
   () => usersData.value?.pages?.flatMap((p: any) => p.items ?? []) ?? [],
 )
-
-const { downloadInvoice } = useOrderMutations()
 
 // ---- Infinite scroll via IntersectionObserver sentinels ----
 const productSentinel = ref<HTMLElement | null>(null)
@@ -352,13 +349,14 @@ function handleClickSelectUser() {
   modalCustomer.value = false
 }
 
-async function handleDownloadInvoice() {
+async function handlePrintInvoice() {
   try {
-    await downloadInvoice.mutateAsync({ orderId: detailOrder.value?.orderId })
+    // POST /order may return only the user id, so pass the selected customer
+    await printInvoice(detailOrder.value, activeCustomer.value)
   } catch (e: any) {
     toast.add({
-      title: 'Gagal mengunduh invoice',
-      description: e?.data?.message ?? e?.message ?? '',
+      title: 'Gagal membuka invoice',
+      description: e?.message ?? '',
       color: 'error',
     })
   }

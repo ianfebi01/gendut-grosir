@@ -66,16 +66,14 @@
             variant="outline"
             color="neutral"
             size="xs"
+            icon="i-lucide-printer"
             :disabled="
               row.original?.status !== 'complete' ||
               isBusy(row.original?.orderId)
             "
-            :loading="
-              isBusy(row.original?.orderId) && downloadInvoice.isPending.value
-            "
-            @click="handleDownload(row.original?.orderId)"
+            @click="handlePrint(row.original)"
           >
-            Unduh
+            Cetak
           </UButton>
         </template>
         <template #action-cell="{ row }">
@@ -173,6 +171,7 @@
 import { refDebounced } from '@vueuse/core'
 import PageHeader from '~/components/Layout/PageHeader.vue'
 import { useOrders, useOrderMutations } from '@/composables/queries/useOrders'
+import { printInvoice } from '~/utils/invoice'
 import { formatRupiah } from '~/utils/formatRupiah'
 import { capitalizeFirstLetter } from '~/utils/capitalizeFirstLetter'
 
@@ -195,7 +194,7 @@ const { data, isPending } = useOrders(params)
 const items = computed(() => data.value?.items ?? [])
 const paginator = computed(() => data.value?.paginator ?? {})
 
-const { changeStatus, cancelOrder, downloadInvoice } = useOrderMutations()
+const { changeStatus, cancelOrder } = useOrderMutations()
 const busyId = ref('')
 
 const detailModal = ref(false)
@@ -265,14 +264,11 @@ async function handleCancel(orderId: string) {
   busyId.value = ''
 }
 
-async function handleDownload(orderId: string) {
-  busyId.value = orderId
+async function handlePrint(order: any) {
   try {
-    await downloadInvoice.mutateAsync({ orderId })
-    toast.add({ title: 'Invoice diunduh', color: 'success' })
+    await printInvoice(order)
   } catch {
-    toast.add({ title: 'Gagal mengunduh invoice', color: 'error' })
+    toast.add({ title: 'Gagal membuka invoice', color: 'error' })
   }
-  busyId.value = ''
 }
 </script>

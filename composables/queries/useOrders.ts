@@ -22,7 +22,10 @@ export function useOrderMutations() {
 
   const createOrder = useMutation({
     mutationFn: async (body: any) => {
-      const result: any = await api('order', { method: 'POST', body: { ...body } })
+      const result: any = await api('order', {
+        method: 'POST',
+        body: { ...body },
+      })
       return result?.data
     },
     onSuccess: () => {
@@ -33,7 +36,9 @@ export function useOrderMutations() {
 
   const changeStatus = useMutation({
     mutationFn: async (id: string) => {
-      const result: any = await api(`changeStatusOrder/${id}`, { method: 'PUT' })
+      const result: any = await api(`changeStatusOrder/${id}`, {
+        method: 'PUT',
+      })
       return result?.data
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['orders'] }),
@@ -47,20 +52,5 @@ export function useOrderMutations() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['orders'] }),
   })
 
-  const downloadInvoice = useMutation({
-    mutationFn: async (params: any) => {
-      const response: any = await api('order/download', { params: { ...params } })
-      if (response instanceof Blob) {
-        const FILE = window.URL.createObjectURL(response)
-        const docUrl = document.createElement('a')
-        docUrl.href = FILE
-        docUrl.setAttribute('download', 'invoice.pdf')
-        document.body.appendChild(docUrl)
-        docUrl.click()
-      }
-      return true
-    },
-  })
-
-  return { createOrder, changeStatus, cancelOrder, downloadInvoice }
+  return { createOrder, changeStatus, cancelOrder }
 }
