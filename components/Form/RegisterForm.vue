@@ -1,278 +1,94 @@
 <template>
-  <v-container fluid class="px-0">
-    <v-row :class="smAndDown ? 'mx-2' : 'mx-6'">
-      <v-col cols="12" class="text-center">
-        <div style="margin-bottom: 16px" class="d-flex justify-center">
-          <img src="/logo.svg" alt="Gendut Grosir" style="height: 64px" />
-        </div>
-        <v-row>
-          <v-col>
-            <div
-              class="font-weight-light text-neutral-70"
-              style="font-size: 14px"
-            >
-              Daftar untuk membuat akun!
-            </div>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
+  <div class="w-full">
+    <div class="flex justify-center" style="margin-bottom: 16px">
+      <img src="/logo.svg" alt="Gendut Grosir" style="height: 64px" />
+    </div>
+    <p class="text-center text-sm font-light text-gray-500">Daftar untuk membuat akun!</p>
 
-    <v-row :class="smAndDown ? 'mx-2' : 'mx-6'" align="center" justify="center">
-      <v-col v-if="!success" class="text-black">
-        <v-divider class="mb-4"></v-divider>
-        <div
-          class="font-weight-medium mb-1 text-gray_700"
-          style="font-size: 14px"
-        >
-          Nama
-          <span style="color: red !important">*</span>
-        </div>
-        <v-text-field
-          v-model="form.name"
-          variant="outlined"
-          density="compact"
-          height="44"
-          placeholder="Enter your Name"
-          :error-messages="
-            v$.form.name.required.$invalid && v$.form.name.$dirty
-              ? 'Name is required'
-              : []
-          "
-          @blur="v$.form.name.$touch()"
-        >
-          <template #append>
-            <v-icon
-              v-if="v$.form.name.$invalid && v$.form.name.$dirty"
-              color="red"
-            >
-              mdi-alert-circle-outline
-            </v-icon>
-          </template>
-        </v-text-field>
-        <div
-          class="font-weight-medium mb-1 text-gray_700"
-          style="font-size: 14px"
-        >
-          Status
-        </div>
-        <v-select
-          v-model="form.status"
-          :items="status"
-          item-title="name"
-          item-value="value"
-          variant="outlined"
-          density="compact"
-          height="44"
-          placeholder="Select Status"
-        >
-        </v-select>
-
-        <div
-          class="font-weight-medium mb-1 text-gray_700"
-          style="font-size: 14px"
-        >
-          Email
-          <span style="color: red !important">*</span>
-        </div>
-        <v-text-field
-          v-model="form.email"
-          variant="outlined"
-          density="compact"
-          height="44"
-          placeholder="Enter your Email"
-          :error-messages="
-            v$.form.email.required.$invalid && v$.form.email.$dirty
-              ? 'Email is required'
-              : v$.form.email.email.$invalid && v$.form.email.$dirty
-              ? 'Please insert valid email address'
-              : []
-          "
-          @blur="v$.form.email.$touch()"
-        >
-          <template #append>
-            <v-icon
-              v-if="v$.form.email.$invalid && v$.form.email.$dirty"
-              color="red"
-            >
-              mdi-alert-circle-outline
-            </v-icon>
-          </template>
-        </v-text-field>
-        <div
-          class="font-weight-medium mb-1 text-gray_700"
-          style="font-size: 14px"
-        >
-          Password
-          <span style="color: red !important">*</span>
-        </div>
-        <v-text-field
-          v-model="form.password"
-          variant="outlined"
-          type="password"
-          density="compact"
-          height="44"
-          placeholder="Enter your Password"
-          :error-messages="
-            v$.form.password.required.$invalid && v$.form.password.$dirty
-              ? 'Password is required'
-              : v$.form.password.minLength.$invalid && v$.form.password.$dirty
-              ? 'Minimum is 6 char'
-              : []
-          "
-          @blur="v$.form.password.$touch()"
-        >
-          <template #append>
-            <v-icon
-              v-if="v$.form.password.$invalid && v$.form.password.$dirty"
-              color="red"
-            >
-              mdi-alert-circle-outline
-            </v-icon>
-          </template>
-        </v-text-field>
-        <div
-          class="font-weight-medium mb-1 text-gray_700"
-          style="font-size: 14px"
-        >
-          Konfirmasi Password
-          <span style="color: red !important">*</span>
-        </div>
-        <v-text-field
-          v-model="form.confirmPassword"
-          class="mb-4"
-          variant="outlined"
-          type="password"
-          density="compact"
-          height="44"
-          placeholder="Enter your Password again"
-          :error-messages="
-            v$.form.confirmPassword.required.$invalid &&
-            v$.form.confirmPassword.$dirty
-              ? 'Password is required'
-              : v$.form.confirmPassword.minLength.$invalid &&
-                v$.form.confirmPassword.$dirty
-              ? 'Minimum is 6 char'
-              : v$.form.confirmPassword.sameAsPassword.$invalid &&
-                v$.form.confirmPassword.$dirty
-              ? 'Confirm Password must be same as Password'
-              : []
-          "
-          @blur="v$.form.confirmPassword.$touch()"
-        >
-          <template #append>
-            <v-icon
-              v-if="
-                v$.form.confirmPassword.$invalid &&
-                v$.form.confirmPassword.$dirty
-              "
-              color="red"
-            >
-              mdi-alert-circle-outline
-            </v-icon>
-          </template>
-        </v-text-field>
-        <v-btn
-          :class="
-            smAndDown
-              ? 'text-white rounded-lg mb-4'
-              : 'text-white rounded-lg mb-4'
-          "
-          color="primary"
-          size="large"
-          block
-          variant="flat"
-          type="submit"
-          :disabled="v$.form.$invalid"
-          :loading="loading"
-          @click="handleRegister"
-        >
-          Daftar
-        </v-btn>
-      </v-col>
-      <v-col v-else cols="auto">
-        <span class="font-weight-medium text-primary"
-          >Proses pendaftaran berhasil, hubungi admin untuk mengaktifkan
-          akun.</span
-        >
-        <v-btn
-          class="text-white rounded-lg mt-4"
-          color="primary"
-          size="large"
-          block
-          variant="flat"
-          type="submit"
-          to="/login"
-        >
-          Masuk
-        </v-btn>
-      </v-col>
-    </v-row>
-  </v-container>
+    <div v-if="!success" class="mt-4 space-y-4">
+      <USeparator />
+      <UFormField label="Nama" required :error="touched.name && !form.name ? 'Name is required' : undefined">
+        <UInput v-model="form.name" placeholder="Enter your Name" size="lg" class="w-full" @blur="touched.name = true" />
+      </UFormField>
+      <UFormField label="Status">
+        <USelect v-model="form.status" :items="status" value-key="value" label-key="name" placeholder="Select Status" size="lg" class="w-full" />
+      </UFormField>
+      <UFormField label="Email" required :error="emailError">
+        <UInput v-model="form.email" placeholder="Enter your Email" size="lg" class="w-full" @blur="touched.email = true" />
+      </UFormField>
+      <UFormField label="Password" required :error="passwordError">
+        <UInput v-model="form.password" type="password" placeholder="Enter your Password" size="lg" class="w-full" @blur="touched.password = true" />
+      </UFormField>
+      <UFormField label="Konfirmasi Password" required :error="confirmError">
+        <UInput v-model="form.confirmPassword" type="password" placeholder="Enter your Password again" size="lg" class="w-full" @blur="touched.confirmPassword = true" />
+      </UFormField>
+      <UAlert v-if="registerError" color="error" variant="soft" :title="registerError" />
+      <UButton color="primary" size="lg" block :disabled="!valid" :loading="register.isPending.value" @click="handleRegister">
+        Daftar
+      </UButton>
+    </div>
+    <div v-else class="mt-4 text-center">
+      <p class="font-medium text-primary-600">
+        Proses pendaftaran berhasil, hubungi admin untuk mengaktifkan akun.
+      </p>
+      <UButton color="primary" size="lg" block class="mt-4" to="/login">Masuk</UButton>
+    </div>
+  </div>
 </template>
 
-<script setup>
-import { reactive, ref, computed } from 'vue'
-import { useDisplay } from 'vuetify'
-import { useVuelidate } from '@vuelidate/core'
-import { required, minLength, email, sameAs } from '@vuelidate/validators'
-import { useUserStore } from '@/stores/user'
-import { useRoleStore } from '@/stores/role'
+<script setup lang="ts">
+import { useRoles } from '@/composables/queries/useLibrary'
+import { useAuthMutations } from '@/composables/queries/useUsers'
 
 defineOptions({ name: 'RegisterForm' })
 
-const { smAndDown } = useDisplay()
-const userStore = useUserStore()
-const roleStore = useRoleStore()
-
-const form = reactive({
-  name: '',
-  status: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-})
+const form = reactive({ name: '', status: '', email: '', password: '', confirmPassword: '' })
+const touched = reactive({ name: false, email: false, password: false, confirmPassword: false })
 const status = [
   { name: 'Retail', value: 'retail' },
   { name: 'Sales', value: 'wholesaler' },
 ]
 const success = ref(false)
-const loading = ref(false)
 
-const passwordRef = computed(() => form.password)
-const rules = {
-  form: {
-    name: { required },
-    email: { required, email },
-    password: { required, minLength: minLength(6) },
-    confirmPassword: {
-      required,
-      minLength: minLength(6),
-      sameAsPassword: sameAs(passwordRef),
-    },
-  },
-}
-const v$ = useVuelidate(rules, { form })
+const { data: roles } = useRoles({})
+const { register } = useAuthMutations()
+const registerError = computed(() => {
+  const e: any = register.error.value
+  return e?.data?.message ?? e?.message ?? ''
+})
+
+const emailError = computed(() => {
+  if (!touched.email) return undefined
+  if (!form.email) return 'Email is required'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return 'Please insert valid email address'
+  return undefined
+})
+const passwordError = computed(() => {
+  if (!touched.password) return undefined
+  if (!form.password) return 'Password is required'
+  if (form.password.length < 6) return 'Minimum is 6 char'
+  return undefined
+})
+const confirmError = computed(() => {
+  if (!touched.confirmPassword) return undefined
+  if (!form.confirmPassword) return 'Password is required'
+  if (form.confirmPassword.length < 6) return 'Minimum is 6 char'
+  if (form.confirmPassword !== form.password) return 'Confirm Password must be same as Password'
+  return undefined
+})
+const valid = computed(
+  () => !!form.name && !emailError.value && !passwordError.value && !confirmError.value && !!form.email && !!form.password && !!form.confirmPassword,
+)
 
 async function handleRegister() {
-  loading.value = true
-  const body = {
-    ...form,
-    role: roleStore.roles.find((item) => item.roleName === 'super_admin')
-      ?._id,
-  }
-  const res = await userStore.register(body)
-  loading.value = false
-  if (res) {
+  touched.name = touched.email = touched.password = touched.confirmPassword = true
+  if (!valid.value) return
+  const roleId = (roles.value as any[])?.find((item: any) => item.roleName === 'super_admin')?._id
+  try {
+    await register.mutateAsync({ ...form, role: roleId })
     success.value = true
+  } catch {
+    // error surfaced via registerError
   }
 }
 </script>
-<style lang="scss" scoped>
-:deep(.v-btn) {
-  letter-spacing: 0;
-}
-.round-corner {
-  border-radius: 20px;
-}
-</style>

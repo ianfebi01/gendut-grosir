@@ -1,107 +1,70 @@
 <template>
   <div>
-    <div
-      style="font-size: 14px"
-      class="font-weight-medium mb-1 text-gray_700 mt-2"
-    >
+    <label class="mb-1 mt-2 block text-sm font-medium text-gray-700">
       {{ item?.label }}
-      <span v-if="item?.validations?.required" style="color: red !important"
-        >*</span
-      >
-    </div>
-    <v-text-field
+      <span v-if="item?.validations?.required" class="text-red-500">*</span>
+    </label>
+    <UInput
       v-if="item?.fieldType === 'textField'"
-      v-model="model"
-      v-types="item?.type"
-      :type="item?.type"
-      variant="outlined"
-      density="compact"
-      bg-color="#fff"
-      height="44"
-      :hide-details="errorMessages == ''"
+      :model-value="modelValue as any"
+      :type="item?.type || 'text'"
       :placeholder="item?.placeholder"
-      :error-messages="errorMessages"
-      @blur="emit('blur')"
-    ></v-text-field>
-    <slot
-      v-else-if="item?.fieldType === 'autocomplete'"
-      name="autocomplete"
-      :error-messages="errorMessages"
+      size="md"
+      class="w-full"
+      :ui="{ base: 'bg-white' }"
+      @update:model-value="$emit('update:modelValue', $event)"
+      @blur="$emit('blur')"
     />
-    <v-select
+    <p v-if="errorText" class="mt-1 text-xs text-red-500">{{ errorText }}</p>
+    <slot v-else-if="item?.fieldType === 'autocomplete'" name="autocomplete" :error-messages="errorMessages" />
+    <USelect
       v-else-if="item?.fieldType === 'select'"
-      v-model="model"
+      :model-value="modelValue as any"
       :items="item?.items"
-      item-title="name"
-      item-value="value"
-      variant="outlined"
-      density="compact"
-      bg-color="#fff"
-      height="44"
+      value-key="value"
+      label-key="name"
       :placeholder="item?.placeholder"
-      :error-messages="errorMessages"
-      @blur="emit('blur')"
-    ></v-select>
-    <v-switch
+      size="md"
+      class="w-full"
+      :ui="{ base: 'bg-white' }"
+      @update:model-value="$emit('update:modelValue', $event)"
+    />
+    <USwitch
       v-else-if="item?.fieldType === 'switch'"
-      v-model="model"
-      class="mt-3 ml-1"
-      inset
-      :label="
-        item?.validations?.required
-          ? item?.placeholder[0]
-          : item?.placeholder[1]
-      "
-      :error-messages="errorMessages"
-      @blur="emit('blur')"
-    ></v-switch>
-
-    <v-row v-else-if="item?.fieldType === 'checkbox'">
-      <v-col
+      :model-value="modelValue as any"
+      class="ml-1 mt-3"
+      @update:model-value="$emit('update:modelValue', $event)"
+    />
+    <div v-else-if="item?.fieldType === 'checkbox'" class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <UCheckbox
         v-for="(item2, index) in item?.checkboxitem"
         :key="index"
-        cols="12"
-        sm="4"
-        md="4"
-      >
-        <v-checkbox
-          v-model="model"
-          :label="item2.name"
-          color="primary"
-          :value="item2.value"
-        ></v-checkbox>
-      </v-col>
-    </v-row>
+        :model-value="(modelValue as any[])?.includes?.(item2.value)"
+        :label="item2.name"
+        @update:model-value="toggleCheck(item2.value)"
+      />
+    </div>
   </div>
 </template>
-<script setup>
-import { computed } from 'vue'
-import { inputDirectives } from '@/utils/directive'
 
+<script setup lang="ts">
 defineOptions({ name: 'DynamicField' })
 
 const props = defineProps({
-  item: {
-    type: Object,
-    default: () => ({}),
-  },
-  modelValue: {
-    type: [String, Number, Boolean, Array],
-    default: null,
-  },
-  errorMessages: {
-    type: Array,
-    default: () => [],
-  },
+  item: { type: Object as PropType<Record<string, any>>, default: () => ({}) },
+  modelValue: { type: [String, Number, Boolean, Array] as PropType<any>, default: null },
+  errorMessages: { type: Array as PropType<string[]>, default: () => [] },
 })
-const emit = defineEmits(['update:modelValue', 'blur'])
+const emit = defineEmits(['update:modelValue', 'update:model-value', 'blur'])
 
-// Local registration for `v-types` (migrated to the Vue 3
-// `beforeMount` hook in `@/utils/directive`).
-const vTypes = inputDirectives.types
+const errorText = computed(() => props.errorMessages?.[0] ?? '')
 
-const model = computed({
-  get: () => props.modelValue,
-  set: (newVal) => emit('update:modelValue', newVal),
-})
+function toggleCheck(value: any) {
+  const arr = Array.isArray(props.modelValue) ? [...props.modelValue] : []
+  const idx = arr.indexOf(value)
+  if (idx === -1) arr.push(value)
+  else arr.splice(idx, 1)
+  emit('update:modelValue', arr)
+  emit('update:model-value', arr)
+}
 </script>

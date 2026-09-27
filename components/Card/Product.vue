@@ -1,133 +1,63 @@
 <template>
-  <v-hover>
-    <template v-slot:default="{ isHovering, props }">
-      <v-card
-        v-bind="props"
-        variant="flat"
-        style="overflow: hidden; transition: all 150ms"
-        class="border h-100"
-        :style="!isHovering && 'border-color: transparent'"
-        :loading="loading === item?.id"
-        :disabled="loading === item?.id || item?.stock <= 0"
-        @click="$emit('handleClick', item)"
-      >
-        <template #progress>
-          <v-progress-circular
-            indeterminate
-            size="35"
-            color="primary"
-            class="loader"
-          ></v-progress-circular>
-        </template>
-        <v-container class="pa-0 d-flex flex-column" style="height: 100%">
-          <v-img
-            lazy-src="/lazy-loader.svg"
-            :src="
-              $vuetify.display.mdAndUp
-                ? $changeImageSize(item?.image, 'md')
-                : $changeImageSize(item?.image, 'sm')
-            "
-            height="150px"
-            width="100%"
-            cover
-          />
-
-          <v-card-title
-            class="text-title mt-2 letter-spacing-normal text-18 text-gray_900 px-3"
-            style="width: 100%"
-          >
-            {{ item?.name }}
-          </v-card-title>
-          <div class="flex-grow-1"></div>
-          <v-card-actions class="px-0 text-body-2 mx-3">
-            <div
-              style="width: 100%"
-              class="px-0 d-flex align-center justify-space-between"
-            >
-              <div class="d-flex flex-column justify-center">
-                <span class="font-weight-bold text-20 text-primary">
-                  {{
-                    customerStatus === 'retail'
-                      ? formatRupiah(item?.retailPrice)
-                      : customerStatus === 'wholesaler'
-                        ? formatRupiah(item?.wholesalerPrice)
-                        : ''
-                  }}
-                </span>
-              </div>
-            </div>
-          </v-card-actions>
-        </v-container>
-      </v-card>
-    </template></v-hover
+  <UCard
+    :ui="{ root: 'overflow-hidden border transition-all hover:border-primary-300', body: 'p-0!' }"
+    class="h-full cursor-pointer bg-white"
+    :class="{ 'opacity-60 pointer-events-none': disabled }"
+    @click="$emit('handleClick', item)"
   >
+    <div class="relative">
+      <img
+        :src="imageSrc"
+        alt="product"
+        class="h-[150px] w-full object-cover"
+        loading="lazy"
+      />
+      <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white/60">
+        <UIcon name="i-heroicons-arrow-path-20-solid" class="size-8 animate-spin text-primary-600" />
+      </div>
+    </div>
+    <div class="flex h-[calc(100%-150px)] flex-col px-3 py-2">
+      <h3 class="line-clamp-2 min-h-[44px] text-[16px] font-medium tracking-normal text-gray-900">
+        {{ item?.name }}
+      </h3>
+      <div class="flex-1" />
+      <div class="mt-1 flex items-center justify-between">
+        <span class="text-[18px] font-bold text-primary-600">
+          {{ price }}
+        </span>
+        <UBadge v-if="item?.stock <= 0" color="error" variant="soft" size="xs">Habis</UBadge>
+        <UBadge v-else color="neutral" variant="soft" size="xs">Stok {{ item?.stock }}</UBadge>
+      </div>
+    </div>
+  </UCard>
 </template>
 
-<script>
+<script setup lang="ts">
 import { formatRupiah } from '~/utils/formatRupiah'
 
-export default {
-  name: 'Product',
-  props: {
-    item: { type: Object, default: () => {} },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    customerStatus: {
-      type: String,
-      default: '',
-    },
-  },
-  emits: ['handleClick'],
-  data() {
-    return {
-      favorite: 'false',
-    }
-  },
-  computed: {
-    //get windows size height
-    windowWidth() {
-      return window.innerHeight
-    },
-    widthScreen() {
-      return this.$vuetify.display.xs
-    },
-  },
-  methods: {
-    formatRupiah(item) {
-      return formatRupiah(item)
-    },
-  },
-}
-</script>
+const props = defineProps({
+  item: { type: Object as PropType<Record<string, any>>, default: () => ({}) },
+  loading: { type: [Boolean, String], default: false },
+  customerStatus: { type: String, default: '' },
+})
+defineEmits(['handleClick'])
 
-<script setup>
 const { $changeImageSize } = useNuxtApp()
-</script>
 
-<style lang="scss" scoped>
-.text-title {
-  max-height: 60px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-
-  @supports (-webkit-line-clamp: 2) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: initial;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+const imageSrc = computed(() => {
+  const raw = props.item?.image as string
+  if (!raw) return '/lazy-loader.svg'
+  try {
+    return ($changeImageSize as any)?.(raw, 'md') ?? raw
+  } catch {
+    return raw
   }
-}
+})
 
-.loader {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, 0);
-  z-index: 1;
-}
-</style>
+const price = computed(() => {
+  if (props.customerStatus === 'retail') return formatRupiah(props.item?.retailPrice)
+  return formatRupiah(props.item?.wholesalerPrice)
+})
+
+const disabled = computed(() => !!props.loading || (props.item?.stock ?? 1) <= 0)
+</script>

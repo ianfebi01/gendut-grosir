@@ -1,96 +1,103 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="datas"
-    :items-per-page="paginator?.limit"
+  <UTable
+    :data="datas"
+    :columns="tableColumns"
     :loading="loading"
-    hide-default-footer
-    no-data-text="No Data"
-    disable-sort
-    class="data-table fixed-non-select-col"
+    class="data-table"
+    :ui="{ th: 'text-ink-900! border-b-0!', td: 'text-ink-900' }"
   >
-    <template #[`item.product`]="item">
-      <div>
-        <v-btn
-          size="small"
-          variant="outlined"
-          @click="$emit('clickProduct', item?.item?.product)"
-          >{{ item?.item?.product?.length + ' Produk' }}</v-btn
+    <template #user-cell="{ row }">
+      <span>{{ row.original?.user?.name ?? '-' }}</span>
+    </template>
+    <template #date-cell="{ row }">
+      <span>{{ formatDate(row.original?.createdAt) }}</span>
+    </template>
+    <template #product-cell="{ row }">
+      <UButton
+        size="xs"
+        variant="outline"
+        color="neutral"
+        @click="$emit('clickProduct', row.original?.product ?? [])"
+      >
+        {{ (row.original?.product?.length ?? 0) + ' Produk' }}
+      </UButton>
+    </template>
+    <template #apply-cell="{ row }">
+      <div class="flex items-center gap-2">
+        <UBadge
+          :color="row.original?.apply ? 'success' : 'warning'"
+          variant="soft"
+          size="sm"
         >
-      </div>
-    </template>
-    <template #[`item.date`]="item">
-      {{ $formatDate(item?.item?.createdAt, 'with-clock') }}
-    </template>
-    <template #[`item.action`]="item">
-      <div>
-        <v-btn
-          size="small"
-          variant="flat"
+          {{ row.original?.apply ? 'Diterapkan' : 'Belum' }}
+        </UBadge>
+        <UButton
+          size="xs"
           color="primary"
-          :disabled="item?.item?.apply"
-          :loading="loadingApply === item?.item?._id"
-          @click="$emit('apply', item?.item?._id)"
+          :disabled="!!row.original?.apply"
+          :loading="loadingApply === row.original?._id"
+          @click="$emit('apply', row.original?._id)"
         >
           Sesuaikan
-        </v-btn>
+        </UButton>
       </div>
     </template>
-    <template #bottom>
-      <div class="d-flex align-center text-14 my-4 mx-4">
-        <span class="text-gray_700 font-weight-medium">{{
-          'Page ' + paginator?.page + ' of ' + paginator?.totalPages
-        }}</span>
-        <v-spacer></v-spacer>
-        <v-btn
-          variant="outlined"
-          height="36"
-          density="compact"
-          :disabled="!paginator.hasPrevPage"
-          @click="$emit('previous')"
-          >Previous</v-btn
-        >
-        <v-btn
-          class="ml-2"
-          variant="outlined"
-          height="36"
-          density="compact"
-          :disabled="!paginator.hasNextPage"
-          @click="$emit('next')"
-          >Next</v-btn
-        >
-      </div>
-    </template>
-  </v-data-table>
+  </UTable>
+  <div class="my-4 flex items-center text-sm">
+    <span class="font-medium text-gray-700"
+      >Halaman {{ paginator?.page }} dari {{ paginator?.totalPages }}</span
+    >
+    <div class="flex-1" />
+    <UButton
+      variant="outline"
+      color="neutral"
+      size="sm"
+      :disabled="!paginator?.hasPrevPage"
+      @click="$emit('previous')"
+      >Sebelumnya</UButton
+    >
+    <UButton
+      variant="outline"
+      color="neutral"
+      size="sm"
+      class="ml-2"
+      :disabled="!paginator?.hasNextPage"
+      @click="$emit('next')"
+      >Selanjutnya</UButton
+    >
+  </div>
 </template>
-<script>
-export default {
-  name: 'StockOpnameDataTable',
-  props: {
-    headers: {
-      type: Array,
-      default: () => [],
-    },
-    datas: {
-      type: Array,
-      default: () => [],
-    },
-    paginator: {
-      type: Object,
-      default: () => {},
-    },
-    loadingApply: {
-      type: String,
-      default: '',
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-  },
-}
-</script>
 
-<script setup>
+<script setup lang="ts">
+defineOptions({ name: 'StockOpnameDataTable' })
+
+defineProps({
+  datas: { type: Array as PropType<any[]>, default: () => [] },
+  paginator: {
+    type: Object as PropType<Record<string, any>>,
+    default: () => ({}),
+  },
+  loading: { type: Boolean, default: false },
+  loadingApply: { type: String, default: '' },
+})
+defineEmits(['next', 'previous', 'clickProduct', 'apply'])
+
 const { $formatDate } = useNuxtApp()
+
+const tableColumns = [
+  { accessorKey: 'opnameId', header: 'Id Stock Opname' },
+  { accessorKey: 'user', header: 'Pengguna' },
+  { accessorKey: 'date', header: 'Tanggal' },
+  { accessorKey: 'product', header: 'Detail' },
+  { id: 'apply', header: 'Aksi' },
+]
+
+function formatDate(date: string | Date) {
+  if (!date) return '-'
+  try {
+    return ($formatDate as any)?.(date, 'with-clock') ?? String(date)
+  } catch {
+    return String(date)
+  }
+}
 </script>

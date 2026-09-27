@@ -1,119 +1,62 @@
 <template>
-  <v-dialog v-model="modal" persistent width="408">
-    <v-card style="border-radius: 12px !important">
-      <v-card-title
-        class="d-flex flex-column justify-center letter-spacing-normal"
-        style="width: 100%"
-      >
-        <div class="icon mt-2 mb-4">
-          <v-icon>{{ icon }}</v-icon>
+  <UModal v-model:open="modal" :ui="{ content: 'rounded-xl max-w-[408px] w-full' }">
+    <template #content>
+      <div class="flex flex-col items-center px-6 pt-6 text-center">
+        <div class="icon-error mb-4 mt-2">
+          <slot name="icon">
+            <UIcon name="i-heroicons-trash-20-solid" class="size-6 text-red-600" />
+          </slot>
         </div>
-        <span
-          class="text-18 font-weight-bold text-gray_900 line-height-md mb-2"
-          >{{ title }}</span
-        >
-        <span
-          class="text-14 font-weight-normal text-gray_500 text-center line-height-md"
-        >
-          {{ subtitle }}
-        </span>
-      </v-card-title>
-      <v-card-text class="py-0">
-        <slot name="content"></slot>
-      </v-card-text>
-      <v-card-actions>
-        <v-col class="px-0 pr-1">
-          <v-btn
-            block
-            variant="outlined"
-            height="44"
-            :disabled="loading"
-            density="compact"
-            @click="cancel"
-          >
-            Cancel
-          </v-btn>
-        </v-col>
-        <v-col class="px-0 pl-1">
-          <v-btn
-            block
-            variant="flat"
-            height="44"
-            color="error_600"
-            class="text-white"
-            :loading="loading"
-            @click="ok"
-          >
-            Delete
-          </v-btn>
-        </v-col>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <h3 class="mb-2 text-[18px] font-bold leading-5 text-gray-900">{{ title }}</h3>
+        <p class="text-center text-sm font-normal leading-5 text-gray-500">{{ subtitle }}</p>
+      </div>
+      <div class="px-6 py-2">
+        <slot name="content" />
+      </div>
+      <div class="flex gap-2 px-6 pb-6">
+        <UButton block variant="outline" color="neutral" size="lg" :disabled="loading" @click="cancel">
+          Batal
+        </UButton>
+        <UButton block color="error" size="lg" :loading="loading" @click="ok">
+          Hapus
+        </UButton>
+      </div>
+    </template>
+  </UModal>
 </template>
 
-<script>
-export default {
-  name: 'DeleteModal',
-  props: {
-    icon: {
-      type: String,
-      default: '$category_primary',
-    },
-    title: {
-      type: String,
-      default: 'Delete',
-    },
-    subtitle: {
-      type: String,
-      default:
-        'Are you sure you want to delete this? This action cannot be undone.',
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    errorMessage: {
-      type: String,
-      default: 'You should set the text props!',
-    },
-  },
-  emits: ['update:model-value', 'cancel', 'ok'],
-  computed: {
-    modal: {
-      get: function () {
-        return this.modelValue
-      },
-      set: function (newValue) {
-        this.$emit('update:model-value', newValue)
-      },
-    },
-  },
-  methods: {
-    cancel() {
-      this.$emit('cancel')
-      this.modal = false
-    },
-    ok() {
-      this.$emit('ok')
-    },
-  },
+<script setup lang="ts">
+const props = defineProps({
+  title: { type: String, default: 'Delete' },
+  subtitle: { type: String, default: 'Are you sure you want to delete this? This action cannot be undone.' },
+  loading: { type: Boolean, default: false },
+  modelValue: { type: Boolean, default: false },
+})
+const emit = defineEmits(['update:model-value', 'cancel', 'ok'])
+
+const modal = computed({
+  get: () => props.modelValue,
+  set: (v: boolean) => emit('update:model-value', v),
+})
+
+function cancel() {
+  emit('cancel')
+  modal.value = false
+}
+function ok() {
+  emit('ok')
 }
 </script>
-<style lang="scss" scoped>
-@use '@/assets/scss/abstracts/variables.scss' as v;
-.icon {
+
+<style scoped>
+.icon-error {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50% !important;
-  background: v.$error_100;
+  border-radius: 50%;
+  background: #fee4e2;
   width: 58px;
   height: 58px;
-  border: 8px solid v.$error_50;
+  border: 8px solid #fef3f2;
 }
 </style>

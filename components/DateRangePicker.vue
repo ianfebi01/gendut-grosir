@@ -1,166 +1,75 @@
 <template>
-  <v-menu v-model="menu" offset-y :close-on-content-click="false">
-    <template #activator="{ props: menuProps }">
-      <v-text-field
-        :model-value="displayRange"
-        bg-color="#fff"
-        hide-details
-        variant="outlined"
-        height="44px"
-        density="compact"
-        readonly
-        style="width: 250px !important"
-        v-bind="menuProps"
-      ></v-text-field>
+  <UPopover v-model:open="open">
+    <UInput :model-value="displayRange" readonly size="md" icon="i-heroicons-calendar-20-solid" class="w-[250px]" @click="open = true" />
+    <template #content>
+      <UCard :ui="{ body: 'p-4 space-y-3' }">
+        <div class="grid grid-cols-2 gap-3">
+          <UFormField label="Mulai">
+            <UInput v-model="draft.start" type="date" size="md" :max="today" />
+          </UFormField>
+          <UFormField label="Selesai">
+            <UInput v-model="draft.end" type="date" size="md" :max="today" />
+          </UFormField>
+        </div>
+        <div class="flex gap-2 pt-1">
+          <UButton variant="outline" color="neutral" size="md" class="px-4" @click="handleClickReset">Reset</UButton>
+          <div class="flex-1" />
+          <UButton variant="outline" color="neutral" size="md" class="px-4" @click="handleCancel">Cancel</UButton>
+          <UButton color="primary" size="md" class="px-4" @click="handleApply">Apply</UButton>
+        </div>
+      </UCard>
     </template>
-    <v-card rounded="lg">
-      <DatePicker
-        v-model.range="range"
-        :columns="2"
-        color="primary"
-        :max-date="maxDate"
-      />
-
-      <v-divider></v-divider>
-      <v-card-actions class="d-flex pa-4">
-        <v-btn
-          color="gray_900"
-          variant="outlined"
-          class="px-4"
-          height="44"
-          @click="handleClickReset"
-        >
-          Reset
-        </v-btn>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="gray_900"
-          variant="outlined"
-          class="mr-2 px-4"
-          height="44"
-          @click="handleCancel"
-        >
-          Cancel
-        </v-btn>
-        <v-btn
-          color="primary"
-          variant="flat"
-          class="text-white px-4"
-          height="44"
-          @click="handleApply"
-        >
-          Apply
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-menu>
+  </UPopover>
 </template>
-<script setup>
-import { ref, computed } from 'vue'
+
+<script setup lang="ts">
 import dayjs from 'dayjs'
-import { DatePicker } from 'v-calendar'
 
 defineOptions({ name: 'DateRangePicker' })
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({}),
+const props = defineProps({ modelValue: { type: Object as PropType<{ start?: any; end?: any }>, default: () => ({}) } })
+const emit = defineEmits(['update:modelValue', 'update:model-value', 'apply'])
+
+const open = ref(false)
+const today = computed(() => dayjs().format('YYYY-MM-DD'))
+
+const draft = reactive({ start: '', end: '' })
+watch(
+  () => props.modelValue,
+  (v) => {
+    draft.start = v?.start ? dayjs(v.start).format('YYYY-MM-DD') : ''
+    draft.end = v?.end ? dayjs(v.end).format('YYYY-MM-DD') : ''
   },
-})
-const emit = defineEmits(['update:modelValue', 'apply'])
-
-const menu = ref(false)
-const maxDate = ref(new Date())
-
-const range = computed({
-  get: () => props.modelValue,
-  set: (newVal) => emit('update:modelValue', newVal),
-})
+  { immediate: true },
+)
 
 const displayRange = computed(() => {
-  const format = (date) => (date ? dayjs(date).format('D MMM YYYY') : '-')
-  return `${format(props.modelValue?.start)} - ${format(
-    props.modelValue?.end
-  )}`
+  const format = (date: any) => (date ? dayjs(date).format('D MMM YYYY') : '-')
+  return `${format(props.modelValue?.start)} - ${format(props.modelValue?.end)}`
 })
 
+function emitRange(start: any, end: any) {
+  const payload = { start, end }
+  emit('update:modelValue', payload)
+  emit('update:model-value', payload)
+}
+
 function defaultRange() {
-  return {
-    start: dayjs().startOf('month').toDate(),
-    end: new Date(),
-  }
+  return { start: dayjs().startOf('month').toDate(), end: new Date() }
 }
 
 function handleApply() {
+  emitRange(draft.start ? new Date(draft.start) : undefined, draft.end ? new Date(draft.end) : undefined)
   emit('apply')
-  menu.value = false
+  open.value = false
 }
 function handleCancel() {
-  emit('update:modelValue', defaultRange())
-  menu.value = false
+  emitRange(...Object.values(defaultRange()) as [any, any])
+  open.value = false
 }
 function handleClickReset() {
-  emit('update:modelValue', defaultRange())
+  emitRange(...Object.values(defaultRange()) as [any, any])
   emit('apply')
-  menu.value = false
+  open.value = false
 }
 </script>
-<style lang="scss" scoped>
-@use '@/assets/scss/abstracts/variables.scss' as v;
-//styling container and font weight in v-calendar
-
-.vc-container {
-  --primary-200: #e9d7fe !important;
-  --primary-600: #7f56d9 !important;
-  --primary-700: #6941c6 !important;
-  --primary-900: #42307d !important;
-  border: none;
-}
-
-:deep(.vc-header) {
-  margin-bottom: 22px;
-  padding-top: 22px;
-  .vc-title {
-    font-weight: 500 !important;
-    color: #344054;
-  }
-}
-:deep(.vc-pane-container) {
-  margin: 10px;
-  margin-bottom: 0;
-}
-
-:deep(.vc-weekday) {
-  font-weight: 500 !important;
-  color: black !important;
-  margin-bottom: 8px;
-}
-
-:deep(.vc-day) {
-  margin-bottom: 4px;
-}
-
-:deep(.vc-day-content) {
-  font-weight: 400 !important;
-  font-size: 14px !important;
-  width: 40px !important;
-  height: 40px !important;
-
-  &.is-disabled {
-    cursor: not-allowed;
-    background-color: none;
-    border-color: #667085;
-  }
-
-  &:not(.is-disabled):hover {
-    background-color: var(--primary-200);
-    color: var(--primary-600);
-  }
-}
-
-:deep(.vc-highlight) {
-  width: 40px !important;
-  height: 40px !important;
-}
-</style>
