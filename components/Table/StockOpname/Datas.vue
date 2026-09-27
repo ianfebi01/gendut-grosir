@@ -43,32 +43,15 @@
       </div>
     </template>
   </UTable>
-  <div class="my-4 flex items-center text-sm">
-    <span class="font-medium text-gray-700"
-      >Halaman {{ paginator?.page }} dari {{ paginator?.totalPages }}</span
-    >
-    <div class="flex-1" />
-    <UButton
-      variant="outline"
-      color="neutral"
-      size="sm"
-      :disabled="!paginator?.hasPrevPage"
-      @click="$emit('previous')"
-      >Sebelumnya</UButton
-    >
-    <UButton
-      variant="outline"
-      color="neutral"
-      size="sm"
-      class="ml-2"
-      :disabled="!paginator?.hasNextPage"
-      @click="$emit('next')"
-      >Selanjutnya</UButton
-    >
-  </div>
+  <TablePagination
+    :page="paginator?.page ?? 1"
+    :paginator="paginator"
+    @update:page="$emit('update:page', $event)"
+  />
 </template>
 
 <script setup lang="ts">
+import TablePagination from '~/components/Table/Pagination.vue'
 defineOptions({ name: 'StockOpnameDataTable' })
 
 defineProps({
@@ -80,7 +63,7 @@ defineProps({
   loading: { type: Boolean, default: false },
   loadingApply: { type: String, default: '' },
 })
-defineEmits(['next', 'previous', 'clickProduct', 'apply'])
+defineEmits(['update:page', 'clickProduct', 'apply'])
 
 const { $formatDate } = useNuxtApp()
 

@@ -95,29 +95,7 @@
           </UButton>
         </template>
       </UTable>
-      <div class="my-4 flex items-center text-sm">
-        <span class="font-medium text-gray-700"
-          >Halaman {{ page }} dari {{ paginator?.totalPages }}</span
-        >
-        <div class="flex-1" />
-        <UButton
-          variant="outline"
-          color="neutral"
-          size="sm"
-          :disabled="!paginator?.hasPrevPage"
-          @click="page--"
-          >Sebelumnya</UButton
-        >
-        <UButton
-          variant="outline"
-          color="neutral"
-          size="sm"
-          class="ml-2"
-          :disabled="!paginator?.hasNextPage"
-          @click="page++"
-          >Selanjutnya</UButton
-        >
-      </div>
+      <TablePagination v-model:page="page" :paginator="paginator" />
     </div>
 
     <UModal
@@ -168,6 +146,7 @@
 </template>
 
 <script setup lang="ts">
+import TablePagination from '~/components/Table/Pagination.vue'
 import { refDebounced } from '@vueuse/core'
 import PageHeader from '~/components/Layout/PageHeader.vue'
 import { useOrders, useOrderMutations } from '@/composables/queries/useOrders'

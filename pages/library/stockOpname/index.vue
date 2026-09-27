@@ -15,8 +15,7 @@
         :paginator="paginator"
         :loading="isPending"
         :loading-apply="applyingId"
-        @next="page++"
-        @previous="page--"
+        @update:page="page = $event"
         @click-product="openDetailModal"
         @apply="openApplyModal"
       />
