@@ -25,7 +25,7 @@
         />
       </div>
     </div>
-    <div class="flex grow flex-col px-3 py-2">
+    <div class="flex grow flex-col px-3 pb-2">
       <UBadge
         v-if="item.category.name"
         :label="item.category.name"

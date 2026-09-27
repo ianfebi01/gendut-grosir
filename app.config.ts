@@ -28,7 +28,7 @@ export default defineAppConfig({
     // Board cards: header strip ("Client: Stellar") + body
     card: {
       slots: {
-        root: 'rounded-card',
+        root: 'rounded-md',
         header: 'px-4 py-2.5 sm:px-4 text-sm text-muted',
         body: 'p-4 sm:p-4',
         footer: 'px-4 py-3 sm:px-4 text-xs text-muted'
