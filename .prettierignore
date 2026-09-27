@@ -94,3 +94,8 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# Nuxt 4 / tooling output
+.output
+.data
+pnpm-lock.yaml
