@@ -38,6 +38,15 @@ export default defineNuxtConfig({
     },
   },
 
+  vite: {
+    optimizeDeps: {
+      // Pre-bundle deps that are only imported by lazily loaded pages.
+      // Otherwise Vite discovers them on first navigation, re-optimizes, and the
+      // in-flight import fails ("Failed to fetch dynamically imported module").
+      include: ['vue-chartjs', 'chart.js', 'dayjs', '@vueuse/core', '@tanstack/vue-query'],
+    },
+  },
+
   nitro: {
     // /api/users -> ${API_BASE_URL}/users (prefix is stripped; works in dev and prod)
     routeRules: {

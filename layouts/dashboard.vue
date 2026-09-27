@@ -22,7 +22,7 @@
         <aside
           id="layout-aside"
           class="sticky top-4 mt-4 hidden h-[calc(100vh-1rem)] w-90 shrink-0 overflow-hidden rounded-t-xl border bg-white xl:w-100"
-          :class="{ 'lg:block': route.meta.aside }"
+          :class="{ 'xl:block': route.meta.aside }"
         />
       </div>
     </div>

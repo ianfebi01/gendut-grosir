@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="mx-auto flex w-full max-w-[960px] flex-col items-center px-4 pb-10 pt-4"
-  >
+  <div class="mx-auto flex w-full flex-col items-center pb-10 pt-4">
     <!-- Search + customer row -->
     <div class="flex w-full flex-wrap items-center gap-2">
       <div class="min-w-[200px] flex-1">
@@ -37,7 +35,10 @@
       />
     </div>
     <div v-else class="w-full py-6">
-      <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+      <div
+        class="grid grid-cols-2 gap-3 md:grid-cols-3"
+        :class="{ 'xl:grid-cols-4': !appStore.drawer }"
+      >
         <div v-for="item in products" :key="item?._id || item?.id">
           <ProductCard
             :item="item"
@@ -138,7 +139,7 @@
     </Modal>
 
     <!-- Cart: right-hand layout card on lg, slide-over below lg -->
-    <Teleport v-if="isLg" defer to="#layout-aside">
+    <Teleport v-if="isXl" defer to="#layout-aside">
       <CartPanel
         :customer="activeCustomer"
         @success-checkout="showSummary = true"
@@ -225,6 +226,7 @@ definePageMeta({ layout: 'dashboard', title: 'Point Of Sales', aside: true })
 const toast = useToast()
 const userStore = useUserStore()
 const orderStore = useOrderStore()
+const appStore = useAppStore() // sidebar open state drives grid columns
 
 // ---- UI state (local only) ----
 const productQ = ref('')
@@ -249,9 +251,9 @@ const cartOpen = computed({
   set: (v: boolean) => orderStore.setModalCart(v),
 })
 // Matches Tailwind's lg breakpoint, where the cart lives in the layout aside
-const isLg = useMediaQuery('(min-width: 1024px)')
-watch(isLg, (lg) => {
-  if (lg) cartOpen.value = false
+const isXl = useMediaQuery('(min-width: 1280px)')
+watch(isXl, (xl) => {
+  if (xl) cartOpen.value = false
 })
 const detailOrder: any = computed(() => orderStore.detailOrder)
 

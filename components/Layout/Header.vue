@@ -18,13 +18,13 @@
       <span>{{ pageTitle }}</span>
     </div>
     <div class="grow"></div>
-    <div v-if="router === '/'" class="pr-2 lg:hidden">
+    <div v-if="router === '/'" class="pr-2 xl:hidden">
       <UButton variant="link" color="primary" size="sm" @click="openCart">
         <template #leading>
           <div class="relative">
             <UBadge
               v-if="cart?.length"
-              :label="String(cart.length)"
+              :label="String(totalQty)"
               color="primary"
               size="xs"
               class="absolute left-full bottom-full translate-y-0.5 size-4 flex items-center justify-center"
@@ -53,4 +53,8 @@ const pageTitle = computed(() => route.meta.title)
 function openCart() {
   orderStore.setModalCart(true)
 }
+
+const totalQty = computed(() =>
+  orderStore.cart.reduce((sum: number, item: any) => sum + (item.qty || 0), 0),
+)
 </script>
