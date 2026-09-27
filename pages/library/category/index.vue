@@ -6,7 +6,7 @@
       add-text="Tambah Kategori"
       :model-value="search"
       @update:model-value="search = $event"
-      @add="modal = true"
+      @add="navigateTo('/library/category/create')"
     />
 
     <div class="pt-4">
@@ -23,7 +23,7 @@
               variant="ghost"
               color="neutral"
               size="xs"
-              @click="openEditModal(row.original)"
+              @click="navigateTo(`/library/category/${row.original?._id}/edit`)"
             >
               <template #leading
                 ><UIcon name="i-heroicons-pencil-20-solid" class="size-4"
@@ -67,55 +67,6 @@
       </div>
     </div>
 
-    <DialogModal
-      v-model="modal"
-      title="Tambah Kategori"
-      subtitle="Masukkan nama kategori"
-      :loading="createCategory.isPending.value"
-      :error-message="mutationError"
-      :disable="!name"
-      @save="handleAddCategory"
-      @clear-error-message="createCategory.reset()"
-    >
-      <template #icon
-        ><UIcon name="i-heroicons-tag-20-solid" class="size-6 text-primary-600"
-      /></template>
-      <template #content>
-        <UFormField label="Nama">
-          <UInput
-            v-model="name"
-            placeholder="Masukkan nama"
-            size="md"
-            class="w-full"
-          />
-        </UFormField>
-      </template>
-    </DialogModal>
-
-    <DialogModal
-      v-model="editModal"
-      title="Edit Nama Kategori"
-      subtitle="Masukkan nama kategori"
-      :loading="updateCategory.isPending.value"
-      :error-message="mutationError"
-      :disable="!name"
-      @save="handleEdit"
-    >
-      <template #icon
-        ><UIcon name="i-heroicons-tag-20-solid" class="size-6 text-primary-600"
-      /></template>
-      <template #content>
-        <UFormField label="Nama">
-          <UInput
-            v-model="name"
-            placeholder="Masukkan nama"
-            size="md"
-            class="w-full"
-          />
-        </UFormField>
-      </template>
-    </DialogModal>
-
     <DialogDelete
       v-model="deleteModal"
       :loading="deleteCategory.isPending.value"
@@ -127,7 +78,6 @@
 <script setup lang="ts">
 import { refDebounced } from '@vueuse/core'
 import PageHeader from '~/components/Layout/PageHeader.vue'
-import DialogModal from '~/components/Dialog/Modal.vue'
 import DialogDelete from '~/components/Dialog/Delete.vue'
 import {
   useCategories,
@@ -140,10 +90,7 @@ useHead({ title: 'Gendut Grosir | Category' })
 const search = ref('')
 const debouncedSearch = refDebounced(search, 500)
 const page = ref(1)
-const modal = ref(false)
-const editModal = ref(false)
 const deleteModal = ref(false)
-const name = ref('')
 const id = ref('')
 
 const params = computed(() => ({
@@ -155,13 +102,8 @@ const { data, isPending } = useCategories(params)
 const items = computed(() => data.value?.items ?? [])
 const paginator = computed(() => data.value?.paginator ?? {})
 
-const { createCategory, updateCategory, deleteCategory } =
-  useCategoryMutations()
+const { deleteCategory } = useCategoryMutations()
 const toast = useToast()
-const mutationError = computed(() => {
-  const e: any = createCategory.error.value ?? updateCategory.error.value
-  return e?.data?.message ?? e?.message ?? ''
-})
 
 const columns = [
   { accessorKey: 'name', header: 'Nama' },
@@ -172,15 +114,6 @@ const columns = [
 watch([search], () => {
   page.value = 1
 })
-
-async function handleAddCategory() {
-  try {
-    await createCategory.mutateAsync(name.value)
-    toast.add({ title: 'Kategori ditambahkan', color: 'success' })
-    modal.value = false
-    name.value = ''
-  } catch {}
-}
 
 function openDeleteModal(categoryId: string) {
   id.value = categoryId
@@ -195,20 +128,5 @@ async function handleDelete() {
   } catch {
     toast.add({ title: 'Gagal menghapus', color: 'error' })
   }
-}
-
-function openEditModal(item: any) {
-  editModal.value = true
-  id.value = item?._id
-  name.value = item?.name
-}
-
-async function handleEdit() {
-  try {
-    await updateCategory.mutateAsync({ id: id.value, name: name.value })
-    toast.add({ title: 'Kategori diperbarui', color: 'success' })
-    editModal.value = false
-    name.value = ''
-  } catch {}
 }
 </script>

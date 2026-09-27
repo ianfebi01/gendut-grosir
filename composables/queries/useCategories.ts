@@ -13,14 +13,39 @@ export function useCategories(params: MaybeRefOrGetter<any>) {
   })
 }
 
+export function useCategoryDetail(id: MaybeRefOrGetter<string | undefined>) {
+  const { api } = useApi()
+  const qc = useQueryClient()
+  return useQuery({
+    queryKey: ['category', id],
+    queryFn: async () => {
+      const result: any = await api(`category/${toValue(id)}`)
+      return result?.data ?? result
+    },
+    // Show the row from an already-loaded list while the detail request runs
+    placeholderData: () =>
+      qc
+        .getQueriesData<{ items: any[] }>({ queryKey: ['categories'] })
+        .flatMap(([, d]) => d?.items ?? [])
+        .find((c) => c?._id === toValue(id)),
+    enabled: () => !!toValue(id),
+  })
+}
+
 export function useCategoryMutations() {
   const { api } = useApi()
   const qc = useQueryClient()
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['categories'] })
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['categories'] })
+    qc.invalidateQueries({ queryKey: ['category'] })
+  }
 
   const createCategory = useMutation({
     mutationFn: async (name: string) => {
-      const result: any = await api('category', { method: 'POST', body: { name } })
+      const result: any = await api('category', {
+        method: 'POST',
+        body: { name },
+      })
       return result?.data
     },
     onSuccess: invalidate,
@@ -38,7 +63,8 @@ export function useCategoryMutations() {
   })
 
   const deleteCategory = useMutation({
-    mutationFn: async (id: string) => api(`category/${id}`, { method: 'DELETE' }),
+    mutationFn: async (id: string) =>
+      api(`category/${id}`, { method: 'DELETE' }),
     onSuccess: invalidate,
   })
 
