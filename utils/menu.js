@@ -45,23 +45,17 @@ export const filterMenu = (role, menus, url, allows) => {
     return result
   }, [])
 
-  const getUrl = () => {
-    // get url if there's url not registered in menus.js
+  // Longest menu url the path starts with, so /customers/create -> customers
+  // and /library/product/1/edit -> product. '/' only matches exactly.
+  const activeItem = flattenArray
+    .filter(
+      (item) =>
+        item.url === url ||
+        (item.url !== '/' && url.startsWith(item.url + '/')),
+    )
+    .sort((a, b) => b.url.length - a.url.length)[0]
 
-    const arr = url.split('/')
-    const len = arr.length > 4 ? 4 : arr.length
-    let res = ''
-
-    for (let i = 1; i < len; i++) {
-      res = res + '/' + arr[i]
-    }
-
-    return res
-  }
-
-  const activeMenu = flattenArray.find((item) => item.url === getUrl())
-    ? flattenArray.find((item) => item.url === getUrl()).name
-    : 'Dashboard'
+  const activeMenu = activeItem ? activeItem.name : 'Dashboard'
 
   return { filteredMenu, activeMenu }
 }
