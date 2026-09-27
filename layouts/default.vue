@@ -1,13 +1,9 @@
 <template>
-  <v-app>
-    <v-main>
-      <NuxtPage />
-    </v-main>
-  </v-app>
+  <div class="min-h-screen bg-gray-100">
+    <slot />
+  </div>
 </template>
 
-<script>
-export default {
-  name: 'DefaultLayout',
-}
+<script setup lang="ts">
+defineOptions({ name: 'DefaultLayout' })
 </script>

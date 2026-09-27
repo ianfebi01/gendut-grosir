@@ -1,12 +1,9 @@
 <template>
-  <v-progress-circular
-    indeterminate
-    size="35"
-    color="#7F56D9"
-  ></v-progress-circular>
+  <div class="flex items-center justify-center">
+    <UIcon name="i-heroicons-arrow-path-20-solid" class="size-8 animate-spin text-primary-600" />
+  </div>
 </template>
-<script>
-export default {
-  name: 'Loading',
-}
+
+<script setup lang="ts">
+defineOptions({ name: 'Loading' })
 </script>

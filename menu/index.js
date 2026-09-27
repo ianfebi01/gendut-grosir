@@ -16,35 +16,35 @@
  *
  * Note :
  * For the `access` field, you should discuss with the backend engineers. Because it depends on the API you're using.
- * If you want to find more icons for the `icon` field, see https://materialdesignicons.com.
+ * If you want to find more icons for the `icon` field, see https://lucide.dev/icons.
  */
 export default [
   {
     title: 'Point Of Sales',
     name: 'pos',
     url: '/',
-    icon: '$shoping_bag',
+    icon: 'i-lucide-shopping-bag',
     access: ['super_admin', 'admin', 'customer'],
   },
   {
     title: 'Dashboard',
     name: 'dashboard',
     url: '/dashboard',
-    icon: '$dashboard',
+    icon: 'i-lucide-layout-dashboard',
     access: ['super_admin'],
   },
   {
     title: 'Orders',
     name: 'orders',
     url: '/orders',
-    icon: '$orders',
+    icon: 'i-lucide-clipboard-list',
     access: ['super_admin', 'admin'],
   },
   {
     title: 'Menu Library',
     name: 'library',
     url: '/library',
-    icon: '$menulibrary',
+    icon: 'i-lucide-library-big',
     access: ['super_admin', 'admin'],
     children: [
       {
@@ -74,14 +74,14 @@ export default [
     title: 'Customers',
     name: 'customers',
     url: '/customers',
-    icon: '$customers',
+    icon: 'i-lucide-users',
     access: ['super_admin'],
   },
   {
     title: 'User Role Management',
     url: '/role',
     name: 'role',
-    icon: '$role',
+    icon: 'i-lucide-shield-check',
     access: ['super_admin'],
   },
 ]

@@ -1,73 +1,53 @@
 <template>
-  <v-app-bar color="white" :elevation="0" :height="72">
-    <template v-slot:prepend>
-      <v-app-bar-nav-icon color="gray_700" @click.stop="toggleDrawer"></v-app-bar-nav-icon>
-    </template>
-
-      <v-row class="brand d-flex flex-column align-center justify-center" no-gutters>
-        <!-- Place your own logo here -->
-        <img src="/logo.svg" alt="Logo GG" />
-      </v-row>
-
-      <template v-slot:append>
-        <v-badge v-if="router == '/'" bordered color="primary" class="pr-2" :model-value="!!cart?.length" :content="cart?.length">
-          <v-btn v-if="router == '/'" icon="$cart" size="small" @click="openCart"/>
-        </v-badge>
+  <header
+    class="z-30 flex h-12 items-center gap-2 border-b border-gray-200 bg-white"
+  >
+    <UButton
+      variant="ghost"
+      color="neutral"
+      size="sm"
+      @click="$emit('toggleDrawer')"
+    >
+      <template #leading>
+        <UIcon name="i-heroicons-bars-3-20-solid" class="size-4 text-ink-600" />
       </template>
-  </v-app-bar>
+    </UButton>
+
+    <div v-if="pageTitle" class="flex items-center gap-2">
+      <UIcon name="i-lucide-chevron-right" class="text-ink-600" />
+      <span>{{ pageTitle }}</span>
+    </div>
+    <div class="grow"></div>
+    <div v-if="router === '/'" class="pr-2">
+      <UButton variant="ghost" color="primary" size="sm" @click="openCart">
+        <template #leading>
+          <UBadge
+            v-if="cart?.length"
+            :label="String(cart.length)"
+            color="primary"
+            size="xs"
+            class="absolute -right-1 -top-1"
+          />
+          <CartIcon class="size-5 text-primary-600" />
+        </template>
+      </UButton>
+    </div>
+  </header>
 </template>
 
-<script>
-import { useAppStore } from '@/stores/app'
-import { useUserStore } from '@/stores/user'
-import { useOrderStore } from '@/stores/order'
+<script setup lang="ts">
+import CartIcon from '@/components/CustomIcons/Cart.vue'
 
-export default {
-  name: 'HeaderApp',
+defineEmits(['toggleDrawer'])
+const route = useRoute()
+const orderStore = useOrderStore()
 
-  props: { logoutButton: { type: String, default: 'bottom' } },
-  data() {
-    return {
-      search: '',
-    }
-  },
-  computed: {
-    drawer() {
-      return useAppStore().drawer
-    },
-    user() {
-      return useUserStore().profile
-    },
-    width() {
-      return typeof window !== 'undefined' ? window.screen.width : 0
-    },
-    router() {
-      return this.$route.path
-    },
-    cart() {
-      return useOrderStore().cart
-    },
-  },
-  mounted() { },
-  methods: {
-    toggleDrawer() {
-      useAppStore().toggleDrawer()
-    },
-    openCart() {
-      useOrderStore().setModalCart(true)
-    },
-  },
+const router = computed(() => route.path)
+const cart = computed(() => orderStore.cart)
+// Set per page via definePageMeta({ title })
+const pageTitle = computed(() => route.meta.title)
+
+function openCart() {
+  orderStore.setModalCart(true)
 }
 </script>
-
-<style scoped lang="scss">
-@use '@/assets/scss/abstracts/mixins' as m;
-/*
-  If you don't need a global css, please don't add css in `assets` folder.
-  Use this method instead, with `scoped` props.
-  */
-
-.small-btn {
-  font-size: 12px;
-}
-</style>
