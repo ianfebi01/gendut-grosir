@@ -1,11 +1,18 @@
 <template>
-  <div class="mx-auto flex w-full max-w-[960px] flex-col items-center px-4 pb-10 pt-4">
+  <div
+    class="mx-auto flex w-full max-w-[960px] flex-col items-center px-4 pb-10 pt-4"
+  >
     <!-- Search + customer row -->
     <div class="flex w-full flex-wrap items-center gap-2">
       <div class="min-w-[200px] flex-1">
         <Search v-model="productQ" placeholder="Cari produk" />
       </div>
-      <UButton color="primary" variant="solid" :loading="usersPending" @click="modalCustomer = true">
+      <UButton
+        color="primary"
+        variant="solid"
+        :loading="usersPending"
+        @click="modalCustomer = true"
+      >
         <template #leading>
           <UIcon name="i-heroicons-users-20-solid" class="size-4" />
         </template>
@@ -14,15 +21,24 @@
     </div>
 
     <!-- Product grid -->
-    <div v-if="productsPending" class="flex h-[60vh] w-full items-center justify-center">
+    <div
+      v-if="productsPending"
+      class="flex h-[60vh] w-full items-center justify-center"
+    >
       <LoadingState />
     </div>
-    <div v-else-if="!products.length" class="flex h-[60vh] w-full items-center justify-center">
-      <EmptyState title="Produk tidak ditemukan" description="Coba kata kunci lain atau tambah produk baru." />
+    <div
+      v-else-if="!products.length"
+      class="flex h-[60vh] w-full items-center justify-center"
+    >
+      <EmptyState
+        title="Produk tidak ditemukan"
+        description="Coba kata kunci lain atau tambah produk baru."
+      />
     </div>
     <div v-else class="w-full py-6">
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        <div v-for="item in products" :key="item?._id || item?.id" class="h-[280px]">
+        <div v-for="item in products" :key="item?._id || item?.id">
           <ProductCard
             :item="item"
             :loading="false"
@@ -32,9 +48,16 @@
         </div>
       </div>
       <!-- Infinite scroll sentinel (replaces v-intersect) -->
-      <div ref="productSentinel" class="flex w-full items-center justify-center py-4">
-        <span v-if="productsFetchingNext" class="text-sm text-primary-600">Sedang memuat ...</span>
-        <span v-else-if="productsHasNext" class="text-sm text-gray-400">Scroll untuk memuat lagi</span>
+      <div
+        ref="productSentinel"
+        class="flex w-full items-center justify-center py-4"
+      >
+        <span v-if="productsFetchingNext" class="text-sm text-primary-600"
+          >Sedang memuat ...</span
+        >
+        <span v-else-if="productsHasNext" class="text-sm text-gray-400"
+          >Scroll untuk memuat lagi</span
+        >
       </div>
     </div>
 
@@ -46,7 +69,10 @@
       error-message=""
     >
       <template #icon>
-        <UIcon name="i-heroicons-users-20-solid" class="size-6 text-primary-600" />
+        <UIcon
+          name="i-heroicons-users-20-solid"
+          class="size-6 text-primary-600"
+        />
       </template>
       <template #content>
         <Search v-model="userQ" class="my-2" placeholder="Cari pelanggan" />
@@ -60,18 +86,32 @@
             :key="item?._id"
             type="button"
             class="flex w-full items-center gap-3 rounded-lg border p-2 text-left transition-colors"
-            :class="tempSelected?._id === item?._id ? 'border-primary-500 bg-primary-50' : 'border-gray-200'"
+            :class="
+              tempSelected?._id === item?._id
+                ? 'border-primary-500 bg-primary-50'
+                : 'border-gray-200'
+            "
             @click="tempSelected = item"
           >
+            -c
             <UAvatar :src="item?.profilePicture" :alt="item?.name" size="lg" />
             <span class="min-w-0 flex-1">
-              <span class="block truncate text-sm font-medium text-gray-900">{{ item?.name }}</span>
-              <span class="block text-xs text-gray-500">{{ formatCustomerStatus(item?.status) }}</span>
+              <span class="block truncate text-sm font-medium text-gray-900">{{
+                item?.name
+              }}</span>
+              <span class="block text-xs text-gray-500">{{
+                formatCustomerStatus(item?.status)
+              }}</span>
             </span>
           </button>
           <!-- User infinite scroll sentinel -->
-          <div ref="userSentinel" class="flex w-full items-center justify-center py-4">
-            <span v-if="usersFetchingNext" class="text-sm text-primary-600">Sedang memuat ...</span>
+          <div
+            ref="userSentinel"
+            class="flex w-full items-center justify-center py-4"
+          >
+            <span v-if="usersFetchingNext" class="text-sm text-primary-600"
+              >Sedang memuat ...</span
+            >
           </div>
         </div>
         <EmptyState
@@ -82,7 +122,13 @@
         />
       </template>
       <template #action>
-        <UButton block variant="outline" color="neutral" size="lg" @click="handleClickCancel">
+        <UButton
+          block
+          variant="outline"
+          color="neutral"
+          size="lg"
+          @click="handleClickCancel"
+        >
           Batal
         </UButton>
         <UButton block color="primary" size="lg" @click="handleClickSelectUser">
@@ -92,7 +138,11 @@
     </Modal>
 
     <!-- Cart modal (existing component) -->
-    <CartDialog v-model="cartOpen" :customer="activeCustomer" @successCheckout="showSummary = true" />
+    <CartDialog
+      v-model="cartOpen"
+      :customer="activeCustomer"
+      @successCheckout="showSummary = true"
+    />
 
     <!-- Summary modal -->
     <Modal
@@ -106,7 +156,10 @@
       @save="handleDownloadInvoice"
     >
       <template #icon>
-        <UIcon name="i-heroicons-check-circle-20-solid" class="size-6 text-green-600" />
+        <UIcon
+          name="i-heroicons-check-circle-20-solid"
+          class="size-6 text-green-600"
+        />
       </template>
       <template v-if="detailOrder && detailOrder.details" #content>
         <ul class="space-y-2">
@@ -115,17 +168,31 @@
             :key="item?._id"
             class="flex items-center gap-3 rounded-lg border border-gray-200 p-2"
           >
-            <UAvatar :src="item?.product?.image" :alt="item?.product?.name" size="lg" />
+            <UAvatar
+              :src="item?.product?.image"
+              :alt="item?.product?.name"
+              size="lg"
+            />
             <span class="min-w-0 flex-1">
-              <span class="block truncate text-sm font-medium text-gray-900">{{ item?.product?.name }}</span>
-              <span class="block text-xs text-gray-500">Jumlah : {{ item?.qty }}</span>
+              <span class="block truncate text-sm font-medium text-gray-900">{{
+                item?.product?.name
+              }}</span>
+              <span class="block text-xs text-gray-500"
+                >Jumlah : {{ item?.qty }}</span
+              >
             </span>
-            <span class="text-sm font-bold text-gray-900">{{ formatRupiah(item?.price) }}</span>
+            <span class="text-sm font-bold text-gray-900">{{
+              formatRupiah(item?.price)
+            }}</span>
           </li>
         </ul>
-        <div class="mt-2 flex items-center justify-between rounded-lg border border-gray-200 p-3">
+        <div
+          class="mt-2 flex items-center justify-between rounded-lg border border-gray-200 p-3"
+        >
           <span class="text-sm font-bold">Total</span>
-          <span class="text-sm font-bold text-gray-900">{{ formatRupiah(detailOrder.total) }}</span>
+          <span class="text-sm font-bold text-gray-900">{{
+            formatRupiah(detailOrder.total)
+          }}</span>
         </div>
       </template>
     </Modal>
@@ -210,7 +277,11 @@ const userSentinel = ref<HTMLElement | null>(null)
 useIntersectionObserver(
   productSentinel,
   ([entry]: any) => {
-    if (entry?.isIntersecting && productsHasNext.value && !productsFetchingNext.value) {
+    if (
+      entry?.isIntersecting &&
+      productsHasNext.value &&
+      !productsFetchingNext.value
+    ) {
       productsFetchNext()
     }
   },
