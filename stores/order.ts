@@ -1,146 +1,85 @@
 import { defineStore } from 'pinia'
-import { useProductStore } from './product'
 
+// UI-only store: cart state. Products/orders are fetched via Vue Query.
 export const useOrderStore = defineStore('order', {
   state: () => ({
     cart: [] as any[],
     modalCart: false,
-    errorMessage: '' as any,
+    cartError: '' as string,
     detailOrder: {} as Record<string, any>,
-    order: [] as any[],
-    paginator: {} as Record<string, any>,
-    invoice: '',
   }),
+  getters: {
+    cartCount: (state) => state.cart.reduce((sum: number, i: any) => sum + (i.qty || 0), 0),
+    cartTotal: (state) =>
+      state.cart.reduce((sum: number, i: any) => sum + (i.qty || 0) * (i.price || 0), 0),
+  },
   actions: {
     setCart(cart: any[]) {
       this.cart = cart
     },
+    clearCart() {
+      this.cart = []
+    },
     setModalCart(value: boolean) {
       this.modalCart = value
     },
-    addCart(payload: any) {
+    setDetailOrder(order: Record<string, any>) {
+      this.detailOrder = order
+    },
+    clearCartError() {
+      this.cartError = ''
+    },
+    addCart(payload: any, stock?: number) {
       const tmp = JSON.parse(JSON.stringify(this.cart))
       const index = tmp.findIndex((item: any) => item._id === payload._id)
-      const productStore = useProductStore()
-      const product = JSON.parse(JSON.stringify(productStore.product))
-      const productIndex = product.findIndex((item: any) => item._id === payload._id)
-      if (index != -1) {
-        if (product[productIndex].stock > tmp[index].qty) {
+      const maxStock = stock ?? payload.stock ?? Infinity
+      if (index !== -1) {
+        if (maxStock > tmp[index].qty) {
           tmp[index].qty = tmp[index].qty + 1
           this.cart = tmp
+          this.cartError = ''
         } else {
-          this.errorMessage = `Tidak bisa menambahkan lebih dari ${product[productIndex].stock} ${product[productIndex].name}`
+          this.cartError = `Tidak bisa menambahkan lebih dari ${maxStock} ${payload.name ?? ''}`
         }
       } else {
-        this.cart.push(payload)
+        tmp.push(payload)
+        this.cart = tmp
+        this.cartError = ''
       }
     },
-    plus(id: string) {
+    plus(id: string, stock?: number) {
       const tmp = JSON.parse(JSON.stringify(this.cart))
       const index = tmp.findIndex((item: any) => item._id === id)
-      const productStore = useProductStore()
-      const product = JSON.parse(JSON.stringify(productStore.product))
-      const productIndex = product.findIndex((item: any) => item._id === id)
-      if (index != -1) {
-        if (product[productIndex].stock > tmp[index].qty) {
+      if (index !== -1) {
+        const maxStock = stock ?? tmp[index].stock ?? Infinity
+        if (maxStock > tmp[index].qty) {
           tmp[index].qty = tmp[index].qty + 1
           this.cart = tmp
+          this.cartError = ''
         } else {
-          this.errorMessage = `Tidak bisa menambahkan lebih dari ${product[productIndex].stock} ${product[productIndex].name}`
+          this.cartError = `Tidak bisa menambahkan lebih dari ${maxStock} ${tmp[index].name ?? ''}`
         }
       }
     },
     minus(id: string) {
       const tmp = JSON.parse(JSON.stringify(this.cart))
       const index = tmp.findIndex((item: any) => item._id === id)
-      if (index != -1) {
+      if (index !== -1) {
         if (tmp[index].qty > 1) {
           tmp[index].qty = tmp[index].qty - 1
           this.cart = tmp
-        } else if (tmp[index].qty === 1) {
+        } else {
           this.cart = tmp.filter((item: any) => item._id !== id)
         }
       }
     },
-    delete(id: string) {
-      const tmp = JSON.parse(JSON.stringify(this.cart))
-      this.cart = tmp.filter((item: any) => item._id !== id)
+    remove(id: string) {
+      this.cart = this.cart.filter((item: any) => item._id !== id)
     },
-    async postOrder(body: any) {
-      const { api } = useApi()
-      try {
-        const result: any = await api('order', { method: 'POST', body: { ...body } })
-        this.detailOrder = result?.data
-        return true
-      } catch (err: any) {
-        this.errorMessage = err?.data?.message ?? err?.message ?? err
-        return false
-      }
-    },
-    async changeStatusOrder(params: string) {
-      const { api } = useApi()
-      try {
-        const result: any = await api(`changeStatusOrder/${params}`, { method: 'PUT' })
-        const tmp = JSON.parse(JSON.stringify(this.order))
-        const index = tmp.findIndex((item: any) => item._id === result?.data?._id)
-        if (index != -1) {
-          tmp[index] = result?.data
-        }
-        this.order = tmp
-        return true
-      } catch (err: any) {
-        this.errorMessage = err?.data?.message ?? err?.message ?? err
-        return false
-      }
-    },
-    async cancelOrder(params: string) {
-      const { api } = useApi()
-      try {
-        const result: any = await api(`cancelOrder/${params}`, { method: 'PUT' })
-        const tmp = JSON.parse(JSON.stringify(this.order))
-        const index = tmp.findIndex((item: any) => item._id === result?.data?._id)
-        if (index != -1) {
-          tmp[index] = result?.data
-        }
-        this.order = tmp
-        return true
-      } catch (err: any) {
-        this.errorMessage = err?.data?.message ?? err?.message ?? err
-        return false
-      }
-    },
-    async getOrder(params: any) {
-      const { api } = useApi()
-      try {
-        const result: any = await api('order', { params })
-        this.order = result?.data?.data
-        this.paginator = result?.data?.paginator
-        return true
-      } catch (err) {
-        this.errorMessage = err
-        return false
-      }
-    },
-    async downloadInvoice(params: any) {
-      const { api } = useApi()
-      try {
-        const response: any = await api('order/download', {
-          params: { ...params },
-        })
-        // If backend returns binary, handle blob download
-        if (response instanceof Blob) {
-          const FILE = window.URL.createObjectURL(response)
-          const docUrl = document.createElement('a')
-          docUrl.href = FILE
-          docUrl.setAttribute('download', 'invoice.pdf')
-          document.body.appendChild(docUrl)
-          docUrl.click()
-        }
-        return true
-      } catch (err) {
-        this.errorMessage = err
-        return false
-      }
+    applyOrderSuccess(payload: any[]) {
+      const product = JSON.parse(JSON.stringify(this.cart))
+      void product
+      void payload
     },
   },
 })
