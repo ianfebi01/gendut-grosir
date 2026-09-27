@@ -1,6 +1,6 @@
 <template>
   <header
-    class="z-30 flex h-12 items-center gap-2 border-b border-gray-200 bg-white"
+    class="z-30 flex h-14 items-center gap-2 border-b border-gray-200 bg-white"
   >
     <UButton
       variant="ghost"
@@ -19,16 +19,21 @@
     </div>
     <div class="grow"></div>
     <div v-if="router === '/'" class="pr-2">
-      <UButton variant="ghost" color="primary" size="sm" @click="openCart">
+      <UButton variant="link" color="primary" size="sm" @click="openCart">
         <template #leading>
-          <UBadge
-            v-if="cart?.length"
-            :label="String(cart.length)"
-            color="primary"
-            size="xs"
-            class="absolute -right-1 -top-1"
-          />
-          <CartIcon class="size-5 text-primary-600" />
+          <div class="relative">
+            <UBadge
+              v-if="cart?.length"
+              :label="String(cart.length)"
+              color="primary"
+              size="xs"
+              class="absolute left-full bottom-full translate-y-0.5 size-4 flex items-center justify-center"
+            />
+            <UIcon
+              name="i-lucide-shopping-cart"
+              class="size-3.5 text-ink-600"
+            />
+          </div>
         </template>
       </UButton>
     </div>
@@ -36,8 +41,6 @@
 </template>
 
 <script setup lang="ts">
-import CartIcon from '@/components/CustomIcons/Cart.vue'
-
 defineEmits(['toggleDrawer'])
 const route = useRoute()
 const orderStore = useOrderStore()
