@@ -37,7 +37,7 @@
       />
     </div>
     <div v-else class="w-full py-6">
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
         <div v-for="item in products" :key="item?._id || item?.id">
           <ProductCard
             :item="item"
@@ -137,11 +137,18 @@
       </template>
     </Modal>
 
-    <!-- Cart modal (existing component) -->
+    <!-- Cart: right-hand layout card on lg, slide-over below lg -->
+    <Teleport v-if="isLg" defer to="#layout-aside">
+      <CartPanel
+        :customer="activeCustomer"
+        @success-checkout="showSummary = true"
+      />
+    </Teleport>
     <CartDialog
+      v-else
       v-model="cartOpen"
       :customer="activeCustomer"
-      @successCheckout="showSummary = true"
+      @success-checkout="showSummary = true"
     />
 
     <!-- Summary modal -->
@@ -204,15 +211,16 @@ import Search from '~/components/Input/Search.vue'
 import ProductCard from '~/components/Card/Product.vue'
 import Modal from '~/components/Dialog/Modal.vue'
 import CartDialog from '~/components/Dialog/Cart.vue'
+import CartPanel from '~/components/Cart/Panel.vue'
 import EmptyState from '~/components/Layout/Empty.vue'
 import LoadingState from '~/components/Layout/Loading.vue'
 import { useInfiniteProducts } from '@/composables/queries/useProducts'
 import { useInfiniteUsers } from '@/composables/queries/useUsers'
 import { useOrderMutations } from '@/composables/queries/useOrders'
 import { formatRupiah } from '~/utils/formatRupiah'
-import { useIntersectionObserver } from '@vueuse/core'
+import { useIntersectionObserver, useMediaQuery } from '@vueuse/core'
 
-definePageMeta({ layout: 'dashboard', title: 'Point Of Sales' })
+definePageMeta({ layout: 'dashboard', title: 'Point Of Sales', aside: true })
 
 const toast = useToast()
 const userStore = useUserStore()
@@ -239,6 +247,11 @@ const effectiveStatus: any = computed(
 const cartOpen = computed({
   get: () => orderStore.modalCart,
   set: (v: boolean) => orderStore.setModalCart(v),
+})
+// Matches Tailwind's lg breakpoint, where the cart lives in the layout aside
+const isLg = useMediaQuery('(min-width: 1024px)')
+watch(isLg, (lg) => {
+  if (lg) cartOpen.value = false
 })
 const detailOrder: any = computed(() => orderStore.detailOrder)
 

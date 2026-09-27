@@ -142,7 +142,6 @@ body {
 .text-error {
   color: var(--ui-error);
   font-size: 12px;
-  position: absolute;
 }
 
 .border-soft {

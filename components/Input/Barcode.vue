@@ -6,9 +6,9 @@
       :placeholder="placeholder"
       :loading="loading"
       size="md"
+      variant="outline"
       class="w-full"
-      :ui="{ base: 'bg-white' }"
-      icon="i-heroicons-barcode"
+      icon="i-lucide-scan-barcode"
       @update:model-value="$emit('update:modelValue', $event)"
       @keyup.enter="$emit('handleBarcodeinput', modelValue)"
     />

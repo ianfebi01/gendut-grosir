@@ -18,7 +18,7 @@
       <span>{{ pageTitle }}</span>
     </div>
     <div class="grow"></div>
-    <div v-if="router === '/'" class="pr-2">
+    <div v-if="router === '/'" class="pr-2 lg:hidden">
       <UButton variant="link" color="primary" size="sm" @click="openCart">
         <template #leading>
           <div class="relative">
