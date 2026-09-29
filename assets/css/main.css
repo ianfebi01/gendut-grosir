@@ -203,3 +203,52 @@ body {
     transition: none;
   }
 }
+
+/* ------------------------------------------------------------------
+   Charts (Unovis) — recessive axes/grid, text in ink tokens, tooltip
+   rendered by Unovis outside component scope, so styled globally.
+------------------------------------------------------------------- */
+.viz-root {
+  --vis-font-family: var(--font-sans);
+  --vis-axis-grid-color: var(--color-ink-200);
+  --vis-axis-tick-label-color: var(--color-ink-500);
+  --vis-axis-tick-label-font-size: 12px;
+  --vis-crosshair-line-stroke-color: var(--color-ink-400);
+  --vis-crosshair-line-stroke-width: 1px;
+  --vis-legend-label-color: var(--color-ink-700);
+  --vis-legend-label-font-size: 13px;
+  --vis-legend-bullet-size: 10px;
+  --vis-tooltip-background-color: #ffffff;
+  --vis-tooltip-border-color: var(--color-ink-300);
+  --vis-tooltip-text-color: var(--color-ink-900);
+  --vis-tooltip-padding: 8px 10px;
+  --vis-tooltip-border-radius: 8px;
+  --vis-tooltip-shadow-color: rgb(20 20 20 / 0.08);
+}
+.viz-tt {
+  font-size: 12px;
+  line-height: 1.4;
+  min-width: 160px;
+}
+.viz-tt-title {
+  color: var(--color-ink-500);
+  margin-bottom: 4px;
+}
+.viz-tt-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.viz-tt-key {
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+  flex: none;
+}
+.viz-tt-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.viz-tt-label {
+  color: var(--color-ink-500);
+}

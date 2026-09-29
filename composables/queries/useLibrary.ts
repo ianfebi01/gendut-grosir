@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import {
+  keepPreviousData,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/vue-query'
 import { useGetAnalytic } from '~/api/generated/analytics/analytics'
 import type {
   GetAnalyticParams,
@@ -26,7 +30,11 @@ import {
 
 export function useAnalytics(params: MaybeRefOrGetter<GetAnalyticParams>) {
   return useGetAnalytic(params, {
-    query: { select: (result) => result?.data ?? [] },
+    query: {
+      select: (result) => result?.data ?? [],
+      // Keep the previous range on screen while a new one loads
+      placeholderData: keepPreviousData,
+    },
   })
 }
 

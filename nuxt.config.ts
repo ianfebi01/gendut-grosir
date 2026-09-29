@@ -43,7 +43,13 @@ export default defineNuxtConfig({
       // Pre-bundle deps that are only imported by lazily loaded pages.
       // Otherwise Vite discovers them on first navigation, re-optimizes, and the
       // in-flight import fails ("Failed to fetch dynamically imported module").
-      include: ['vue-chartjs', 'chart.js', 'dayjs', '@vueuse/core', '@tanstack/vue-query'],
+      include: [
+        'dayjs',
+        '@vueuse/core',
+        '@tanstack/vue-query',
+        '@unovis/vue',
+        '@unovis/ts',
+      ],
     },
   },
 
