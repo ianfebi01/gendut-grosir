@@ -26,6 +26,15 @@
         <template #role-cell="{ row }">
           <span>{{ row.original?.role?.title ?? '-' }}</span>
         </template>
+        <template #activate-cell="{ row }">
+          <USwitch
+            :model-value="isActive(row.original)"
+            :loading="togglingId === row.original?._id"
+            :disabled="!!togglingId"
+            :aria-label="`Aktifkan akun ${row.original?.name ?? ''}`"
+            @update:model-value="toggleActivate(row.original, $event)"
+          />
+        </template>
         <template #action-cell="{ row }">
           <div class="flex gap-1">
             <UButton
@@ -68,6 +77,7 @@ import { refDebounced } from '@vueuse/core'
 import PageHeader from '~/components/Layout/PageHeader.vue'
 import DialogDelete from '~/components/Dialog/Delete.vue'
 import { useUsers, useUserMutations } from '@/composables/queries/useUsers'
+import type { UserWithRole } from '~/api/generated/gendutGrosirAPI.schemas'
 
 definePageMeta({ layout: 'dashboard', title: 'Customer' })
 useHead({ title: 'Gendut Grosir | Customers' })
@@ -87,7 +97,7 @@ const { data, isPending } = useUsers(params)
 const items = computed(() => data.value?.items ?? [])
 const paginator = computed(() => data.value?.paginator ?? {})
 
-const { deleteUser } = useUserMutations()
+const { deleteUser, updateUser } = useUserMutations()
 const toast = useToast()
 
 const columns = [
@@ -96,6 +106,7 @@ const columns = [
   { accessorKey: 'email', header: 'Email' },
   { id: 'role', header: 'Role' },
   { id: 'status', header: 'Status' },
+  { id: 'activate', header: 'Aktif' },
   { id: 'action', header: 'Action' },
 ]
 
@@ -103,11 +114,51 @@ watch([search], () => {
   page.value = 1
 })
 
-function statusLabel(s: string) {
+function statusLabel(s?: string) {
   return s === 'retail' ? 'Retail' : s === 'wholesaler' ? 'Sales' : '-'
 }
 
-function openDeleteModal(userId: string) {
+// Optimistic value per user until the refetched list catches up
+const activeOverride = ref<Record<string, boolean>>({})
+const togglingId = ref('')
+
+function isActive(user: UserWithRole) {
+  return activeOverride.value[user._id ?? ''] ?? !!user.activate
+}
+
+async function toggleActivate(user: UserWithRole, activate: boolean) {
+  if (!user._id) return
+  togglingId.value = user._id
+  activeOverride.value[user._id] = activate
+  try {
+    // editUser resets status to retail when it is omitted, so send it along
+    await updateUser.mutateAsync({
+      id: user._id,
+      activate,
+      status: user.status,
+    })
+    toast.add({
+      title: activate ? 'Akun diaktifkan' : 'Akun dinonaktifkan',
+      color: 'success',
+    })
+  } catch (e: any) {
+    activeOverride.value[user._id] = !activate
+    toast.add({
+      title: 'Gagal mengubah status akun',
+      description: e?.data?.message ?? e?.message ?? '',
+      color: 'error',
+    })
+  } finally {
+    togglingId.value = ''
+  }
+}
+
+// Drop overrides once fresh data arrives
+watch(items, () => {
+  activeOverride.value = {}
+})
+
+function openDeleteModal(userId = '') {
   id.value = userId
   deleteModal.value = true
 }

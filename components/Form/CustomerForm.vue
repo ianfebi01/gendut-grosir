@@ -108,10 +108,37 @@
         <div>
           <h2 class="section-title">Tipe Customer</h2>
           <p class="section-desc">
-            Menentukan harga yang berlaku: harga retail atau harga sales.
+            Role menentukan hak akses; status menentukan harga yang berlaku:
+            harga retail atau harga sales.
           </p>
         </div>
         <div class="grid gap-4 sm:grid-cols-2">
+          <UFormField
+            label="Role"
+            required
+            :error="touched.role && !form.role ? 'Role wajib diisi' : undefined"
+          >
+            <USelect
+              v-model="form.role"
+              :items="roleItems"
+              value-key="value"
+              label-key="label"
+              placeholder="Pilih role"
+              :loading="rolesPending"
+              class="w-full"
+              @update:open="(open: boolean) => !open && (touched.role = true)"
+            />
+          </UFormField>
+          <UFormField
+            label="Akun Aktif"
+            hint="Hanya akun aktif yang bisa login"
+            class="sm:col-span-2"
+          >
+            <USwitch
+              v-model="form.activate"
+              :label="form.activate ? 'Aktif' : 'Nonaktif'"
+            />
+          </UFormField>
           <UFormField label="Status">
             <USelect
               v-model="form.status"
@@ -225,7 +252,10 @@
 
 <script setup lang="ts">
 import { useUserMutations } from '@/composables/queries/useUsers'
-import { useUploadImageMutations } from '@/composables/queries/useLibrary'
+import {
+  useRoles,
+  useUploadImageMutations,
+} from '@/composables/queries/useLibrary'
 
 defineOptions({ name: 'CustomerForm' })
 
@@ -239,13 +269,16 @@ const form = reactive({
   _id: '',
   name: '',
   email: '',
+  role: '',
   status: '',
+  activate: false,
   password: '',
   confirmPassword: '',
 })
 const touched = reactive({
   name: false,
   email: false,
+  role: false,
   password: false,
   confirmPassword: false,
 })
@@ -262,11 +295,30 @@ watch(
     form._id = item._id ?? ''
     form.name = item.name ?? ''
     form.email = item.email ?? ''
+    form.role = item.role?._id ?? item.role ?? ''
     form.status = item.status ?? ''
+    form.activate = !!item.activate
     form.password = ''
     form.confirmPassword = ''
     imageFile.value = null
     imagePreview.value = item.profilePicture ?? ''
+  },
+  { immediate: true },
+)
+
+const { data: roles, isPending: rolesPending } = useRoles({ limit: 100 })
+const roleItems = computed(() =>
+  (roles.value ?? []).map((r) => ({
+    label: r.title ?? r.roleName,
+    value: r._id,
+  })),
+)
+// New customers default to the "customer" role when it exists
+watch(
+  roles,
+  (list) => {
+    if (isEdit.value || form.role) return
+    form.role = list?.find((r) => r.roleName === 'customer')?._id ?? ''
   },
   { immediate: true },
 )
@@ -292,7 +344,8 @@ const mutationError = computed(() => {
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const valid = computed(() => {
-  const base = form.name.trim().length >= 3 && emailRe.test(form.email)
+  const base =
+    form.name.trim().length >= 3 && emailRe.test(form.email) && !!form.role
   if (isEdit.value) {
     return base && (!form.password || form.password.length >= 6)
   }
@@ -317,7 +370,7 @@ async function uploadImageIfNeeded(fallback: string) {
 }
 
 async function handleSave() {
-  touched.name = touched.email = touched.password = true
+  touched.name = touched.email = touched.role = touched.password = true
   if (!isEdit.value) touched.confirmPassword = true
   if (!valid.value) return
   try {
@@ -329,7 +382,9 @@ async function handleSave() {
         id: form._id,
         name: form.name,
         email: form.email,
+        role: form.role,
         status: form.status,
+        activate: form.activate,
         profilePicture,
       }
       if (form.password) body.password = form.password
@@ -340,7 +395,9 @@ async function handleSave() {
       await createUser.mutateAsync({
         name: form.name,
         email: form.email,
+        role: form.role,
         status: form.status,
+        activate: form.activate,
         password: form.password,
         profilePicture,
       })
