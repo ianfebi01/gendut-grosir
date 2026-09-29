@@ -71,7 +71,8 @@
         <UAvatar
           :src="user.profilePicture"
           size="md"
-          class="rounded-full bg-gray-100"
+          :alt="user.name"
+          class="rounded-full bg-gray-100 border"
         />
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-bold">
