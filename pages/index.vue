@@ -329,9 +329,6 @@ watch(
 // ---- Actions ----
 function handleClickSelect(item: any) {
   orderStore.addCart({ ...item, qty: 1 })
-  if (!orderStore.cartError) {
-    toast.add({ title: 'Sukses menambahkan ke keranjang', color: 'success' })
-  }
 }
 
 function handleClickCancel() {
