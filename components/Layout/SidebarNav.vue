@@ -132,10 +132,7 @@ async function go(url: string) {
 }
 
 async function handleSignout() {
-  userStore.clearProfile()
-  const accessToken = useCookie('access_token')
-  accessToken.value = null
-  await navigateTo('/login')
+  await logout()
 }
 
 // Auto-expand the group containing the current route
