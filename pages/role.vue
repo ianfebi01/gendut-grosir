@@ -11,73 +11,26 @@
       <UCard>
         <h1 class="text-[24px] font-normal text-gray-900">Kelola Hak Akses</h1>
         <div class="mt-6 space-y-6">
-          <template v-for="item in roles" :key="item?._id || item?.id">
+          <template v-for="item in roles" :key="item._id">
             <p class="font-medium">{{ item.title }}</p>
             <div
               class="mb-4 mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
             >
               <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Point Of Sales"
-                value="pos"
-                disabled
-                @change="updateRole(item?._id, roleMap[item.roleName])"
-              />
-              <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Library"
-                value="library"
-                :disabled="item.roleName === 'super_admin' || updatePending"
-                @change="updateRole(item?._id, roleMap[item.roleName])"
-              />
-              <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Orders"
-                value="orders"
-                :disabled="item.roleName === 'super_admin' || updatePending"
-                @change="updateRole(item?._id, roleMap[item.roleName])"
-              />
-              <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Dashboard"
-                value="dashboard"
-                :disabled="item.roleName === 'super_admin' || updatePending"
-                @change="updateRole(item?._id, roleMap[item.roleName])"
-              />
-              <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Role Management"
-                value="role"
-                :disabled="item.roleName === 'super_admin' || updatePending"
-                @change="updateRole(item?._id, roleMap[item.roleName])"
-              />
-              <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Customers"
-                value="customers"
-                :disabled="item.roleName === 'super_admin' || updatePending"
-                @change="updateRole(item?._id, roleMap[item.roleName])"
-              />
-              <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Product"
-                value="product"
-                :disabled="item.roleName === 'super_admin' || updatePending"
-                @change="updateRole(item?._id, roleMap[item.roleName])"
-              />
-              <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Category"
-                value="category"
-                :disabled="item.roleName === 'super_admin' || updatePending"
-                @change="updateRole(item?._id, roleMap[item.roleName])"
-              />
-              <UCheckbox
-                v-model="roleMap[item.roleName]"
-                label="Stock Opname"
-                value="stockOpname"
-                :disabled="item.roleName === 'super_admin' || updatePending"
-                @change="updateRole(item?._id, roleMap[item.roleName])"
+                v-for="feature in features"
+                :key="feature.value"
+                :model-value="
+                  roleMap[item.roleName ?? '']?.includes(feature.value)
+                "
+                :label="feature.label"
+                :disabled="
+                  feature.value === 'pos' ||
+                  item.roleName === 'super_admin' ||
+                  updatePending
+                "
+                @update:model-value="
+                  toggleAllow(item, feature.value, $event === true)
+                "
               />
             </div>
           </template>
@@ -94,6 +47,7 @@
 <script setup lang="ts">
 import PageHeader from '~/components/Layout/PageHeader.vue'
 import { useRoles, useRoleMutations } from '@/composables/queries/useLibrary'
+import type { Role } from '~/api/generated/gendutGrosirAPI.schemas'
 
 definePageMeta({ layout: 'dashboard', title: 'Role' })
 
@@ -101,18 +55,50 @@ const { data, isPending } = useRoles({})
 const { updateRole: updateRoleMutation } = useRoleMutations()
 const updatePending = computed(() => updateRoleMutation.isPending.value)
 
-const roles = computed<any[]>(() => (data.value as any[]) ?? [])
-const roleMap = ref<Record<string, any[]>>({ super_admin: [] })
+const toast = useToast()
+
+const features = [
+  { label: 'Point Of Sales', value: 'pos' },
+  { label: 'Library', value: 'library' },
+  { label: 'Orders', value: 'orders' },
+  { label: 'Dashboard', value: 'dashboard' },
+  { label: 'Role Management', value: 'role' },
+  { label: 'Customers', value: 'customers' },
+  { label: 'Product', value: 'product' },
+  { label: 'Category', value: 'category' },
+  { label: 'Stock Opname', value: 'stockOpname' },
+]
+
+const roles = computed(() => data.value ?? [])
+const roleMap = ref<Record<string, string[]>>({ super_admin: [] })
 
 watch(
   roles,
   (list) => {
-    for (const item of list) roleMap.value[item.roleName] = item.allows ?? []
+    for (const item of list) {
+      if (item.roleName) roleMap.value[item.roleName] = [...(item.allows ?? [])]
+    }
   },
   { immediate: true },
 )
 
-async function updateRole(id: string, allows: any[]) {
-  await updateRoleMutation.mutateAsync({ id, allows })
+async function toggleAllow(item: Role, feature: string, checked: boolean) {
+  if (!item._id || !item.roleName) return
+  const previous = roleMap.value[item.roleName] ?? []
+  const allows = checked
+    ? [...new Set([...previous, feature])]
+    : previous.filter((allow) => allow !== feature)
+
+  roleMap.value[item.roleName] = allows
+  try {
+    await updateRoleMutation.mutateAsync({ id: item._id, allows })
+  } catch (e: any) {
+    roleMap.value[item.roleName] = previous
+    toast.add({
+      title: 'Gagal memperbarui role',
+      description: e?.data?.message ?? e?.message ?? '',
+      color: 'error',
+    })
+  }
 }
 </script>
