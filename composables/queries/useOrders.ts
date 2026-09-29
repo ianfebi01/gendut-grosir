@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { getGetAnalyticQueryKey } from '~/api/generated/analytics/analytics'
 import type {
   GetOrderParams,
   OrderInput,
@@ -25,8 +26,11 @@ export function useOrders(params: MaybeRefOrGetter<GetOrderParams>) {
 
 export function useOrderMutations() {
   const qc = useQueryClient()
-  const invalidateOrders = () =>
+  // The dashboard aggregates orders, so any order change refreshes it too
+  const invalidateOrders = () => {
     qc.invalidateQueries({ queryKey: getGetOrderQueryKey() })
+    qc.invalidateQueries({ queryKey: getGetAnalyticQueryKey() })
+  }
 
   const createOrder = useMutation({
     mutationFn: async (body: OrderInput) => (await postOrder(body))?.data,

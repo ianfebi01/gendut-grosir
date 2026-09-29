@@ -114,10 +114,54 @@
         icon="i-lucide-check"
         :disabled="!datas.length"
         :loading="createOrder.isPending.value"
-        @click="handleCheckout"
+        @click="openConfirm"
         >Beli</UButton
       >
     </div>
+
+    <DialogModal
+      v-model="confirmOpen"
+      title="Konfirmasi Pembelian"
+      subtitle="Pastikan pesanan sudah benar sebelum diproses."
+      save-text="Ya, Beli"
+      :loading="createOrder.isPending.value"
+      :error-message="confirmError"
+      @save="handleCheckout"
+    >
+      <template #icon>
+        <UIcon name="i-lucide-shopping-cart" class="size-6 text-ink-900" />
+      </template>
+      <template #content>
+        <dl class="space-y-2 text-sm">
+          <div class="flex justify-between gap-4">
+            <dt class="text-ink-600">Pelanggan</dt>
+            <dd class="truncate font-medium text-ink-900">
+              {{ customer?.name || 'Umum' }}
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-ink-600">Harga</dt>
+            <dd class="font-medium text-ink-900">
+              {{ customer?.status === 'retail' ? 'Retail' : 'Sales' }}
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-ink-600">Jumlah item</dt>
+            <dd class="font-medium text-ink-900 tabular-nums">
+              {{ totalQty }} pcs ({{ datas.length }} produk)
+            </dd>
+          </div>
+          <div
+            class="flex justify-between gap-4 border-t border-(--ui-border-muted) pt-2"
+          >
+            <dt class="text-ink-600">Total</dt>
+            <dd class="text-base font-semibold text-ink-900 tabular-nums">
+              {{ formatRupiah(total) || 'Rp 0' }}
+            </dd>
+          </div>
+        </dl>
+      </template>
+    </DialogModal>
   </div>
 </template>
 
@@ -126,6 +170,7 @@ import { debounce } from '~/utils/debounce'
 import { formatRupiah } from '~/utils/formatRupiah'
 import Barcode from '~/components/Input/Barcode.vue'
 import LayoutEmpty from '~/components/Layout/Empty.vue'
+import DialogModal from '~/components/Dialog/Modal.vue'
 import { useOrderMutations } from '@/composables/queries/useOrders'
 import { getProductByBarcode } from '~/api/generated/products/products'
 
@@ -173,6 +218,15 @@ function imageSrc(raw: string) {
   }
 }
 
+const confirmOpen = ref(false)
+const confirmError = ref('')
+
+function openConfirm() {
+  if (!datas.value.length) return
+  confirmError.value = ''
+  confirmOpen.value = true
+}
+
 async function handleCheckout() {
   const details = datas.value.map((item: any) => ({
     product: item?._id,
@@ -187,9 +241,12 @@ async function handleCheckout() {
     })
     orderStore.setCart([])
     orderStore.setDetailOrder(result ?? {})
+    // Close before the parent opens its "Order Sukses" modal
+    confirmOpen.value = false
     emit('successCheckout')
   } catch (e: any) {
     orderStore.cartError = e?.data?.message ?? e?.message ?? 'Gagal checkout'
+    confirmError.value = orderStore.cartError
     toast.add({
       title: 'Gagal checkout',
       description: orderStore.cartError,
