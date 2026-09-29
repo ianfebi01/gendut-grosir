@@ -1,55 +1,49 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import type {
+  GetOrderParams,
+  OrderInput,
+} from '~/api/generated/gendutGrosirAPI.schemas'
+import {
+  cancelOrder as cancelOrderRequest,
+  changeStatusOrder,
+  getGetOrderQueryKey,
+  postOrder,
+  useGetOrder,
+} from '~/api/generated/orders/orders'
+import { getGetProductQueryKey } from '~/api/generated/products/products'
 
-async function fetchOrders(params: any) {
-  const { api } = useApi()
-  const result: any = await api('order', { params })
-  return {
-    items: result?.data?.data ?? [],
-    paginator: result?.data?.paginator ?? {},
-  }
-}
-
-export function useOrders(params: MaybeRefOrGetter<any>) {
-  return useQuery({
-    queryKey: ['orders', params],
-    queryFn: () => fetchOrders(toValue(params)),
+export function useOrders(params: MaybeRefOrGetter<GetOrderParams>) {
+  return useGetOrder(params, {
+    query: {
+      select: (result) => ({
+        items: result?.data?.data ?? [],
+        paginator: result?.data?.paginator ?? {},
+      }),
+    },
   })
 }
 
 export function useOrderMutations() {
-  const { api } = useApi()
   const qc = useQueryClient()
+  const invalidateOrders = () =>
+    qc.invalidateQueries({ queryKey: getGetOrderQueryKey() })
 
   const createOrder = useMutation({
-    mutationFn: async (body: any) => {
-      const result: any = await api('order', {
-        method: 'POST',
-        body: { ...body },
-      })
-      return result?.data
-    },
+    mutationFn: async (body: OrderInput) => (await postOrder(body))?.data,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['orders'] })
-      qc.invalidateQueries({ queryKey: ['products'] })
+      invalidateOrders()
+      qc.invalidateQueries({ queryKey: getGetProductQueryKey() })
     },
   })
 
   const changeStatus = useMutation({
-    mutationFn: async (id: string) => {
-      const result: any = await api(`changeStatusOrder/${id}`, {
-        method: 'PUT',
-      })
-      return result?.data
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['orders'] }),
+    mutationFn: async (id: string) => (await changeStatusOrder(id))?.data,
+    onSuccess: invalidateOrders,
   })
 
   const cancelOrder = useMutation({
-    mutationFn: async (id: string) => {
-      const result: any = await api(`cancelOrder/${id}`, { method: 'PUT' })
-      return result?.data
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['orders'] }),
+    mutationFn: async (id: string) => (await cancelOrderRequest(id))?.data,
+    onSuccess: invalidateOrders,
   })
 
   return { createOrder, changeStatus, cancelOrder }

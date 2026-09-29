@@ -127,6 +127,7 @@ import { formatRupiah } from '~/utils/formatRupiah'
 import Barcode from '~/components/Input/Barcode.vue'
 import LayoutEmpty from '~/components/Layout/Empty.vue'
 import { useOrderMutations } from '@/composables/queries/useOrders'
+import { getProductByBarcode } from '~/api/generated/products/products'
 
 defineOptions({ name: 'CartPanel' })
 
@@ -140,7 +141,6 @@ const emit = defineEmits(['successCheckout'])
 
 const orderStore = useOrderStore()
 const { createOrder } = useOrderMutations()
-const { api } = useApi()
 const { $changeImageSize } = useNuxtApp()
 const toast = useToast()
 
@@ -204,8 +204,8 @@ const doBarcode = debounce(async () => {
   barcodeError.value = ''
   try {
     const code = String(barcode.value).replace(/[^0-9]/g, '')
-    const result: any = await api(`productByBarcode/${code}`)
-    const product = result?.data
+    const result = await getProductByBarcode(code)
+    const product: any = result?.data
     if (product) {
       orderStore.addCart({ ...product, qty: 1 }, product.stock)
       barcode.value = null

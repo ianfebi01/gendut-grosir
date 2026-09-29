@@ -1,95 +1,88 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useGetAnalytic } from '~/api/generated/analytics/analytics'
+import type {
+  GetAnalyticParams,
+  GetRoleParams,
+  GetStockOpnameParams,
+  StockOpnameInput,
+  UploadImagesBody,
+} from '~/api/generated/gendutGrosirAPI.schemas'
+import { getGetProductQueryKey } from '~/api/generated/products/products'
+import {
+  getGetRoleQueryKey,
+  updateRole as updateRoleRequest,
+  useGetRole,
+} from '~/api/generated/roles/roles'
+import {
+  applyStockOpname as applyStockOpnameRequest,
+  getGetStockOpnameQueryKey,
+  postStockOpname,
+  useGetStockOpname,
+} from '~/api/generated/stock-opname/stock-opname'
+import {
+  deleteImage as deleteImageRequest,
+  uploadImages as uploadImagesRequest,
+} from '~/api/generated/uploads/uploads'
 
-export function useAnalytics(params: MaybeRefOrGetter<any>) {
-  const { api } = useApi()
-  return useQuery({
-    queryKey: ['analytics', params],
-    queryFn: async () => {
-      const result: any = await api('analytic', { params: toValue(params) })
-      return result?.data ?? []
-    },
+export function useAnalytics(params: MaybeRefOrGetter<GetAnalyticParams>) {
+  return useGetAnalytic(params, {
+    query: { select: (result) => result?.data ?? [] },
   })
 }
 
-export function useRoles(params: MaybeRefOrGetter<any> = {}) {
-  const { api } = useApi()
-  return useQuery({
-    queryKey: ['roles', params],
-    queryFn: async () => {
-      const result: any = await api('getRole', { params: toValue(params) })
-      return result?.data ?? []
-    },
+export function useRoles(params: MaybeRefOrGetter<GetRoleParams> = {}) {
+  return useGetRole(params, {
+    query: { select: (result) => result?.data ?? [] },
   })
 }
 
 export function useRoleMutations() {
-  const { api } = useApi()
   const qc = useQueryClient()
   const updateRole = useMutation({
-    mutationFn: async ({ id, allows }: { id: string; allows: any }) => {
-      const result: any = await api(`updateRole/${id}`, {
-        method: 'PUT',
-        body: { allows },
-      })
-      return result?.data
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['roles'] }),
+    mutationFn: async ({ id, allows }: { id: string; allows: string[] }) =>
+      (await updateRoleRequest(id, { allows }))?.data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: getGetRoleQueryKey() }),
   })
   return { updateRole }
 }
 
-export function useStockOpnames(params: MaybeRefOrGetter<any>) {
-  const { api } = useApi()
-  return useQuery({
-    queryKey: ['stockOpnames', params],
-    queryFn: async () => {
-      const result: any = await api('stockOpname', { params: toValue(params) })
-      return {
+export function useStockOpnames(
+  params: MaybeRefOrGetter<GetStockOpnameParams>,
+) {
+  return useGetStockOpname(params, {
+    query: {
+      select: (result) => ({
         items: result?.data?.data ?? [],
         paginator: result?.data?.paginator ?? {},
-      }
+      }),
     },
   })
 }
 
 export function useStockOpnameMutations() {
-  const { api } = useApi()
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['stockOpnames'] })
-    qc.invalidateQueries({ queryKey: ['products'] })
+    qc.invalidateQueries({ queryKey: getGetStockOpnameQueryKey() })
+    qc.invalidateQueries({ queryKey: getGetProductQueryKey() })
   }
   const createStockOpname = useMutation({
-    mutationFn: async (payload: any) => {
-      const result: any = await api('stockOpname', {
-        method: 'POST',
-        body: { ...payload },
-      })
-      return result?.data
-    },
+    mutationFn: async (payload: StockOpnameInput) =>
+      (await postStockOpname(payload))?.data,
     onSuccess: invalidate,
   })
   const applyStockOpname = useMutation({
-    mutationFn: async (id: string) => {
-      const result: any = await api(`stockOpname/${id}`, { method: 'PUT' })
-      return result?.data
-    },
+    mutationFn: async (id: string) => (await applyStockOpnameRequest(id))?.data,
     onSuccess: invalidate,
   })
   return { createStockOpname, applyStockOpname }
 }
 
 export function useUploadImageMutations() {
-  const { api } = useApi()
   const uploadImages = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const result: any = await api('uploadImages', { method: 'POST', body: formData })
-      return result
-    },
+    mutationFn: (body: UploadImagesBody) => uploadImagesRequest(body),
   })
   const deleteImage = useMutation({
-    mutationFn: async (publicId: string) =>
-      api('deleteImage', { method: 'POST', body: { publicId } }),
+    mutationFn: (publicId: string) => deleteImageRequest({ publicId }),
   })
   return { uploadImages, deleteImage }
 }

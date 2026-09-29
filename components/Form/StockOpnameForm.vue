@@ -197,7 +197,9 @@ const productOptions = computed(() => {
 const selectedProductDetail = computed(() =>
   productList.value.find((p: any) => p._id === selectedProduct.value),
 )
-const systemQty = computed(() => selectedProductDetail.value?.stock ?? null)
+const systemQty = computed<any>(
+  () => selectedProductDetail.value?.stock ?? null,
+)
 
 const formError = computed(() => ({
   product: !selectedProduct.value ? 'Produk wajib dipilih' : '',
@@ -246,7 +248,7 @@ async function saveStockOpname() {
   if (staged.value.length === 0) return
   try {
     await createStockOpname.mutateAsync({
-      date: new Date(),
+      date: new Date().toISOString(),
       product: staged.value,
     })
     toast.add({ title: 'Stock opname disimpan', color: 'success' })

@@ -99,3 +99,7 @@ sw.*
 .output
 .data
 pnpm-lock.yaml
+
+# Orval output (pnpm generate:api-client)
+api/generated
+openapi.json

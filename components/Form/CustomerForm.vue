@@ -303,10 +303,10 @@ const valid = computed(() => {
 
 async function uploadImageIfNeeded(fallback: string) {
   if (!imageFile.value) return fallback
-  const fd = new FormData()
-  fd.append('image', imageFile.value)
-  fd.append('path', 'gendut-grosir/profile-picture')
-  const res: any = await uploadImages.mutateAsync(fd)
+  const res: any = await uploadImages.mutateAsync({
+    path: 'gendut-grosir/profile-picture',
+    file: [imageFile.value],
+  })
   return (
     res?.data?.[0]?.url ??
     res?.[0]?.url ??

@@ -1,70 +1,72 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import {
+  deleteCategory as deleteCategoryRequest,
+  getGetCategoryQueryKey,
+  postCategory,
+  updateCategory as updateCategoryRequest,
+  useGetCategory,
+} from '~/api/generated/categories/categories'
+import type {
+  GetCategory200,
+  GetCategory200DataItem,
+  GetCategoryParams,
+} from '~/api/generated/gendutGrosirAPI.schemas'
 
-async function fetchCategories(params: any) {
-  const { api } = useApi()
-  const result: any = await api('category', { params })
-  return { items: result?.data ?? [], paginator: result?.paginator ?? {} }
-}
-
-export function useCategories(params: MaybeRefOrGetter<any>) {
-  return useQuery({
-    queryKey: ['categories', params],
-    queryFn: () => fetchCategories(toValue(params)),
-  })
-}
-
-export function useCategoryDetail(id: MaybeRefOrGetter<string | undefined>) {
-  const { api } = useApi()
-  const qc = useQueryClient()
-  return useQuery({
-    queryKey: ['category', id],
-    queryFn: async () => {
-      const result: any = await api(`category/${toValue(id)}`)
-      return result?.data ?? result
+export function useCategories(params: MaybeRefOrGetter<GetCategoryParams>) {
+  return useGetCategory(params, {
+    query: {
+      select: (result) => ({
+        items: result?.data ?? [],
+        paginator: result?.paginator ?? {},
+      }),
     },
-    // Show the row from an already-loaded list while the detail request runs
-    placeholderData: () =>
-      qc
-        .getQueriesData<{ items: any[] }>({ queryKey: ['categories'] })
-        .flatMap(([, d]) => d?.items ?? [])
-        .find((c) => c?._id === toValue(id)),
-    enabled: () => !!toValue(id),
   })
+}
+
+// The API has no GET /category/{id}, so resolve the category from the list.
+export function useCategoryDetail(id: MaybeRefOrGetter<string | undefined>) {
+  const qc = useQueryClient()
+  const findIn = (items?: GetCategory200DataItem[]) =>
+    items?.find((c) => c?._id === toValue(id))
+
+  return useGetCategory(
+    { limit: 1000 },
+    {
+      query: {
+        select: (result) => findIn(result?.data),
+        // Show the row from an already-loaded list while the request runs
+        placeholderData: () =>
+          ({
+            data: qc
+              .getQueriesData<GetCategory200>({
+                queryKey: getGetCategoryQueryKey(),
+              })
+              .flatMap(([, d]) => d?.data ?? []),
+          }) as GetCategory200,
+        enabled: () => !!toValue(id),
+      },
+    },
+  )
 }
 
 export function useCategoryMutations() {
-  const { api } = useApi()
   const qc = useQueryClient()
-  const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['categories'] })
-    qc.invalidateQueries({ queryKey: ['category'] })
-  }
+  const invalidate = () =>
+    qc.invalidateQueries({ queryKey: getGetCategoryQueryKey() })
 
   const createCategory = useMutation({
-    mutationFn: async (name: string) => {
-      const result: any = await api('category', {
-        method: 'POST',
-        body: { name },
-      })
-      return result?.data
-    },
+    mutationFn: async (name: string) => (await postCategory({ name }))?.data,
     onSuccess: invalidate,
   })
 
   const updateCategory = useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      const result: any = await api(`category/${id}`, {
-        method: 'PUT',
-        body: { name },
-      })
-      return result?.data
-    },
+    mutationFn: async ({ id, name }: { id: string; name: string }) =>
+      (await updateCategoryRequest(id, { name }))?.data,
     onSuccess: invalidate,
   })
 
   const deleteCategory = useMutation({
-    mutationFn: async (id: string) =>
-      api(`category/${id}`, { method: 'DELETE' }),
+    mutationFn: (id: string) => deleteCategoryRequest(id),
     onSuccess: invalidate,
   })
 

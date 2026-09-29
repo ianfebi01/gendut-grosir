@@ -1,34 +1,49 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/vue-query'
+import {
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from '@tanstack/vue-query'
+import { apiFetch } from '~/api/http'
+import type {
+  GetProductParams,
+  PostProduct200,
+  UpdateProduct200,
+} from '~/api/generated/gendutGrosirAPI.schemas'
+import {
+  deleteProduct as deleteProductRequest,
+  getGetProductQueryKey,
+  getPostProductUrl,
+  getProduct,
+  getUpdateProductUrl,
+  updateProductStockByBarcode,
+  useGetProduct,
+  useGetProductByBarcode,
+  useGetProductById,
+} from '~/api/generated/products/products'
 
-export interface ProductParams {
-  q?: string
-  category?: string
-  page?: number
-  limit?: number
-  [key: string]: any
-}
+export type ProductParams = GetProductParams
 
-async function fetchProducts(params: ProductParams) {
-  const { api } = useApi()
-  const result: any = await api('product', { params })
-  return {
-    items: result?.data?.data ?? [],
-    paginator: result?.data?.paginator ?? {},
-  }
-}
+const toPage = (result: Awaited<ReturnType<typeof getProduct>>) => ({
+  items: result?.data?.data ?? [],
+  paginator: result?.data?.paginator ?? {},
+})
 
 export function useProducts(params: MaybeRefOrGetter<ProductParams>) {
-  return useQuery({
-    queryKey: ['products', params],
-    queryFn: () => fetchProducts(toValue(params)),
-  })
+  return useGetProduct(params, { query: { select: toPage } })
 }
 
-export function useInfiniteProducts(baseParams: MaybeRefOrGetter<Omit<ProductParams, 'page'>>) {
+export function useInfiniteProducts(
+  baseParams: MaybeRefOrGetter<Omit<ProductParams, 'page'>>,
+) {
   return useInfiniteQuery({
-    queryKey: ['products', 'infinite', baseParams],
-    queryFn: ({ pageParam = 1 }) =>
-      fetchProducts({ ...toValue(baseParams), page: pageParam as number }),
+    queryKey: [...getGetProductQueryKey(), 'infinite', baseParams],
+    queryFn: async ({ pageParam, signal }) =>
+      toPage(
+        await getProduct(
+          { ...toValue(baseParams), page: pageParam },
+          { signal },
+        ),
+      ),
     getNextPageParam: (lastPage, allPages) =>
       lastPage.paginator?.hasNextPage ? allPages.length + 1 : undefined,
     initialPageParam: 1,
@@ -36,67 +51,64 @@ export function useInfiniteProducts(baseParams: MaybeRefOrGetter<Omit<ProductPar
 }
 
 export function useProductDetail(id: MaybeRefOrGetter<string | undefined>) {
-  const { api } = useApi()
-  return useQuery({
-    queryKey: ['product', id],
-    queryFn: async () => {
-      const result: any = await api(`product/${toValue(id)}`)
-      return result?.data
+  return useGetProductById(() => toValue(id) ?? '', {
+    query: {
+      select: (result) => result?.data,
+      enabled: () => !!toValue(id),
     },
-    enabled: () => !!toValue(id),
   })
 }
 
-export function useProductByBarcode(barcode: MaybeRefOrGetter<string | undefined>) {
-  const { api } = useApi()
-  return useQuery({
-    queryKey: ['product-barcode', barcode],
-    queryFn: async () => {
-      const result: any = await api(`productByBarcode/${toValue(barcode)}`)
-      return result?.data
+export function useProductByBarcode(
+  barcode: MaybeRefOrGetter<string | undefined>,
+) {
+  return useGetProductByBarcode(() => toValue(barcode) ?? '', {
+    query: {
+      select: (result) => result?.data,
+      enabled: () => !!toValue(barcode),
     },
-    enabled: () => !!toValue(barcode),
   })
 }
 
 export function useProductMutations() {
-  const { api } = useApi()
   const qc = useQueryClient()
 
-  const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['products'] })
-    qc.invalidateQueries({ queryKey: ['product'] })
-  }
+  // ['product'] prefixes the list, infinite list and detail queries
+  const invalidate = () =>
+    qc.invalidateQueries({ queryKey: getGetProductQueryKey() })
 
+  // The generated postProduct/updateProduct JSON-encode the body; product
+  // saves are multipart (optional image), so send the FormData via apiFetch.
   const createProduct = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const result: any = await api('product', { method: 'POST', body: formData })
-      return result?.data
-    },
+    mutationFn: async (formData: FormData) =>
+      (
+        await apiFetch<PostProduct200>(getPostProductUrl(), {
+          method: 'POST',
+          body: formData,
+        })
+      )?.data,
     onSuccess: invalidate,
   })
 
   const updateProduct = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const result: any = await api(`product/${formData.get('_id')}`, {
-        method: 'PUT',
-        body: formData,
-      })
-      return result?.data
-    },
+    mutationFn: async (formData: FormData) =>
+      (
+        await apiFetch<UpdateProduct200>(
+          getUpdateProductUrl(String(formData.get('_id'))),
+          { method: 'PUT', body: formData },
+        )
+      )?.data,
     onSuccess: invalidate,
   })
 
   const deleteProduct = useMutation({
-    mutationFn: async (id: string) => api(`product/${id}`, { method: 'DELETE' }),
+    mutationFn: (id: string) => deleteProductRequest(id),
     onSuccess: invalidate,
   })
 
   const addStockByBarcode = useMutation({
-    mutationFn: async (id: string) => {
-      const result: any = await api(`product/stockbarcode/${id}`, { method: 'PUT' })
-      return result?.data
-    },
+    mutationFn: async (barcode: string) =>
+      (await updateProductStockByBarcode(barcode))?.data,
     onSuccess: invalidate,
   })
 

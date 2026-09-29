@@ -67,7 +67,10 @@ useHead({ title: 'Gendut Grosir | Dashboard' })
 ChartJS.register(Filler)
 
 const range = ref({ start: dayjs().startOf('month').toDate(), end: new Date() })
-const params = computed(() => ({ ...range.value }))
+const params = computed(() => ({
+  start: range.value.start.toISOString(),
+  end: range.value.end.toISOString(),
+}))
 
 const { data, isPending, refetch } = useAnalytics(params)
 const datas = computed<any[]>(() => (data.value as any[]) ?? [])
