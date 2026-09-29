@@ -19,7 +19,7 @@ export const filterMenu = (role, menus, url, allows) => {
     if (menu.hasOwnProperty('children')) {
       if (hasAccess(menu, role, allows)) {
         const children = menu.children.filter((submenu) =>
-          hasAccess(submenu, role, allows)
+          hasAccess(submenu, role, allows),
         )
 
         if (children.length > 0) {
@@ -58,4 +58,28 @@ export const filterMenu = (role, menus, url, allows) => {
   const activeMenu = activeItem ? activeItem.name : 'Dashboard'
 
   return { filteredMenu, activeMenu }
+}
+
+/**
+ * Menu entries guarding `path`, parent first: the item with the longest url
+ * the path equals or starts with, plus its parent group if it has one.
+ * '/' only matches exactly, so it never swallows other routes.
+ */
+export const findMenuTrail = (menus, path) => {
+  const matches = (url) =>
+    !!url && (url === path || (url !== '/' && path.startsWith(url + '/')))
+
+  let best = []
+  let bestLength = -1
+  for (const menu of menus) {
+    const candidates = [[menu], ...(menu.children ?? []).map((c) => [menu, c])]
+    for (const trail of candidates) {
+      const url = trail[trail.length - 1].url
+      if (matches(url) && url.length > bestLength) {
+        best = trail
+        bestLength = url.length
+      }
+    }
+  }
+  return best
 }
