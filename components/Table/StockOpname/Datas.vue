@@ -17,7 +17,7 @@
         size="xs"
         variant="outline"
         color="neutral"
-        @click="$emit('clickProduct', row.original?.product ?? [])"
+        @click="$emit('clickProduct', row.original)"
       >
         {{ (row.original?.product?.length ?? 0) + ' Produk' }}
       </UButton>

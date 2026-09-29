@@ -45,6 +45,7 @@ export default defineNuxtConfig({
       // in-flight import fails ("Failed to fetch dynamically imported module").
       include: [
         'dayjs',
+        'dayjs/locale/id',
         '@vueuse/core',
         '@tanstack/vue-query',
         '@unovis/vue',

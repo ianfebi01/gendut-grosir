@@ -31,32 +31,39 @@
             class="sm:col-span-2"
             :error="(touched.product && formError.product) || undefined"
           >
-            <div class="grid gap-2 sm:grid-cols-2">
-              <UInput
-                v-model="productSearch"
-                variant="outline"
-                placeholder="Cari produk..."
-                icon="i-lucide-search"
-                class="w-full"
-              />
-              <USelect
-                v-model="selectedProduct"
-                :items="productOptions"
-                label-key="label"
-                value-key="value"
-                placeholder="Pilih Produk"
-                class="w-full"
-                @update:open="
-                  (open: boolean) => !open && (touched.product = true)
-                "
-              />
-            </div>
+            <!-- Holds the product object, so the name stays visible even
+                 when a new search drops it from the current results -->
+            <USelectMenu
+              v-model="selectedProduct"
+              v-model:search-term="productSearch"
+              :items="productOptions"
+              label-key="name"
+              ignore-filter
+              :loading="productsFetching"
+              :search-input="{ placeholder: 'Cari produk...' }"
+              placeholder="Pilih Produk"
+              class="w-full"
+              @update:open="
+                (open: boolean) => !open && (touched.product = true)
+              "
+            >
+              <template #item-label="{ item }">
+                <span class="truncate">{{ item.name }}</span>
+              </template>
+              <template #item-trailing="{ item }">
+                <span class="text-xs text-ink-500 tabular-nums"
+                  >Stok {{ item.stock ?? 0 }}</span
+                >
+              </template>
+              <template #empty>
+                <span class="text-sm text-ink-500">Produk tidak ditemukan</span>
+              </template>
+            </USelectMenu>
           </UFormField>
           <UFormField label="Stok Sistem">
             <UInput
               variant="outline"
-              :model-value="systemQty ?? ''"
-              type="number"
+              :model-value="systemQty === null ? '' : String(systemQty)"
               placeholder="-"
               icon="i-lucide-database"
               class="w-full"
@@ -69,9 +76,11 @@
             :error="(touched.realQty && formError.realQty) || undefined"
           >
             <UInput
-              v-model="realQty"
+              v-model.number="realQty"
               variant="outline"
               type="number"
+              min="0"
+              step="1"
               placeholder="Stok nyata"
               icon="i-lucide-package"
               class="w-full"
@@ -80,7 +89,12 @@
               @keydown.enter.prevent="addProduct"
             />
           </UFormField>
-          <div class="flex justify-end sm:col-span-2">
+          <div class="flex items-center justify-between gap-4 sm:col-span-2">
+            <USwitch
+              v-model="apply"
+              label="Terapkan langsung"
+              description="Stok produk langsung diubah menjadi stok sesungguhnya saat disimpan."
+            />
             <UButton
               type="button"
               variant="outline"
@@ -165,8 +179,15 @@ import dayjs from 'dayjs'
 import ProductTable from '~/components/Table/StockOpname/ProductTable.vue'
 import { useStockOpnameMutations } from '@/composables/queries/useLibrary'
 import { useProducts } from '@/composables/queries/useProducts'
+import type {
+  Product,
+  StockOpnameLine,
+} from '~/api/generated/gendutGrosirAPI.schemas'
 
 defineOptions({ name: 'StockOpnameForm' })
+
+// A line as sent to the API, plus the name for the table (not sent)
+type StagedLine = StockOpnameLine & { productName: string }
 
 const toast = useToast()
 const today = dayjs().format('DD/MM/YYYY')
@@ -179,69 +200,62 @@ const mutationError = computed(() => {
 
 const productSearch = ref('')
 const debouncedProductSearch = refDebounced(productSearch, 500)
-const selectedProduct = ref('')
-const realQty = ref<number | null>(null)
+const selectedProduct = ref<Product>()
+const realQty = ref<number | ''>('')
+const apply = ref(false)
 const touched = reactive({ product: false, realQty: false })
-const staged = ref<any[]>([])
+const staged = ref<StagedLine[]>([])
 
-const { data: productData } = useProducts(
+const { data: productData, isFetching: productsFetching } = useProducts(
   computed(() => ({ q: debouncedProductSearch.value, page: 1, limit: 50 })),
 )
-const productList = computed(() => productData.value?.items ?? [])
 const productOptions = computed(() => {
-  const picked = new Set(staged.value.map((s: any) => s.product))
-  return productList.value
-    .filter((p: any) => !picked.has(p._id))
-    .map((p: any) => ({ label: p.name, value: p._id }))
+  const picked = new Set(staged.value.map((s) => s.product))
+  return (productData.value?.items ?? []).filter(
+    (p) => p._id && !picked.has(p._id),
+  )
 })
-const selectedProductDetail = computed(() =>
-  productList.value.find((p: any) => p._id === selectedProduct.value),
-)
-const systemQty = computed<any>(
-  () => selectedProductDetail.value?.stock ?? null,
-)
+const systemQty = computed(() => selectedProduct.value?.stock ?? null)
 
+const realQtyValid = computed(
+  () =>
+    realQty.value !== '' &&
+    Number.isInteger(realQty.value) &&
+    realQty.value >= 0,
+)
 const formError = computed(() => ({
   product: !selectedProduct.value ? 'Produk wajib dipilih' : '',
   realQty:
-    realQty.value === null || realQty.value === ('' as any)
+    realQty.value === ''
       ? 'Stok sesungguhnya wajib diisi'
-      : isNaN(Number(realQty.value))
-        ? 'Hanya boleh angka'
+      : !realQtyValid.value
+        ? 'Harus bilangan bulat, minimal 0'
         : '',
 }))
 const canAdd = computed(
-  () =>
-    !!selectedProduct.value &&
-    realQty.value !== null &&
-    realQty.value !== ('' as any) &&
-    !isNaN(Number(realQty.value)),
+  () => !!selectedProduct.value?._id && realQtyValid.value,
 )
 
 function addProduct() {
   touched.product = touched.realQty = true
-  if (!canAdd.value) return
-  const detail = selectedProductDetail.value
-  const qty = Number(realQty.value)
-  const sys = Number(systemQty.value ?? 0)
+  const product = selectedProduct.value
+  if (!canAdd.value || !product?._id) return
+  const counted = Number(realQty.value)
+  const system = product.stock ?? 0
   staged.value.push({
-    product: selectedProduct.value,
-    productName: detail?.name ?? '',
-    systemQty: sys,
-    realQty: qty,
-    difference: qty - sys,
+    product: product._id,
+    productName: product.name ?? '',
+    systemQty: system,
+    realQty: counted,
+    difference: counted - system,
   })
-  selectedProduct.value = ''
-  realQty.value = null
+  selectedProduct.value = undefined
+  realQty.value = ''
   touched.product = touched.realQty = false
 }
 
-function deleteProduct(productId: any) {
-  const id = typeof productId === 'object' ? productId?._id : productId
-  const idx = staged.value.findIndex(
-    (s: any) => s.product === id || s.product === productId,
-  )
-  if (idx !== -1) staged.value.splice(idx, 1)
+function deleteProduct(productId: string) {
+  staged.value = staged.value.filter((s) => s.product !== productId)
 }
 
 async function saveStockOpname() {
@@ -249,9 +263,23 @@ async function saveStockOpname() {
   try {
     await createStockOpname.mutateAsync({
       date: new Date().toISOString(),
-      product: staged.value,
+      apply: apply.value,
+      // Only the StockOpnameLine fields; productName is display-only
+      product: staged.value.map(
+        ({ product, systemQty, realQty, difference }) => ({
+          product,
+          systemQty,
+          realQty,
+          difference,
+        }),
+      ),
     })
-    toast.add({ title: 'Stock opname disimpan', color: 'success' })
+    toast.add({
+      title: apply.value
+        ? 'Stock opname disimpan dan diterapkan'
+        : 'Stock opname disimpan',
+      color: 'success',
+    })
     await navigateTo('/library/stockOpname')
   } catch {
     // surfaced via mutationError

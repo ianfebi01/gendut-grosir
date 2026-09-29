@@ -22,33 +22,12 @@
     </div>
 
     <!-- Detail modal -->
-    <UModal
-      v-model:open="detailModal"
-      :ui="{ content: 'rounded-xl max-w-3xl w-full' }"
-    >
-      <template #content>
-        <div class="flex flex-col items-center px-6 pt-6 text-center">
-          <h3 class="mb-1 text-[18px] font-bold leading-5 text-gray-900">
-            Produk
-          </h3>
-          <p class="text-sm font-normal leading-5 text-gray-500">
-            Detail produk stock opname
-          </p>
-        </div>
-        <div class="px-6 py-4">
-          <ProductTable :datas="detailProducts" read-only />
-        </div>
-        <div class="flex justify-end px-6 pb-6">
-          <UButton
-            variant="outline"
-            color="neutral"
-            size="lg"
-            @click="detailModal = false"
-            >Tutup</UButton
-          >
-        </div>
-      </template>
-    </UModal>
+    <StockOpnameDetail
+      v-model="detailModal"
+      :opname="detailOpname"
+      :loading-apply="applyStockOpname.isPending.value"
+      @apply="openApplyModal"
+    />
 
     <!-- Apply confirm -->
     <UModal
@@ -98,11 +77,12 @@
 import { refDebounced } from '@vueuse/core'
 import PageHeader from '~/components/Layout/PageHeader.vue'
 import StockOpnameDataTable from '~/components/Table/StockOpname/Datas.vue'
-import ProductTable from '~/components/Table/StockOpname/ProductTable.vue'
+import StockOpnameDetail from '~/components/Dialog/StockOpnameDetail.vue'
 import {
   useStockOpnames,
   useStockOpnameMutations,
 } from '@/composables/queries/useLibrary'
+import type { StockOpname } from '~/api/generated/gendutGrosirAPI.schemas'
 
 definePageMeta({ layout: 'dashboard', title: 'Stock Opname' })
 useHead({ title: 'Gendut Grosir | Stock Opname' })
@@ -130,10 +110,14 @@ watch([search], () => {
 
 // ---- Detail modal ----
 const detailModal = ref(false)
-const detailProducts = ref<any[]>([])
+const detailId = ref('')
+// Read from the list so the status updates after "Sesuaikan"
+const detailOpname = computed<StockOpname | null>(
+  () => items.value.find((o) => o._id === detailId.value) ?? null,
+)
 
-function openDetailModal(products: any[]) {
-  detailProducts.value = products ?? []
+function openDetailModal(opname: StockOpname) {
+  detailId.value = opname?._id ?? ''
   detailModal.value = true
 }
 
