@@ -42,6 +42,9 @@ import type {
   RegisterBody,
   ServerErrorResponse,
   UnauthorizedResponse,
+  UpdateMe200,
+  UpdateMeInput,
+  UpdateMeMultipartInput,
   UserInput,
   UserWithRole
 } from '../gendutGrosirAPI.schemas';
@@ -307,7 +310,81 @@ export function useGetMe<TData = Awaited<ReturnType<typeof getMe>>, TError = Err
 
 
 
-export const getGetAllUserUrl = (params?: GetAllUserParams,) => {
+export const getUpdateMeUrl = () => {
+
+
+
+
+  return `/me`
+}
+
+/**
+ * Edit the logged-in user's name, email, password and profile picture. All fields are optional. `currentPassword` is required when changing `email` or `password`. Send as `multipart/form-data` to upload a new profile picture as `image`.
+ * @summary Update current user profile
+ */
+export const updateMe = async (updateMeBody: UpdateMeInput | UpdateMeMultipartInput, options?: Parameters<typeof apiFetch>[1]): Promise<UpdateMe200> => {
+
+  return apiFetch<UpdateMe200>(getUpdateMeUrl(),
+  {
+    ...options,
+    method: 'PUT'
+    ,
+    body: JSON.stringify(updateMeBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateMeMutationKey = () => ['updateMe'] as const;
+
+export const getUpdateMeMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ServerErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMe>>, TError,UpdateMeMutationVariables, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMe>>, TError,UpdateMeMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMe>>, UpdateMeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateMe(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMeMutationResult = NonNullable<Awaited<ReturnType<typeof updateMe>>>
+    export type UpdateMeMutationBody = BodyType<UpdateMeInput | UpdateMeMultipartInput>
+    export type UpdateMeMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | ServerErrorResponse>
+    export type UpdateMeMutationVariables = {data: BodyType<UpdateMeInput | UpdateMeMultipartInput>}
+
+    /**
+ * @summary Update current user profile
+ */
+export const useUpdateMe = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ServerErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMe>>, TError,UpdateMeMutationVariables, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationReturnType<
+        Awaited<ReturnType<typeof updateMe>>,
+        TError,
+        UpdateMeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateMeMutationOptions(options), queryClient);
+    }
+    export const getGetAllUserUrl = (params?: GetAllUserParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {

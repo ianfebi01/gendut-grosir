@@ -68,20 +68,39 @@
     <div class="pb-4">
       <USeparator class="mx-4 mb-4" />
       <div class="flex items-center gap-2 px-4">
-        <UAvatar
-          :src="user.profilePicture"
-          size="md"
-          :alt="user.name"
-          class="rounded-full bg-gray-100 border"
-        />
-        <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-bold">
-            {{ user?.name }}
-          </p>
-          <p class="truncate text-[10px]">
-            {{ user?.role?.title }}
-          </p>
-        </div>
+        <button
+          type="button"
+          class="-mx-2 flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 text-left transition-colors hover:bg-gray-100"
+          :class="{ 'bg-gray-100': route.path === '/profile' }"
+          title="Profil Saya"
+          @click="go('/profile')"
+        >
+          <UAvatar
+            :src="user.profilePicture"
+            size="md"
+            :alt="user.name"
+            class="rounded-full bg-gray-100 border"
+          />
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-bold">
+              {{ user?.name }}
+            </p>
+            <p class="truncate text-[10px]">
+              {{ user?.role?.title }}
+            </p>
+          </div>
+        </button>
+        <UButton
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          title="Edit Profil"
+          @click="go('/profile')"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-settings" class="size-5" />
+          </template>
+        </UButton>
         <UButton
           variant="ghost"
           color="neutral"

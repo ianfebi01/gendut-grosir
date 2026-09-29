@@ -70,6 +70,29 @@ export interface UserInput {
   profilePicture?: string;
 }
 
+export interface UpdateMeInput {
+  /**
+     * @minLength 3
+     * @maxLength 30
+     */
+  name?: string;
+  email?: string;
+  /**
+     * New password
+     * @minLength 6
+     * @maxLength 40
+     */
+  password?: string;
+  /** Required when changing `email` or `password` */
+  currentPassword?: string;
+  profilePicture?: string;
+}
+
+export type UpdateMeMultipartInput = UpdateMeInput & ({
+  /** JPEG/PNG/GIF/WebP, max 10 MB */
+  image?: Blob | File;
+});
+
 export interface MenuItem {
   name: string;
   url: string;
@@ -320,6 +343,11 @@ export type GetMe200 = {
   _doc?: UserWithRole;
   [key: string]: unknown;
  };
+
+export type UpdateMe200 = {
+  message?: string;
+  data?: UserWithRole;
+};
 
 export type GetAllUserParams = {
 /**

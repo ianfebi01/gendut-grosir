@@ -56,7 +56,9 @@
   "paths": {
     "/login": {
       "post": {
-        "tags": ["Auth & Users"],
+        "tags": [
+          "Auth & Users"
+        ],
         "operationId": "login",
         "summary": "Log in",
         "security": [],
@@ -66,7 +68,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "password"],
+                "required": [
+                  "email",
+                  "password"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -124,7 +129,9 @@
     },
     "/register": {
       "post": {
-        "tags": ["Auth & Users"],
+        "tags": [
+          "Auth & Users"
+        ],
         "operationId": "register",
         "summary": "Register a user",
         "security": [],
@@ -134,7 +141,11 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name", "email", "password"],
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ],
                 "properties": {
                   "name": {
                     "type": "string",
@@ -203,7 +214,9 @@
     },
     "/me": {
       "get": {
-        "tags": ["Auth & Users"],
+        "tags": [
+          "Auth & Users"
+        ],
         "operationId": "getMe",
         "summary": "Current user",
         "description": "Returns the raw mongoose document spread into the response, so the user fields are under `_doc` (with the populated role) alongside mongoose internals.",
@@ -238,11 +251,65 @@
             "$ref": "#/components/responses/ServerError"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "updateMe",
+        "summary": "Update current user profile",
+        "description": "Edit the logged-in user's name, email, password and profile picture. All fields are optional. `currentPassword` is required when changing `email` or `password`. Send as `multipart/form-data` to upload a new profile picture as `image`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeInput"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeMultipartInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/UserWithRole"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       }
     },
     "/getAllUser": {
       "get": {
-        "tags": ["Auth & Users"],
+        "tags": [
+          "Auth & Users"
+        ],
         "operationId": "getAllUser",
         "summary": "List users (excluding the caller)",
         "description": "Requires an `admin` or `super_admin` role.",
@@ -301,7 +368,9 @@
     },
     "/getUserById/{id}": {
       "get": {
-        "tags": ["Auth & Users"],
+        "tags": [
+          "Auth & Users"
+        ],
         "operationId": "getUserById",
         "summary": "Get a user",
         "parameters": [
@@ -339,7 +408,9 @@
     },
     "/editUser/{id}": {
       "put": {
-        "tags": ["Auth & Users"],
+        "tags": [
+          "Auth & Users"
+        ],
         "operationId": "editUser",
         "summary": "Update a user",
         "description": "Requires an `admin` or `super_admin` role. `status` defaults to `retail` when omitted.",
@@ -388,7 +459,9 @@
     },
     "/deleteUser/{id}": {
       "delete": {
-        "tags": ["Auth & Users"],
+        "tags": [
+          "Auth & Users"
+        ],
         "operationId": "deleteUser",
         "summary": "Delete a user",
         "description": "Requires an `admin` or `super_admin` role.",
@@ -435,7 +508,9 @@
     },
     "/getRole": {
       "get": {
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "operationId": "getRole",
         "summary": "List roles",
         "security": [],
@@ -492,7 +567,9 @@
     },
     "/post-default-role": {
       "post": {
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "operationId": "postDefaultRole",
         "summary": "Seed roles",
         "description": "Only succeeds while the roles collection is empty.",
@@ -543,7 +620,9 @@
     },
     "/updateRole/{id}": {
       "put": {
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "operationId": "updateRole",
         "summary": "Update a role's permissions",
         "description": "`allows` must include `pos`. The `super_admin` role cannot be changed.",
@@ -564,7 +643,9 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["allows"],
+                "required": [
+                  "allows"
+                ],
                 "properties": {
                   "allows": {
                     "type": "array",
@@ -607,7 +688,9 @@
     },
     "/menu": {
       "get": {
-        "tags": ["Menus"],
+        "tags": [
+          "Menus"
+        ],
         "operationId": "getMenu",
         "summary": "List menus",
         "responses": {
@@ -644,7 +727,9 @@
         }
       },
       "post": {
-        "tags": ["Menus"],
+        "tags": [
+          "Menus"
+        ],
         "operationId": "postMenu",
         "summary": "Create a menu",
         "description": "Requires an `admin` or `super_admin` role.",
@@ -691,7 +776,9 @@
     },
     "/default-menu": {
       "post": {
-        "tags": ["Menus"],
+        "tags": [
+          "Menus"
+        ],
         "operationId": "postDefaultMenu",
         "summary": "Create menus in bulk",
         "description": "Requires an `admin` or `super_admin` role.",
@@ -744,7 +831,9 @@
     },
     "/category": {
       "get": {
-        "tags": ["Categories"],
+        "tags": [
+          "Categories"
+        ],
         "operationId": "getCategory",
         "summary": "List categories with product counts",
         "description": "Unlike most list endpoints, the paginated result is returned without an envelope.",
@@ -805,7 +894,9 @@
         }
       },
       "post": {
-        "tags": ["Categories"],
+        "tags": [
+          "Categories"
+        ],
         "operationId": "postCategory",
         "summary": "Create a category",
         "requestBody": {
@@ -814,7 +905,9 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name"],
+                "required": [
+                  "name"
+                ],
                 "properties": {
                   "name": {
                     "type": "string"
@@ -864,7 +957,9 @@
     },
     "/category/{id}": {
       "put": {
-        "tags": ["Categories"],
+        "tags": [
+          "Categories"
+        ],
         "operationId": "updateCategory",
         "summary": "Rename a category",
         "parameters": [
@@ -926,7 +1021,9 @@
         }
       },
       "delete": {
-        "tags": ["Categories"],
+        "tags": [
+          "Categories"
+        ],
         "operationId": "deleteCategory",
         "summary": "Delete a category",
         "parameters": [
@@ -972,7 +1069,9 @@
     },
     "/product": {
       "get": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "operationId": "getProduct",
         "summary": "List products",
         "parameters": [
@@ -1036,7 +1135,9 @@
         }
       },
       "post": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "operationId": "postProduct",
         "summary": "Create a product",
         "description": "Requires an `admin` or `super_admin` role. Send as `multipart/form-data` to attach an image.",
@@ -1088,7 +1189,9 @@
     },
     "/product/{id}": {
       "get": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "operationId": "getProductById",
         "summary": "Get a product",
         "parameters": [
@@ -1135,7 +1238,9 @@
         }
       },
       "put": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "operationId": "updateProduct",
         "summary": "Update a product",
         "description": "Requires an `admin` or `super_admin` role. Send as `multipart/form-data` to replace the image.",
@@ -1198,7 +1303,9 @@
         }
       },
       "delete": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "operationId": "deleteProduct",
         "summary": "Delete a product",
         "description": "Requires an `admin` or `super_admin` role.",
@@ -1248,7 +1355,9 @@
     },
     "/productByBarcode/{barcode}": {
       "get": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "operationId": "getProductByBarcode",
         "summary": "Find a product by barcode",
         "parameters": [
@@ -1297,7 +1406,9 @@
     },
     "/product/stockbarcode/{barcode}": {
       "put": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "operationId": "updateProductStockByBarcode",
         "summary": "Increment a product's stock by 1",
         "description": "Requires an `admin` or `super_admin` role.",
@@ -1347,7 +1458,9 @@
     },
     "/order": {
       "get": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "operationId": "getOrder",
         "summary": "List orders",
         "description": "Requires an `admin` or `super_admin` role. `q` filters by order id.",
@@ -1404,7 +1517,9 @@
         }
       },
       "post": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "operationId": "postOrder",
         "summary": "Create an order",
         "description": "Decrements stock for each line item. Lines whose product has insufficient stock are silently dropped from the saved order (totals are still computed from the request).",
@@ -1451,7 +1566,9 @@
     },
     "/changeStatusOrder/{orderId}": {
       "put": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "operationId": "changeStatusOrder",
         "summary": "Mark an order complete",
         "parameters": [
@@ -1498,7 +1615,9 @@
     },
     "/cancelOrder/{orderId}": {
       "put": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "operationId": "cancelOrder",
         "summary": "Cancel an order and restock its items",
         "parameters": [
@@ -1548,7 +1667,9 @@
     },
     "/order/updateTime": {
       "get": {
-        "tags": ["Orders"],
+        "tags": [
+          "Orders"
+        ],
         "operationId": "updateTime",
         "summary": "Randomise order dates (dev utility)",
         "description": "**Unauthenticated and destructive:** rewrites every order `date` to a random time up to 30 days before its `createdAt`. Intended for seeding demo data only.",
@@ -1580,7 +1701,9 @@
     },
     "/stockOpname": {
       "get": {
-        "tags": ["Stock Opname"],
+        "tags": [
+          "Stock Opname"
+        ],
         "operationId": "getStockOpname",
         "summary": "List stock opnames",
         "description": "Requires an `admin` or `super_admin` role. `q` filters by opname id.",
@@ -1637,7 +1760,9 @@
         }
       },
       "post": {
-        "tags": ["Stock Opname"],
+        "tags": [
+          "Stock Opname"
+        ],
         "operationId": "postStockOpname",
         "summary": "Record a stock count",
         "description": "Requires an `admin` or `super_admin` role. With `apply: true`, each product's stock is set to its `realQty` immediately.",
@@ -1684,7 +1809,9 @@
     },
     "/stockOpname/{id}": {
       "put": {
-        "tags": ["Stock Opname"],
+        "tags": [
+          "Stock Opname"
+        ],
         "operationId": "applyStockOpname",
         "summary": "Apply a stock count",
         "description": "Requires an `admin` or `super_admin` role. Sets each product's stock to its counted `realQty`.",
@@ -1744,7 +1871,9 @@
     },
     "/uploadImages": {
       "post": {
-        "tags": ["Uploads"],
+        "tags": [
+          "Uploads"
+        ],
         "operationId": "uploadImages",
         "summary": "Upload images to Cloudinary",
         "description": "Requires an `admin` or `super_admin` role. JPEG, PNG, GIF or WebP, up to 10 MB each.",
@@ -1805,7 +1934,9 @@
     },
     "/deleteImage": {
       "post": {
-        "tags": ["Uploads"],
+        "tags": [
+          "Uploads"
+        ],
         "operationId": "deleteImage",
         "summary": "Delete an image from Cloudinary",
         "description": "Requires an `admin` or `super_admin` role.",
@@ -1815,7 +1946,9 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["publicId"],
+                "required": [
+                  "publicId"
+                ],
                 "properties": {
                   "publicId": {
                     "type": "string"
@@ -1856,7 +1989,9 @@
     },
     "/analytic": {
       "get": {
-        "tags": ["Analytics"],
+        "tags": [
+          "Analytics"
+        ],
         "operationId": "getAnalytic",
         "summary": "Daily sales totals",
         "description": "Defaults to the current month when `start`/`end` are omitted. `end` is inclusive.",
@@ -1996,7 +2131,9 @@
     "schemas": {
       "Message": {
         "type": "object",
-        "required": ["message"],
+        "required": [
+          "message"
+        ],
         "properties": {
           "message": {
             "type": "string"
@@ -2063,7 +2200,10 @@
       },
       "RoleInput": {
         "type": "object",
-        "required": ["roleName", "title"],
+        "required": [
+          "roleName",
+          "title"
+        ],
         "properties": {
           "roleName": {
             "type": "string"
@@ -2178,9 +2318,58 @@
           }
         }
       },
+      "UpdateMeInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 30
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 40,
+            "description": "New password"
+          },
+          "currentPassword": {
+            "type": "string",
+            "description": "Required when changing `email` or `password`"
+          },
+          "profilePicture": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "UpdateMeMultipartInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UpdateMeInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "format": "binary",
+                "description": "JPEG/PNG/GIF/WebP, max 10 MB"
+              }
+            }
+          }
+        ]
+      },
       "MenuItem": {
         "type": "object",
-        "required": ["name", "url", "access"],
+        "required": [
+          "name",
+          "url",
+          "access"
+        ],
         "properties": {
           "name": {
             "type": "string"
@@ -2252,7 +2441,11 @@
       },
       "ProductInput": {
         "type": "object",
-        "required": ["category", "buyPrice", "wholesalerPrice"],
+        "required": [
+          "category",
+          "buyPrice",
+          "wholesalerPrice"
+        ],
         "properties": {
           "name": {
             "type": "string"
@@ -2360,7 +2553,9 @@
       },
       "OrderInput": {
         "type": "object",
-        "required": ["details"],
+        "required": [
+          "details"
+        ],
         "properties": {
           "user": {
             "type": "string",
@@ -2369,14 +2564,22 @@
           },
           "status": {
             "type": "string",
-            "enum": ["process", "complete"],
+            "enum": [
+              "process",
+              "complete"
+            ],
             "default": "process"
           },
           "details": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["product", "qty", "price", "buyPrice"],
+              "required": [
+                "product",
+                "qty",
+                "price",
+                "buyPrice"
+              ],
               "properties": {
                 "product": {
                   "type": "string",
@@ -2442,7 +2645,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["process", "complete", "cancel"]
+            "enum": [
+              "process",
+              "complete",
+              "cancel"
+            ]
           },
           "details": {
             "type": "array",
@@ -2477,7 +2684,12 @@
       },
       "StockOpnameLine": {
         "type": "object",
-        "required": ["product", "systemQty", "realQty", "difference"],
+        "required": [
+          "product",
+          "systemQty",
+          "realQty",
+          "difference"
+        ],
         "properties": {
           "product": {
             "type": "string",
@@ -2500,7 +2712,9 @@
       },
       "StockOpnameInput": {
         "type": "object",
-        "required": ["product"],
+        "required": [
+          "product"
+        ],
         "properties": {
           "date": {
             "type": "string",
