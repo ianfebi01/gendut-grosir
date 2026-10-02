@@ -3,7 +3,17 @@
     <div class="flex justify-center" style="margin-bottom: 16px">
       <img src="/logo.svg" alt="Gendut Grosir" style="height: 64px" />
     </div>
-    <p class="text-center text-sm font-light text-gray-500">Daftar untuk membuat akun!</p>
+    <p class="text-center text-sm font-light text-gray-500">
+      {{ isSetup ? 'Buat akun pertama untuk memulai.' : 'Daftar untuk membuat akun!' }}
+    </p>
+    <UAlert
+      v-if="isSetup"
+      color="info"
+      variant="soft"
+      class="mt-4"
+      title="Akun ini akan menjadi Super Admin"
+      description="Belum ada pengguna terdaftar. Akun pertama otomatis aktif dengan akses penuh."
+    />
 
     <div v-if="!success" class="mt-4 space-y-4">
       <USeparator />
@@ -24,8 +34,12 @@
       </UFormField>
       <UAlert v-if="registerError" color="error" variant="soft" :title="registerError" />
       <UButton color="primary" size="lg" block :disabled="!valid" :loading="register.isPending.value" @click="handleRegister">
-        Daftar
+        {{ isSetup ? 'Buat Akun Super Admin' : 'Daftar' }}
       </UButton>
+      <p v-if="!isSetup" class="text-center text-sm">
+        Sudah punya akun?
+        <NuxtLink to="/login" class="text-primary-600 font-medium">Masuk</NuxtLink>
+      </p>
     </div>
     <div v-else class="mt-4 text-center">
       <p class="font-medium text-primary-600">
@@ -37,7 +51,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRoles } from '@/composables/queries/useLibrary'
 import { useAuthMutations } from '@/composables/queries/useUsers'
 
 defineOptions({ name: 'RegisterForm' })
@@ -50,10 +63,14 @@ const status = [
 ]
 const success = ref(false)
 
-const { data: roles } = useRoles({})
-const { register } = useAuthMutations()
+const appStore = useAppStore()
+const toast = useToast()
+// The backend makes the first account an activated super admin
+const isSetup = computed(() => !!appStore.needsSetup)
+
+const { register, login } = useAuthMutations()
 const registerError = computed(() => {
-  const e: any = register.error.value
+  const e: any = register.error.value ?? login.error.value
   return e?.data?.message ?? e?.message ?? ''
 })
 
@@ -83,12 +100,28 @@ const valid = computed(
 async function handleRegister() {
   touched.name = touched.email = touched.password = touched.confirmPassword = true
   if (!valid.value) return
-  const roleId = (roles.value as any[])?.find((item: any) => item.roleName === 'super_admin')?._id
+  const { confirmPassword: _, ...body } = form
+  const firstAccount = isSetup.value
   try {
-    await register.mutateAsync({ ...form, role: roleId })
-    success.value = true
+    await register.mutateAsync(body)
   } catch {
     // error surfaced via registerError
+    return
+  }
+
+  if (!firstAccount) {
+    success.value = true
+    return
+  }
+
+  appStore.setNeedsSetup(false)
+  try {
+    await login.mutateAsync({ email: body.email, password: body.password })
+    toast.add({ title: 'Akun Super Admin berhasil dibuat', color: 'success' })
+    await navigateTo('/')
+  } catch {
+    // The account exists; let the user sign in manually
+    await navigateTo('/login')
   }
 }
 </script>

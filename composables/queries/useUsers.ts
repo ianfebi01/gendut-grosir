@@ -88,10 +88,6 @@ export function useAuthMutations() {
 
   const register = useMutation({
     mutationFn: (body: RegisterBody) => registerRequest(body),
-    onSuccess: (data) => {
-      const userStore = useUserStore()
-      userStore.setProfile(data ?? {})
-    },
   })
 
   return { login, register }

@@ -36,6 +36,7 @@ import type {
   GetAllUser200,
   GetAllUserParams,
   GetMe200,
+  GetSetupStatus200,
   Login200,
   LoginBody,
   Register200,
@@ -153,6 +154,7 @@ export const useLogin = <TError = ErrorType<BadRequestResponse | ServerErrorResp
 }
 
 /**
+ * On a fresh database (no users yet, see `GET /setup-status`) the account is made an activated `super_admin` so it can log in straight away. After that, `role` and `activate` are only honoured when the request carries an admin token; anyone else gets an inactive account with the `user` role until an admin activates it.
  * @summary Register a user
  */
 export const register = async (registerBody: RegisterBody, options?: Parameters<typeof apiFetch>[1]): Promise<Register200> => {
@@ -231,7 +233,86 @@ export const useRegister = <TError = ErrorType<BadRequestResponse | ServerErrorR
       > => {
       return useMutation(getRegisterMutationOptions(options), queryClient);
     }
-    export const getGetMeUrl = () => {
+    export const getGetSetupStatusUrl = () => {
+
+
+
+
+  return `/setup-status`
+}
+
+/**
+ * `needsSetup` is true while no user exists; the next `POST /register` then creates the activated super admin.
+ * @summary Whether the app still needs its first account
+ */
+export const getSetupStatus = async ( options?: Parameters<typeof apiFetch>[1]): Promise<GetSetupStatus200> => {
+
+  return apiFetch<GetSetupStatus200>(getGetSetupStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSetupStatusQueryKey = () => {
+    return [
+    'setup-status'
+    ] as const;
+    }
+
+
+export const getGetSetupStatusQueryOptions = <TData = Awaited<ReturnType<typeof getSetupStatus>>, TError = ErrorType<ServerErrorResponse>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSetupStatus>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  getGetSetupStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSetupStatus>>> = ({ signal }) => getSetupStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSetupStatus>>, TError, TData>
+}
+
+export type GetSetupStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getSetupStatus>>>
+export type GetSetupStatusQueryError = ErrorType<ServerErrorResponse>
+
+
+/**
+ * @summary Whether the app still needs its first account
+ */
+
+export function useGetSetupStatus<TData = Awaited<ReturnType<typeof getSetupStatus>>, TError = ErrorType<ServerErrorResponse>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSetupStatus>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSetupStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>;
+
+  return query;
+}
+
+
+
+
+
+
+export const getGetMeUrl = () => {
 
 
 

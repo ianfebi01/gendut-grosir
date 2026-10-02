@@ -1,11 +1,14 @@
 <template>
   <div class="grid min-h-screen w-full grid-cols-1 md:grid-cols-2">
-    <div class="flex items-center justify-center px-4 py-10 md:px-16">
+    <div class="flex items-center justify-center px-4 py-10 md:px-16 bg-white">
       <div class="w-full max-w-[440px]">
         <RegisterForm />
       </div>
     </div>
-    <div class="hidden items-center justify-center bg-gray-100 md:flex" style="min-height: 100vh">
+    <div
+      class="hidden items-center justify-center bg-gray-100 md:flex"
+      style="min-height: 100vh"
+    >
       <img src="/shoping-cart.svg" alt="Shopping" class="max-w-[80%]" />
     </div>
   </div>

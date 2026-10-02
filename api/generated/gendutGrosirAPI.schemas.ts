@@ -338,6 +338,15 @@ export type Register200 = {
   data?: User;
 };
 
+export type GetSetupStatus200Data = {
+  needsSetup: boolean;
+};
+
+export type GetSetupStatus200 = {
+  message?: string;
+  data?: GetSetupStatus200Data;
+};
+
 export type GetMe200 = {
   message?: string;
   _doc?: UserWithRole;
