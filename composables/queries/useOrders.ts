@@ -1,17 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { getGetAnalyticQueryKey } from '~/api/generated/analytics/analytics'
+import { getGetAnalyticQueryKey } from '~/services/generated/analytics/analytics'
 import type {
   GetOrderParams,
   OrderInput,
-} from '~/api/generated/gendutGrosirAPI.schemas'
+} from '~/services/generated/gendutGrosirAPI.schemas'
 import {
   cancelOrder as cancelOrderRequest,
   changeStatusOrder,
   getGetOrderQueryKey,
   postOrder,
   useGetOrder,
-} from '~/api/generated/orders/orders'
-import { getGetProductQueryKey } from '~/api/generated/products/products'
+} from '~/services/generated/orders/orders'
+import { getGetProductQueryKey } from '~/services/generated/products/products'
 
 export function useOrders(params: MaybeRefOrGetter<GetOrderParams>) {
   return useGetOrder(params, {

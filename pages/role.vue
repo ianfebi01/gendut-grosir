@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import PageHeader from '~/components/Layout/PageHeader.vue'
 import { useRoles, useRoleMutations } from '@/composables/queries/useLibrary'
-import type { Role } from '~/api/generated/gendutGrosirAPI.schemas'
+import type { Role } from '~/services/generated/gendutGrosirAPI.schemas'
 
 definePageMeta({ layout: 'dashboard', title: 'Role' })
 

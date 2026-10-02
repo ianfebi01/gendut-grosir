@@ -172,7 +172,7 @@ import Barcode from '~/components/Input/Barcode.vue'
 import LayoutEmpty from '~/components/Layout/Empty.vue'
 import DialogModal from '~/components/Dialog/Modal.vue'
 import { useOrderMutations } from '@/composables/queries/useOrders'
-import { getProductByBarcode } from '~/api/generated/products/products'
+import { getProductByBarcode } from '~/services/generated/products/products'
 
 defineOptions({ name: 'CartPanel' })
 

@@ -77,7 +77,7 @@ import { refDebounced } from '@vueuse/core'
 import PageHeader from '~/components/Layout/PageHeader.vue'
 import DialogDelete from '~/components/Dialog/Delete.vue'
 import { useUsers, useUserMutations } from '@/composables/queries/useUsers'
-import type { UserWithRole } from '~/api/generated/gendutGrosirAPI.schemas'
+import type { UserWithRole } from '~/services/generated/gendutGrosirAPI.schemas'
 
 definePageMeta({ layout: 'dashboard', title: 'Customer' })
 useHead({ title: 'Gendut Grosir | Customers' })

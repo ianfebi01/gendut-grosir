@@ -97,7 +97,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import 'dayjs/locale/id'
-import type { StockOpname } from '~/api/generated/gendutGrosirAPI.schemas'
+import type { StockOpname } from '~/services/generated/gendutGrosirAPI.schemas'
 
 defineOptions({ name: 'StockOpnameDetailDialog' })
 

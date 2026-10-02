@@ -1,4 +1,4 @@
-import { getMe } from '~/api/generated/auth-users/auth-users'
+import { getMe } from '~/services/generated/auth-users/auth-users'
 
 export default defineNuxtPlugin(async () => {
   const token = useCookie('access_token')

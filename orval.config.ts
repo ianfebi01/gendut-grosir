@@ -18,14 +18,14 @@ export default defineConfig({
       override: {
         mutator: {
           name: 'apiFetch',
-          path: './api/http.ts',
+          path: './services/http.ts',
         },
         fetch: {
           // apiFetch throws on non-2xx, so callers only ever see the body
           includeHttpResponseReturnType: false,
         },
       },
-      target: './api/generated',
+      target: './services/generated',
     },
   },
 })

@@ -15,8 +15,8 @@ import {
   useGetAllUser,
   useGetMe,
   useGetUserById,
-} from '~/api/generated/auth-users/auth-users'
-import { apiFetch } from '~/api/http'
+} from '~/services/generated/auth-users/auth-users'
+import { apiFetch } from '~/services/http'
 import type {
   GetAllUserParams,
   UpdateMe200,
@@ -25,7 +25,7 @@ import type {
   LoginBody,
   RegisterBody,
   UserInput,
-} from '~/api/generated/gendutGrosirAPI.schemas'
+} from '~/services/generated/gendutGrosirAPI.schemas'
 
 const toPage = (result: Awaited<ReturnType<typeof getAllUser>>) => ({
   items: result?.data?.data ?? [],

@@ -182,7 +182,7 @@ import { useProducts } from '@/composables/queries/useProducts'
 import type {
   Product,
   StockOpnameLine,
-} from '~/api/generated/gendutGrosirAPI.schemas'
+} from '~/services/generated/gendutGrosirAPI.schemas'
 
 defineOptions({ name: 'StockOpnameForm' })
 

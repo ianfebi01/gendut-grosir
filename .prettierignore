@@ -101,5 +101,5 @@ sw.*
 pnpm-lock.yaml
 
 # Orval output (pnpm generate:api-client)
-api/generated
+services/generated
 openapi.json

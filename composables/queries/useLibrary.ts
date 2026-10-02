@@ -3,30 +3,30 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/vue-query'
-import { useGetAnalytic } from '~/api/generated/analytics/analytics'
+import { useGetAnalytic } from '~/services/generated/analytics/analytics'
 import type {
   GetAnalyticParams,
   GetRoleParams,
   GetStockOpnameParams,
   StockOpnameInput,
   UploadImagesBody,
-} from '~/api/generated/gendutGrosirAPI.schemas'
-import { getGetProductQueryKey } from '~/api/generated/products/products'
+} from '~/services/generated/gendutGrosirAPI.schemas'
+import { getGetProductQueryKey } from '~/services/generated/products/products'
 import {
   getGetRoleQueryKey,
   updateRole as updateRoleRequest,
   useGetRole,
-} from '~/api/generated/roles/roles'
+} from '~/services/generated/roles/roles'
 import {
   applyStockOpname as applyStockOpnameRequest,
   getGetStockOpnameQueryKey,
   postStockOpname,
   useGetStockOpname,
-} from '~/api/generated/stock-opname/stock-opname'
+} from '~/services/generated/stock-opname/stock-opname'
 import {
   deleteImage as deleteImageRequest,
   uploadImages as uploadImagesRequest,
-} from '~/api/generated/uploads/uploads'
+} from '~/services/generated/uploads/uploads'
 
 export function useAnalytics(params: MaybeRefOrGetter<GetAnalyticParams>) {
   return useGetAnalytic(params, {

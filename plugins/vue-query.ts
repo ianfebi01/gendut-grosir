@@ -1,5 +1,5 @@
 import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query'
-import { ApiError } from '~/api/http'
+import { ApiError } from '~/services/http'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const queryClient = new QueryClient({

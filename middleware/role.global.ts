@@ -1,5 +1,5 @@
 import menu from '~/menu'
-import { getMe } from '~/api/generated/auth-users/auth-users'
+import { getMe } from '~/services/generated/auth-users/auth-users'
 import { filterMenu, findMenuTrail } from '~/utils/menu'
 
 export default defineNuxtRouteMiddleware(async (to) => {

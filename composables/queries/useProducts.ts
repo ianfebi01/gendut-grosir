@@ -3,12 +3,12 @@ import {
   useQueryClient,
   useInfiniteQuery,
 } from '@tanstack/vue-query'
-import { apiFetch } from '~/api/http'
+import { apiFetch } from '~/services/http'
 import type {
   GetProductParams,
   PostProduct200,
   UpdateProduct200,
-} from '~/api/generated/gendutGrosirAPI.schemas'
+} from '~/services/generated/gendutGrosirAPI.schemas'
 import {
   deleteProduct as deleteProductRequest,
   getGetProductQueryKey,
@@ -19,7 +19,7 @@ import {
   useGetProduct,
   useGetProductByBarcode,
   useGetProductById,
-} from '~/api/generated/products/products'
+} from '~/services/generated/products/products'
 
 export type ProductParams = GetProductParams
 

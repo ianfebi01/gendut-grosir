@@ -5,12 +5,12 @@ import {
   postCategory,
   updateCategory as updateCategoryRequest,
   useGetCategory,
-} from '~/api/generated/categories/categories'
+} from '~/services/generated/categories/categories'
 import type {
   GetCategory200,
   GetCategory200DataItem,
   GetCategoryParams,
-} from '~/api/generated/gendutGrosirAPI.schemas'
+} from '~/services/generated/gendutGrosirAPI.schemas'
 
 export function useCategories(params: MaybeRefOrGetter<GetCategoryParams>) {
   return useGetCategory(params, {

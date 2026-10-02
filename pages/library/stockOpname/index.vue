@@ -82,7 +82,7 @@ import {
   useStockOpnames,
   useStockOpnameMutations,
 } from '@/composables/queries/useLibrary'
-import type { StockOpname } from '~/api/generated/gendutGrosirAPI.schemas'
+import type { StockOpname } from '~/services/generated/gendutGrosirAPI.schemas'
 
 definePageMeta({ layout: 'dashboard', title: 'Stock Opname' })
 useHead({ title: 'Gendut Grosir | Stock Opname' })

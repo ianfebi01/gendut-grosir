@@ -1,4 +1,4 @@
-import { getSetupStatus } from '~/api/generated/auth-users/auth-users'
+import { getSetupStatus } from '~/services/generated/auth-users/auth-users'
 
 /**
  * Runs before the auth middlewares. Asks the backend once per app load
