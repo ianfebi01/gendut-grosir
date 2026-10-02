@@ -1,5 +1,3 @@
 {
-  "buildCommand": "yarn build",
-  "outputDirectory": ".output/public",
-  "framework": "nuxt"
+  "redirects": []
 }
