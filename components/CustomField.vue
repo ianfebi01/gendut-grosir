@@ -1,175 +1,92 @@
 <template>
-  <form @submit.prevent>
-    <v-row class="px-6 mt-6">
-      <v-col v-for="(item, i) in datas" :key="i" cols="12" sm="6" class="py-0">
-        <div
-          style="font-size: 14px"
-          class="font-weight-medium mb-1 gray_700--text mt-2"
-        >
+  <form @submit.prevent="submit">
+    <div class="mt-6 grid grid-cols-1 gap-4 px-6 sm:grid-cols-2">
+      <div v-for="(item, i) in datas" :key="i">
+        <label class="mb-1 mt-2 block text-sm font-medium text-gray-700">
           {{ item.label }}
-          <span v-if="item.validations?.required" style="color: red !important"
-            >*</span
-          >
-        </div>
-        <v-text-field
+          <span v-if="item.validations?.required" class="text-red-500">*</span>
+        </label>
+        <UInput
           v-if="item.fieldType === 'textField'"
           v-model="form[item.valueName]"
-          :type="item.type"
-          outlined
-          dense
-          flat
-          background-color="#fff"
-          height="44"
+          :type="item.type || 'text'"
           :placeholder="item.placeholder"
-          :error-messages="error_message(item?.valueName)"
-          @blur="$v.form[item.valueName].$touch()"
-        ></v-text-field>
-        <v-select
+          size="md"
+          class="w-full"
+          @blur="touch(item.valueName)"
+        />
+        <USelect
           v-else-if="item.fieldType === 'select'"
           v-model="form[item.valueName]"
           :items="item.items"
-          item-text="name"
-          item-value="value"
-          outlined
-          dense
-          flat
-          background-color="#fff"
-          height="44"
+          value-key="value"
+          label-key="name"
           :placeholder="item.placeholder"
-          hide-details
-        ></v-select>
-        <v-switch
+          size="md"
+          class="w-full"
+        />
+        <USwitch
           v-else-if="item.fieldType === 'switch'"
           v-model="form[item.valueName]"
-          class="mt-3 ml-1"
-          inset
-          :label="
-            item.validations?.required
-              ? item.placeholder[0]
-              : item.placeholder[1]
-          "
-        ></v-switch>
-
-        <v-row v-else-if="item.fieldType === 'checkbox'">
-          <v-col
+          class="ml-1 mt-3"
+        />
+        <div v-else-if="item.fieldType === 'checkbox'" class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <UCheckbox
             v-for="(item2, index) in item.checkboxItem"
             :key="index"
-            cols="12"
-            sm="4"
-            md="4"
-          >
-            <v-checkbox
-              v-model="form[item.valueName]"
-              class="mt-0"
-              :label="item2.name"
-              color="primary"
-              :value="item2.value"
-              hide-details
-            ></v-checkbox>
-          </v-col>
-        </v-row>
-      </v-col>
-
-      <v-col>
-        <v-btn
-          type="submit"
-          height="44"
-          color="primary"
-          depressed
-          block
-          :disabled="$v.form.$invalid"
-          @click="$emit('handleSubmit', form)"
-        >
-          Submit
-        </v-btn>
-      </v-col>
-    </v-row>
+            :model-value="form[item.valueName]?.includes?.(item2.value)"
+            :label="item2.name"
+            @update:model-value="toggleCheck(item.valueName, item2.value)"
+          />
+        </div>
+        <p v-if="errorMessage(item?.valueName)" class="mt-1 text-xs text-red-500">{{ errorMessage(item?.valueName) }}</p>
+      </div>
+    </div>
+    <div class="px-6 pb-6">
+      <UButton type="submit" color="primary" size="lg" block :disabled="!valid">Submit</UButton>
+    </div>
   </form>
 </template>
-<script>
-import directive from '@/utils/directive'
-import {
-  required,
-  minLength,
-  numeric,
-  email,
-  sameAs,
-} from 'vuelidate/lib/validators'
-export default {
-  name: 'CustomField',
-  mixins: [directive],
-  props: {
-    datas: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  data() {
-    return {
-      form: {},
-    }
-  },
-  methods: {
-    error_message(param) {
-      const errors = []
 
-      Object.entries(this.$v.form).forEach((entry) => {
-        const [key] = entry
+<script setup lang="ts">
+defineOptions({ name: 'CustomField' })
 
-        if (key === param) {
-          const {
-            $dirty,
-            $params,
-            required,
-            email,
-            minLength,
-            numeric,
-            sameAs,
-          } = this.$v.form[key]
+const props = defineProps({ datas: { type: Array as PropType<any[]>, default: () => [] } })
+const emit = defineEmits(['handleSubmit'])
 
-          if (!$dirty) return errors
+const form = reactive<Record<string, any>>({})
+const touched = reactive<Record<string, boolean>>({})
 
-          // required
-          required === false && errors.push('Field Tidak Boleh Kosong')
-          // email
-          email === false && errors.push(`Format email tidak valid`)
-          // minLength
-          minLength === false &&
-            errors.push(`Input minimal ${$params.minLength.min} karakter`)
-          // minLength
-          numeric === false && errors.push(`Input hanya boleh angka`)
-          // sameAs
-          sameAs === false &&
-            errors.push(`Input harus sama dengan ${$params?.sameAs?.eq}`)
-        }
-      })
+function touch(name: string) {
+  touched[name] = true
+}
 
-      return errors
-    },
-  },
-  validations() {
-    const form = {}
-    let rule = {}
-    this.datas.forEach((item) => {
-      rule = {}
-      const { validations, valueName } = item
+function errorMessage(name: string): string {
+  if (!touched[name]) return ''
+  const item = props.datas.find((d: any) => d.valueName === name)
+  const val = form[name]
+  if (item?.validations?.required && (val === '' || val == null)) return 'Field Tidak Boleh Kosong'
+  if (item?.validations?.email && val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Format email tidak valid'
+  if (item?.validations?.minLength && String(val ?? '').length < item.validations.minLength)
+    return `Input minimal ${item.validations.minLength} karakter`
+  if (item?.validations?.numeric && val !== '' && val != null && isNaN(Number(val))) return 'Input hanya boleh angka'
+  if (item?.validations?.sameAs && val !== form[item.validations.sameAs]) return 'Input harus sama'
+  return ''
+}
 
-      if (validations?.required === true) rule.required = required
-      if (validations?.email) rule.email = email
-      if (validations?.minLength) {
-        rule.minLength = minLength(validations.minLength)
-      }
-      if (validations?.numeric) {
-        rule.numeric = numeric
-      }
-      if (validations?.sameAs) {
-        rule.sameAs = sameAs(validations?.sameAs)
-      }
+const valid = computed(() => props.datas.every((d: any) => !errorMessage(d.valueName) && (!d.validations?.required || (form[d.valueName] !== '' && form[d.valueName] != null))))
 
-      form[valueName] = rule
-    })
+function toggleCheck(name: string, value: any) {
+  const arr = Array.isArray(form[name]) ? [...form[name]] : []
+  const idx = arr.indexOf(value)
+  if (idx === -1) arr.push(value)
+  else arr.splice(idx, 1)
+  form[name] = arr
+}
 
-    return { form }
-  },
+function submit() {
+  props.datas.forEach((d: any) => touch(d.valueName))
+  if (!valid.value) return
+  emit('handleSubmit', { ...form })
 }
 </script>

@@ -1,88 +1,60 @@
 <template>
-  <div>
-    <v-app-bar app color="white" flat height="72px">
-      <div class="d-flex align-center" style="width: 100%">
-        <v-app-bar-nav-icon
-          color="gray_700"
-          tile
-          @click.stop="$store.set('drawer', !drawer)"
-        ></v-app-bar-nav-icon>
+  <header
+    class="z-30 flex h-14 items-center gap-2 border-b border-gray-200 bg-white"
+  >
+    <UButton
+      variant="ghost"
+      color="neutral"
+      size="sm"
+      @click="$emit('toggleDrawer')"
+    >
+      <template #leading>
+        <UIcon name="i-heroicons-bars-3-20-solid" class="size-4 text-ink-600" />
+      </template>
+    </UButton>
 
-        <v-layout
-          class="brand d-flex flex-column align-center justify-center"
-          align-center
-          justify-center
-        >
-          <!-- Place your own logo here -->
-          <img src="/logo.svg" alt="Logo GG" />
-        </v-layout>
-
-        <v-badge
-          v-if="router == '/'"
-          bordered
-          color="primary"
-          :value="cart?.length"
-          :content="cart?.length"
-          overlap
-        >
-          <v-btn
-            v-if="router == '/'"
-            fab
-            dense
-            small
-            depressed
-            text
-            @click="$store.set('order/modalCart', true)"
-          >
-            <v-icon color="gray_700" size="20">$cart</v-icon>
-          </v-btn>
-        </v-badge>
-      </div>
-      <!-- <div class="d-flex align-center" style="width: 100%">gg</div> -->
-    </v-app-bar>
-  </div>
+    <div v-if="pageTitle" class="flex items-center gap-2">
+      <UIcon name="i-lucide-chevron-right" class="text-ink-600" />
+      <span>{{ pageTitle }}</span>
+    </div>
+    <div class="grow"></div>
+    <div v-if="router === '/'" class="pr-2 xl:hidden">
+      <UButton variant="link" color="primary" size="sm" @click="openCart">
+        <template #leading>
+          <div class="relative">
+            <UBadge
+              v-if="cart?.length"
+              :label="String(totalQty)"
+              color="primary"
+              size="xs"
+              class="absolute left-full bottom-full translate-y-0.5 size-4 flex items-center justify-center"
+            />
+            <UIcon
+              name="i-lucide-shopping-cart"
+              class="size-3.5 text-ink-600"
+            />
+          </div>
+        </template>
+      </UButton>
+    </div>
+  </header>
 </template>
 
-<script>
-export default {
-  name: 'HeaderApp',
+<script setup lang="ts">
+defineEmits(['toggleDrawer'])
+const route = useRoute()
+const orderStore = useOrderStore()
 
-  props: { logoutButton: { type: String, default: 'bottom' } },
-  data() {
-    return {
-      search: '',
-    }
-  },
-  computed: {
-    drawer() {
-      return this.$store.get('drawer')
-    },
-    user() {
-      return this.$store.get('user/profile')
-    },
-    width() {
-      return screen.width
-    },
-    router() {
-      return this.$route.path
-    },
-    cart() {
-      return this.$store.get('order/cart')
-    },
-  },
-  mounted() {},
-  methods: {},
+const router = computed(() => route.path)
+const cart = computed(() => orderStore.cart)
+// Set per page via definePageMeta({ title })
+const pageTitle = computed(() => route.meta.title)
+
+function openCart() {
+  orderStore.setModalCart(true)
 }
+
+const totalQty = computed(() =>
+  orderStore.cart.reduce((sum: number, item: any) => sum + (item.qty || 0), 0),
+)
 </script>
-
-<style scoped lang="scss">
-@use '@/assets/scss/abstracts/mixins' as m;
-/*
-  If you don't need a global css, please don't add css in `assets` folder.
-  Use this method instead, with `scoped` props.
-  */
-
-.small-btn {
-  font-size: 12px;
-}
-</style>

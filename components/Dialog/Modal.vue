@@ -1,176 +1,113 @@
 <template>
-  <v-dialog
-    v-model="modal"
-    persistent
-    :width="width"
-    scrollable
-    :fullscreen="fullscreen"
+  <UModal
+    v-model:open="modal"
+    :ui="{ content: 'rounded-xl max-w-[408px] w-full' }"
   >
-    <v-card :style="{ borderRadius: !fullscreen && '12px !important' }">
-      <v-card-title
-        class="d-flex flex-column justify-center letter-spacing-normal mb-2"
-        style="width: 100%"
-      >
-        <transition name="fade">
-          <Snackbar
-            v-if="errorMessage"
-            color="error"
-            position="fixed"
-            width="330px"
-            :visibility="true"
-            :text="errorMessage"
-            @set="$emit('clearErrorMessage')"
-          />
-        </transition>
-        <div :class="`${type === 'default' ? 'icon' : type} mt-2 mb-4`">
-          <v-icon>{{ icon }}</v-icon>
-        </div>
-        <span
-          class="text-18 font-weight-bold gray_900--text line-height-md mb-2"
-          >{{ title }}</span
+    <template #content>
+      <div class="flex flex-col items-center px-6 pt-6 text-center pb-4">
+        <div
+          :class="type === 'oke' ? 'icon-oke' : 'icon-default'"
+          class="mb-4 mt-2"
         >
-        <span class="text-14 font-weight-normal gray_500--text line-height-md">
+          <slot name="icon" />
+        </div>
+        <h3 class="mb-2 text-[18px] font-bold leading-5 text-gray-900">
+          {{ title }}
+        </h3>
+        <p class="text-sm font-normal leading-5 text-gray-500">
           {{ subtitle }}
-        </span>
-      </v-card-title>
-      <v-card-text>
-        <slot name="content"></slot>
-      </v-card-text>
-      <v-card-actions>
+        </p>
+        <UAlert
+          v-if="errorMessage"
+          color="error"
+          variant="soft"
+          :title="errorMessage"
+          class="mt-3 w-full"
+        />
+      </div>
+      <div class="px-6 py-4">
+        <slot name="content" />
+      </div>
+      <div class="flex gap-2 px-6 pb-6 mt-4">
         <slot name="action">
-          <v-col class="px-0 pr-1">
-            <v-btn
-              block
-              outlined
-              height="44"
-              depressed
-              :disabled="loading"
-              dense
-              @click="cancel"
-            >
-              {{ cancelText }}
-            </v-btn>
-          </v-col>
-          <v-col class="px-0 pl-1">
-            <v-btn
-              block
-              depressed
-              height="44"
-              color="primary"
-              :loading="loading"
-              :disabled="disable"
-              @click="save"
-            >
-              {{ saveText }}
-            </v-btn>
-          </v-col>
+          <UButton
+            block
+            variant="outline"
+            color="neutral"
+            size="lg"
+            :disabled="loading"
+            @click="cancel"
+          >
+            {{ cancelText }}
+          </UButton>
+          <UButton
+            block
+            color="primary"
+            size="lg"
+            :loading="loading"
+            :disabled="disable"
+            @click="save"
+          >
+            {{ saveText }}
+          </UButton>
         </slot>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+      </div>
+    </template>
+  </UModal>
 </template>
 
-<script>
-import Snackbar from '../Snackbar/Snackbar.vue'
+<script setup lang="ts">
+const props = defineProps({
+  title: { type: String, default: 'Enter Title' },
+  subtitle: { type: String, default: 'Enter Subtitle to make perfect design' },
+  loading: { type: Boolean, default: false },
+  type: { type: String, default: 'default' },
+  disable: { type: Boolean, default: false },
+  errorMessage: { type: String, default: '' },
+  modelValue: { type: Boolean, default: false },
+  saveText: { type: String, default: 'Simpan' },
+  cancelText: { type: String, default: 'Batal' },
+})
+const emit = defineEmits([
+  'update:model-value',
+  'cancel',
+  'save',
+  'clearErrorMessage',
+])
 
-export default {
-  name: 'Modal',
-  components: { Snackbar },
-  props: {
-    icon: {
-      type: String,
-      default: '$category_primary',
-    },
-    title: {
-      type: String,
-      default: 'Enter Title',
-    },
-    subtitle: {
-      type: String,
-      default: 'Enter Subtitle to make perfect design',
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    type: {
-      type: String,
-      default: 'default',
-    },
-    disable: {
-      type: Boolean,
-      default: false,
-    },
-    errorMessage: {
-      type: String,
-      default: '',
-    },
-    width: {
-      type: String,
-      default: '408px',
-    },
-    value: {
-      type: Boolean,
-      default: false,
-    },
-    fullscreen: {
-      type: Boolean,
-      default: false,
-    },
-    minHeight: {
-      type: String,
-      default: '',
-    },
-    saveText: {
-      type: String,
-      default: 'Simpan',
-    },
-    cancelText: {
-      type: String,
-      default: 'Batal',
-    },
-  },
-  computed: {
-    modal: {
-      get: function () {
-        return this.value
-      },
-      set: function (newValue) {
-        this.$emit('input', newValue)
-      },
-    },
-  },
-  methods: {
-    cancel() {
-      this.$emit('cancel')
-      this.modal = false
-    },
-    save() {
-      this.$emit('save')
-    },
-  },
+const modal = computed({
+  get: () => props.modelValue,
+  set: (v: boolean) => emit('update:model-value', v),
+})
+
+function cancel() {
+  emit('cancel')
+  modal.value = false
+}
+function save() {
+  emit('save')
 }
 </script>
-<style lang="scss" scoped>
-@use '@/assets/scss/abstracts/variables.scss' as v;
-.icon {
+
+<style scoped>
+.icon-default {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50% !important;
-  background: v.$primary_100;
+  border-radius: 50%;
+  background: var(--color-primary-100);
   width: 58px;
   height: 58px;
-  border: 8px solid v.$primary_50;
+  border: 8px solid var(--color-primary-50);
 }
-.oke {
+.icon-oke {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50% !important;
-  background: v.$success_100;
+  border-radius: 50%;
+  background: #d1fadf;
   width: 58px;
   height: 58px;
-  border: 8px solid v.$success_50;
+  border: 8px solid #ecfdf3;
 }
 </style>

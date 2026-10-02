@@ -1,45 +1,30 @@
 <template>
-  <v-text-field
-    id="search"
-    :value="value"
+  <UInput
+    :model-value="modelValue"
     :placeholder="placeholder"
-    background-color="#fff"
-    hide-details
-    outlined
-    height="44px"
-    dense
-    flat
-    @keyup="debounceInput($event)"
-  >
-    <template #prepend-inner-icon>
-      <v-icon size="15" class="mr-2">$magnify</v-icon>
-    </template>
-    <template #prepend-inner>
-      <v-icon size="15" class="mr-2">$magnify</v-icon>
-    </template></v-text-field
-  >
+    icon="i-heroicons-magnifying-glass-20-solid"
+    size="md"
+    class="w-full"
+    :ui="{
+      base: 'bg-ink-200 focus:outline-ink-600 focus:bg-white hover:bg-white focus:ring-ink-600 transition-colors duration-150 ease-in-out',
+    }"
+    @update:model-value="debouncedEmit"
+  />
 </template>
 
-<script>
-import debounce from 'lodash/debounce'
-import directive from '~/utils/directive'
-export default {
-  mixins: [directive],
-  props: {
-    value: {
-      type: String,
-      default: '',
-    },
-    placeholder: {
-      type: String,
-      default: 'Cari',
-    },
-  },
-  methods: {
-    debounceInput: debounce(function (event) {
-      let q = event.target.value
-      this.$emit('input', q)
-    }, 500),
-  },
-}
+<script setup lang="ts">
+import { debounce } from '~/utils/debounce'
+
+defineOptions({ name: 'InputSearch' })
+
+defineProps({
+  modelValue: { type: String, default: '' },
+  placeholder: { type: String, default: 'Cari' },
+})
+const emit = defineEmits(['update:modelValue', 'update:model-value'])
+
+const debouncedEmit = debounce((val: string) => {
+  emit('update:modelValue', val)
+  emit('update:model-value', val)
+}, 500)
 </script>

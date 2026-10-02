@@ -1,165 +1,93 @@
 <template>
-  <v-card
-    class="card"
-    text
-    outlined
-    style="overflow: hidden"
-    :loading="loading === item?.id"
-    :disabled="loading === item?.id || item?.stock <= 0"
+  <UCard
+    :ui="{
+      root: 'overflow-hidden border transition-all hover:border-ink-400',
+      body: 'p-0! h-full flex flex-col',
+    }"
+    class="h-full cursor-pointer bg-white flex flex-col"
+    :class="{ 'opacity-60 pointer-events-none': disabled }"
     @click="$emit('handleClick', item)"
   >
-    <template #progress>
-      <v-progress-circular
-        indeterminate
-        size="35"
-        color="primary"
-        class="loader"
-      ></v-progress-circular>
-    </template>
-    <v-container class="pa-0 d-flex flex-column" style="height: 100%">
-      <v-img
-        lazy-src="lazy-loader.svg"
-        :src="
-          $vuetify.breakpoint.mdAndUp
-            ? $changeImageSize(item?.image, 'md')
-            : $changeImageSize(item?.image, 'sm')
-        "
-        height="150px"
-        width="100%"
-        class=""
+    <div class="relative h-37.5 p-2">
+      <img
+        :src="imageSrc"
+        alt="product"
+        class="h-full w-full object-cover rounded-md"
+        loading="lazy"
+      />
+      <div
+        v-if="loading"
+        class="absolute inset-0 flex items-center justify-center bg-white/60"
       >
-        <v-card-actions class="d-flex justify-end">
-          <v-btn
-            fab
-            small
-            active-class="color:primary !important"
-            class="pa-2"
-            depressed
-            color="primary"
-          >
-            <span class="white--text font-weight-bold">{{ item?.stock }}</span>
-          </v-btn>
-        </v-card-actions>
-      </v-img>
-
-      <v-list-item-title
-        class="text-title mt-2 font-weight-medium letter-spacing-normal text-14 gray_900--text px-3"
-        style="width: 100%"
+        <UIcon
+          name="i-heroicons-arrow-path-20-solid"
+          class="size-8 animate-spin text-primary-600"
+        />
+      </div>
+    </div>
+    <div class="flex grow flex-col px-3 pb-2">
+      <UBadge
+        v-if="item.category.name"
+        :label="item.category.name"
+        variant="outline"
+        class="w-fit"
+        :ui="{
+          base: 'ring-ink-200',
+        }"
+      />
+      <h3
+        class="line-clamp-2 min-h-[44px] text-[16px] font-medium tracking-normal text-gray-900"
       >
         {{ item?.name }}
-      </v-list-item-title>
-      <div class="flex-grow-1"></div>
-      <v-card-actions class="px-0 text-body-2 mx-3">
-        <div
-          style="width: 100%"
-          class="px-0 d-flex align-center justify-space-between"
+      </h3>
+      <div class="flex-1" />
+      <div class="mt-1 flex items-center justify-between">
+        <span class="text-[18px] font-medium text-primary-600">
+          {{ price }}
+        </span>
+        <UBadge v-if="item?.stock <= 0" color="error" variant="soft" size="xs"
+          >Habis</UBadge
         >
-          <div class="d-flex flex-column justify-center">
-            <span class="text-secondary text-subtitle-2">Price:</span>
-            <span class="gray_900--text font-weight-bold">
-              {{
-                customerStatus === 'retail'
-                  ? formatRupiah(item?.retailPrice)
-                  : customerStatus === 'wholesaler'
-                  ? formatRupiah(item?.wholesalerPrice)
-                  : ''
-              }}
-            </span>
-          </div>
-        </div>
-      </v-card-actions>
-    </v-container>
-  </v-card>
+        <UBadge v-else color="neutral" variant="soft" size="xs"
+          >Stok {{ item?.stock }}</UBadge
+        >
+      </div>
+    </div>
+    <div class="flex items-center justify-center p-2 bg-brand-600 text-white">
+      <UIcon name="i-lucide-shopping-cart-plus" />
+    </div>
+  </UCard>
 </template>
 
-<script>
+<script setup lang="ts">
 import { formatRupiah } from '~/utils/formatRupiah'
 
-export default {
-  name: 'Product',
-  props: {
-    item: { type: Object, default: () => {} },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    customerStatus: {
-      type: String,
-      default: '',
-    },
-  },
-  data() {
-    return {
-      favorite: 'false',
-    }
-  },
-  computed: {
-    //get value to activate order details components
-    activator() {
-      return this.$store.get('order/order_activator')
-    },
-    //get value to daily dose counter
-    dailyDose() {
-      return this.$store.get('barista.user/current_portion')
-    },
-    //get windows size height
-    windowWidth() {
-      return window.innerHeight
-    },
-    widthScreen() {
-      return this.$vuetify.breakpoint.xs
-    },
-  },
-  methods: {
-    formatRupiah(item) {
-      return formatRupiah(item)
-    },
-  },
-}
+const props = defineProps({
+  item: { type: Object as PropType<Record<string, any>>, default: () => ({}) },
+  loading: { type: [Boolean, String], default: false },
+  customerStatus: { type: String, default: '' },
+})
+defineEmits(['handleClick'])
+
+const { $changeImageSize } = useNuxtApp()
+
+const imageSrc = computed(() => {
+  const raw = props.item?.image as string
+  if (!raw) return '/lazy-loader.svg'
+  try {
+    return ($changeImageSize as any)?.(raw, 'md') ?? raw
+  } catch {
+    return raw
+  }
+})
+
+const price = computed(() => {
+  if (props.customerStatus === 'retail')
+    return formatRupiah(props.item?.retailPrice)
+  return formatRupiah(props.item?.wholesalerPrice)
+})
+
+const disabled = computed(
+  () => !!props.loading || (props.item?.stock ?? 1) <= 0,
+)
 </script>
-
-<style lang="scss" scoped>
-:deep(.v-btn:not(.v-btn--fab)) {
-  border-radius: 8px !important;
-}
-
-.card {
-  border: 1px solid #eaecf0;
-  height: 100%;
-
-  box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1),
-    0px 1px 2px rgba(16, 24, 40, 0.06);
-  border-radius: 8px !important;
-  .img {
-    border-radius: 8px;
-  }
-}
-
-:deep(.v-list-item) {
-  padding: 0;
-}
-
-.text-title {
-  max-height: 60px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  font-size: 14px !important;
-
-  @supports (-webkit-line-clamp: 2) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: initial;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-}
-.loader {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, 0);
-  z-index: 1;
-}
-</style>

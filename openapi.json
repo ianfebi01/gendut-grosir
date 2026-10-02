@@ -1,0 +1,2877 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Gendut Grosir API",
+    "version": "1.0.0",
+    "description": "Backend for the Gendut Grosir point-of-sale and inventory app. Authenticate with `POST /login` and send the returned `accessToken` as a Bearer token."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth & Users",
+      "description": "Login, registration and user management"
+    },
+    {
+      "name": "Roles",
+      "description": "Roles and the app features each role may access"
+    },
+    {
+      "name": "Menus",
+      "description": "Navigation menu definitions"
+    },
+    {
+      "name": "Categories",
+      "description": "Product categories"
+    },
+    {
+      "name": "Products",
+      "description": "Product catalogue and stock"
+    },
+    {
+      "name": "Orders",
+      "description": "Point-of-sale orders"
+    },
+    {
+      "name": "Stock Opname",
+      "description": "Physical stock counts"
+    },
+    {
+      "name": "Uploads",
+      "description": "Cloudinary image uploads"
+    },
+    {
+      "name": "Analytics",
+      "description": "Sales reporting"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "login",
+        "summary": "Log in",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/UserSummary"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "accessToken": {
+                              "type": "string",
+                              "description": "JWT, valid for 1 day"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "register",
+        "summary": "Register a user",
+        "description": "On a fresh database (no users yet, see `GET /setup-status`) the account is made an activated `super_admin` so it can log in straight away. After that, `role` and `activate` are only honoured when the request carries an admin token; anyone else gets an inactive account with the `user` role until an admin activates it.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 30
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "maxLength": 40
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "639dcb25851834d7005e0b9c",
+                    "description": "Role id"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "retail"
+                  },
+                  "activate": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "profilePicture": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/setup-status": {
+      "get": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "getSetupStatus",
+        "summary": "Whether the app still needs its first account",
+        "description": "`needsSetup` is true while no user exists; the next `POST /register` then creates the activated super admin.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Setup status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "needsSetup"
+                      ],
+                      "properties": {
+                        "needsSetup": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "getMe",
+        "summary": "Current user",
+        "description": "Returns the raw mongoose document spread into the response, so the user fields are under `_doc` (with the populated role) alongside mongoose internals.",
+        "responses": {
+          "200": {
+            "description": "Current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Sukses"
+                    },
+                    "_doc": {
+                      "$ref": "#/components/schemas/UserWithRole"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "updateMe",
+        "summary": "Update current user profile",
+        "description": "Edit the logged-in user's name, email, password and profile picture. All fields are optional. `currentPassword` is required when changing `email` or `password`. Send as `multipart/form-data` to upload a new profile picture as `image`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeInput"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeMultipartInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/UserWithRole"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/getAllUser": {
+      "get": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "getAllUser",
+        "summary": "List users (excluding the caller)",
+        "description": "Requires an `admin` or `super_admin` role.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/q"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/UserWithRole"
+                          }
+                        },
+                        "paginator": {
+                          "$ref": "#/components/schemas/Paginator"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/getUserById/{id}": {
+      "get": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "getUserById",
+        "summary": "Get a user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserWithRole"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/editUser/{id}": {
+      "put": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "editUser",
+        "summary": "Update a user",
+        "description": "Requires an `admin` or `super_admin` role. `status` defaults to `retail` when omitted.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserWithRole"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/deleteUser/{id}": {
+      "delete": {
+        "tags": [
+          "Auth & Users"
+        ],
+        "operationId": "deleteUser",
+        "summary": "Delete a user",
+        "description": "Requires an `admin` or `super_admin` role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/getRole": {
+      "get": {
+        "tags": [
+          "Roles"
+        ],
+        "operationId": "getRole",
+        "summary": "List roles",
+        "security": [],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/q"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Role"
+                          }
+                        },
+                        "paginator": {
+                          "$ref": "#/components/schemas/Paginator"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/post-default-role": {
+      "post": {
+        "tags": [
+          "Roles"
+        ],
+        "operationId": "postDefaultRole",
+        "summary": "Seed roles",
+        "description": "Only succeeds while the roles collection is empty.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RoleInput"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Role"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/updateRole/{id}": {
+      "put": {
+        "tags": [
+          "Roles"
+        ],
+        "operationId": "updateRole",
+        "summary": "Update a role's permissions",
+        "description": "`allows` must include `pos`. The `super_admin` role cannot be changed.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "allows"
+                ],
+                "properties": {
+                  "allows": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Role"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/menu": {
+      "get": {
+        "tags": [
+          "Menus"
+        ],
+        "operationId": "getMenu",
+        "summary": "List menus",
+        "responses": {
+          "200": {
+            "description": "Menus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Menu"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Menus"
+        ],
+        "operationId": "postMenu",
+        "summary": "Create a menu",
+        "description": "Requires an `admin` or `super_admin` role.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created menu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Menu"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/default-menu": {
+      "post": {
+        "tags": [
+          "Menus"
+        ],
+        "operationId": "postDefaultMenu",
+        "summary": "Create menus in bulk",
+        "description": "Requires an `admin` or `super_admin` role.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MenuInput"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created menus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Menu"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/category": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "getCategory",
+        "summary": "List categories with product counts",
+        "description": "Unlike most list endpoints, the paginated result is returned without an envelope.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/q"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "639dcb25851834d7005e0b9c"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "totalProducts": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "paginator": {
+                      "$ref": "#/components/schemas/Paginator"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "postCategory",
+        "summary": "Create a category",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "description": "Server error, or `name` was blank",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/{id}": {
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "updateCategory",
+        "summary": "Rename a category",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "deleteCategory",
+        "summary": "Delete a category",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted category (null if it did not exist)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/product": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "getProduct",
+        "summary": "List products",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/q"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Category id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Product"
+                          }
+                        },
+                        "paginator": {
+                          "$ref": "#/components/schemas/Paginator"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "postProduct",
+        "summary": "Create a product",
+        "description": "Requires an `admin` or `super_admin` role. Send as `multipart/form-data` to attach an image.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductInput"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductMultipartInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/product/{id}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "getProductById",
+        "summary": "Get a product",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "updateProduct",
+        "summary": "Update a product",
+        "description": "Requires an `admin` or `super_admin` role. Send as `multipart/form-data` to replace the image.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductInput"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductMultipartInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "deleteProduct",
+        "summary": "Delete a product",
+        "description": "Requires an `admin` or `super_admin` role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/productByBarcode/{barcode}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "getProductByBarcode",
+        "summary": "Find a product by barcode",
+        "parameters": [
+          {
+            "name": "barcode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/product/stockbarcode/{barcode}": {
+      "put": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "updateProductStockByBarcode",
+        "summary": "Increment a product's stock by 1",
+        "description": "Requires an `admin` or `super_admin` role.",
+        "parameters": [
+          {
+            "name": "barcode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/order": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "getOrder",
+        "summary": "List orders",
+        "description": "Requires an `admin` or `super_admin` role. `q` filters by order id.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/q"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Order"
+                          }
+                        },
+                        "paginator": {
+                          "$ref": "#/components/schemas/Paginator"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "postOrder",
+        "summary": "Create an order",
+        "description": "Decrements stock for each line item. Lines whose product has insufficient stock are silently dropped from the saved order (totals are still computed from the request).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/changeStatusOrder/{orderId}": {
+      "put": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "changeStatusOrder",
+        "summary": "Mark an order complete",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "description": "Human-readable order id, not the Mongo _id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/cancelOrder/{orderId}": {
+      "put": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "cancelOrder",
+        "summary": "Cancel an order and restock its items",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "description": "Human-readable order id, not the Mongo _id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cancelled order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/order/updateTime": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "updateTime",
+        "summary": "Randomise order dates (dev utility)",
+        "description": "**Unauthenticated and destructive:** rewrites every order `date` to a random time up to 30 days before its `createdAt`. Intended for seeding demo data only.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "All orders after the update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "minus": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/stockOpname": {
+      "get": {
+        "tags": [
+          "Stock Opname"
+        ],
+        "operationId": "getStockOpname",
+        "summary": "List stock opnames",
+        "description": "Requires an `admin` or `super_admin` role. `q` filters by opname id.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/q"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock opnames",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/StockOpname"
+                          }
+                        },
+                        "paginator": {
+                          "$ref": "#/components/schemas/Paginator"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Stock Opname"
+        ],
+        "operationId": "postStockOpname",
+        "summary": "Record a stock count",
+        "description": "Requires an `admin` or `super_admin` role. With `apply: true`, each product's stock is set to its `realQty` immediately.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockOpnameInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created stock opname",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StockOpname"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/stockOpname/{id}": {
+      "put": {
+        "tags": [
+          "Stock Opname"
+        ],
+        "operationId": "applyStockOpname",
+        "summary": "Apply a stock count",
+        "description": "Requires an `admin` or `super_admin` role. Sets each product's stock to its counted `realQty`.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Applied stock opname",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StockOpname"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Already applied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/uploadImages": {
+      "post": {
+        "tags": [
+          "Uploads"
+        ],
+        "operationId": "uploadImages",
+        "summary": "Upload images to Cloudinary",
+        "description": "Requires an `admin` or `super_admin` role. JPEG, PNG, GIF or WebP, up to 10 MB each.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Cloudinary folder"
+                  },
+                  "file": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cloudinary upload results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                      "secure_url": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/deleteImage": {
+      "post": {
+        "tags": [
+          "Uploads"
+        ],
+        "operationId": "deleteImage",
+        "summary": "Delete an image from Cloudinary",
+        "description": "Requires an `admin` or `super_admin` role.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "publicId"
+                ],
+                "properties": {
+                  "publicId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cloudinary destroy result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/analytic": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "operationId": "getAnalytic",
+        "summary": "Daily sales totals",
+        "description": "Defaults to the current month when `start`/`end` are omitted. `end` is inclusive.",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Per-day totals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "filterBy": {
+                      "type": "string",
+                      "example": "Day"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DailySales"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "q": {
+        "name": "q",
+        "in": "query",
+        "description": "Case-insensitive search",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 25
+        }
+      },
+      "page": {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 1
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Missing/invalid token, or insufficient role",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Message": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Paginator": {
+        "type": "object",
+        "properties": {
+          "itemCount": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "totalPages": {
+            "type": "integer"
+          },
+          "pagingCounter": {
+            "type": "integer"
+          },
+          "hasPrevPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "prevPage": {
+            "type": "integer",
+            "nullable": true
+          },
+          "nextPage": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c"
+          },
+          "roleName": {
+            "type": "string",
+            "example": "super_admin"
+          },
+          "title": {
+            "type": "string",
+            "example": "Super Admin"
+          },
+          "allows": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "pos"
+            }
+          }
+        }
+      },
+      "RoleInput": {
+        "type": "object",
+        "required": [
+          "roleName",
+          "title"
+        ],
+        "properties": {
+          "roleName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "allows": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c",
+            "description": "Role id"
+          },
+          "status": {
+            "type": "string",
+            "example": "retail"
+          },
+          "activate": {
+            "type": "boolean"
+          },
+          "profilePicture": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "UserWithRole": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "role": {
+                "$ref": "#/components/schemas/Role"
+              }
+            }
+          }
+        ]
+      },
+      "UserSummary": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "activate": {
+            "type": "boolean"
+          },
+          "profilePicture": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "UserInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c",
+            "description": "Role id"
+          },
+          "status": {
+            "type": "string"
+          },
+          "activate": {
+            "type": "boolean"
+          },
+          "profilePicture": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "UpdateMeInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 30
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 40,
+            "description": "New password"
+          },
+          "currentPassword": {
+            "type": "string",
+            "description": "Required when changing `email` or `password`"
+          },
+          "profilePicture": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "UpdateMeMultipartInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UpdateMeInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "format": "binary",
+                "description": "JPEG/PNG/GIF/WebP, max 10 MB"
+              }
+            }
+          }
+        ]
+      },
+      "MenuItem": {
+        "type": "object",
+        "required": [
+          "name",
+          "url",
+          "access"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "access": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MenuInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MenuItem"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "children": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MenuItem"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Menu": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MenuInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "639dcb25851834d7005e0b9c"
+              }
+            }
+          }
+        ]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProductInput": {
+        "type": "object",
+        "required": [
+          "category",
+          "buyPrice",
+          "wholesalerPrice"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c",
+            "description": "Category id"
+          },
+          "details": {
+            "type": "string"
+          },
+          "buyPrice": {
+            "type": "number"
+          },
+          "wholesalerPrice": {
+            "type": "number"
+          },
+          "retailPrice": {
+            "type": "number"
+          },
+          "barcode": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string",
+            "format": "uri"
+          },
+          "stock": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      },
+      "ProductMultipartInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProductInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "format": "binary",
+                "description": "JPEG/PNG/GIF/WebP, max 10 MB"
+              }
+            }
+          }
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "639dcb25851834d7005e0b9c"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "details": {
+            "type": "string"
+          },
+          "buyPrice": {
+            "type": "number"
+          },
+          "wholesalerPrice": {
+            "type": "number"
+          },
+          "retailPrice": {
+            "type": "number"
+          },
+          "barcode": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string",
+            "format": "uri"
+          },
+          "stock": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OrderInput": {
+        "type": "object",
+        "required": [
+          "details"
+        ],
+        "properties": {
+          "user": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c",
+            "description": "Defaults to the authenticated user"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "process",
+              "complete"
+            ],
+            "default": "process"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "product",
+                "qty",
+                "price",
+                "buyPrice"
+              ],
+              "properties": {
+                "product": {
+                  "type": "string",
+                  "example": "639dcb25851834d7005e0b9c",
+                  "description": "Product id"
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Unit selling price"
+                },
+                "buyPrice": {
+                  "type": "number",
+                  "description": "Unit cost, used for profit"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c"
+          },
+          "orderId": {
+            "type": "string",
+            "example": "3717-651291-0426"
+          },
+          "user": {
+            "type": "object",
+            "description": "Populated user (fields vary by endpoint)",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "639dcb25851834d7005e0b9c"
+              },
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalQty": {
+            "type": "number"
+          },
+          "totalBuyPrice": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "process",
+              "complete",
+              "cancel"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "example": "639dcb25851834d7005e0b9c"
+                },
+                "product": {
+                  "$ref": "#/components/schemas/Product"
+                },
+                "qty": {
+                  "type": "number"
+                },
+                "price": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "StockOpnameLine": {
+        "type": "object",
+        "required": [
+          "product",
+          "systemQty",
+          "realQty",
+          "difference"
+        ],
+        "properties": {
+          "product": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c",
+            "description": "Product id"
+          },
+          "systemQty": {
+            "type": "number",
+            "description": "Stock according to the system"
+          },
+          "realQty": {
+            "type": "number",
+            "description": "Physically counted stock"
+          },
+          "difference": {
+            "type": "number",
+            "description": "`realQty - systemQty`"
+          }
+        }
+      },
+      "StockOpnameInput": {
+        "type": "object",
+        "required": [
+          "product"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "apply": {
+            "type": "boolean",
+            "default": false
+          },
+          "product": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockOpnameLine"
+            }
+          }
+        }
+      },
+      "StockOpname": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "639dcb25851834d7005e0b9c"
+          },
+          "opnameId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "639dcb25851834d7005e0b9c"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "apply": {
+            "type": "boolean"
+          },
+          "product": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/StockOpnameLine"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "639dcb25851834d7005e0b9c"
+                    },
+                    "product": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "639dcb25851834d7005e0b9c"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DailySales": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "format": "date",
+            "description": "Day (YYYY-MM-DD)"
+          },
+          "totalQty": {
+            "type": "number"
+          },
+          "totalSalesTurnover": {
+            "type": "number"
+          },
+          "totalSalesBuyPrice": {
+            "type": "number"
+          },
+          "totalProfit": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

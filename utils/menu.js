@@ -19,7 +19,7 @@ export const filterMenu = (role, menus, url, allows) => {
     if (menu.hasOwnProperty('children')) {
       if (hasAccess(menu, role, allows)) {
         const children = menu.children.filter((submenu) =>
-          hasAccess(submenu, role, allows)
+          hasAccess(submenu, role, allows),
         )
 
         if (children.length > 0) {
@@ -45,23 +45,41 @@ export const filterMenu = (role, menus, url, allows) => {
     return result
   }, [])
 
-  const getUrl = () => {
-    // get url if there's url not registered in menus.js
+  // Longest menu url the path starts with, so /customers/create -> customers
+  // and /library/product/1/edit -> product. '/' only matches exactly.
+  const activeItem = flattenArray
+    .filter(
+      (item) =>
+        item.url === url ||
+        (item.url !== '/' && url.startsWith(item.url + '/')),
+    )
+    .sort((a, b) => b.url.length - a.url.length)[0]
 
-    const arr = url.split('/')
-    const len = arr.length > 4 ? 4 : arr.length
-    let res = ''
-
-    for (let i = 1; i < len; i++) {
-      res = res + '/' + arr[i]
-    }
-
-    return res
-  }
-
-  const activeMenu = flattenArray.find((item) => item.url === getUrl())
-    ? flattenArray.find((item) => item.url === getUrl()).name
-    : 'Dashboard'
+  const activeMenu = activeItem ? activeItem.name : 'Dashboard'
 
   return { filteredMenu, activeMenu }
+}
+
+/**
+ * Menu entries guarding `path`, parent first: the item with the longest url
+ * the path equals or starts with, plus its parent group if it has one.
+ * '/' only matches exactly, so it never swallows other routes.
+ */
+export const findMenuTrail = (menus, path) => {
+  const matches = (url) =>
+    !!url && (url === path || (url !== '/' && path.startsWith(url + '/')))
+
+  let best = []
+  let bestLength = -1
+  for (const menu of menus) {
+    const candidates = [[menu], ...(menu.children ?? []).map((c) => [menu, c])]
+    for (const trail of candidates) {
+      const url = trail[trail.length - 1].url
+      if (matches(url) && url.length > bestLength) {
+        best = trail
+        bestLength = url.length
+      }
+    }
+  }
+  return best
 }

@@ -1,76 +1,53 @@
 <template>
-  <v-container
-    fluid
-    style="height: 100vh; width: 100%"
-    class="pa-0 ma-0"
-    fill-height
-  >
-    <v-row
-      align="center"
-      justify="center"
-      style="height: 100% !important"
-      class="px-0"
-    >
-      <v-col
-        :cols="$vuetify.breakpoint.smAndDown ? '12' : '6'"
-        align-self="center"
-        :class="$vuetify.breakpoint.xs ? 'px-2' : 'px-16'"
-        style="max-height:50vh,max-width:50vh"
-      >
+  <div class="grid min-h-screen w-full grid-cols-1 md:grid-cols-2">
+    <div class="flex items-center justify-center px-4 py-10 md:px-16 bg-white">
+      <div class="w-full max-w-[440px]">
         <LoginForm
-          :loading-props="loading"
-          @setLoading="loading = $event"
-          @handleLogin="handleLogin($event)"
+          :loading-props="login.isPending.value"
+          :error-message="loginError"
+          @handle-login="handleLogin"
         />
-      </v-col>
-      <v-col
-        v-if="$vuetify.breakpoint.mdAndUp"
-        cols="6"
-        class="d-flex justify-center align-center gray_100"
-        style="background: $primary; height: 100%"
-      >
-        <v-img src="/shoping-cart.svg"></v-img>
-      </v-col>
-    </v-row>
-  </v-container>
+      </div>
+    </div>
+    <div
+      class="hidden items-center justify-center bg-gray-100 md:flex"
+      style="min-height: 100vh"
+    >
+      <img src="/shoping-cart.svg" alt="Shopping" class="max-w-[80%]" />
+    </div>
+  </div>
 </template>
-<script>
-import LoginForm from '~/components/Form/LoginForm.vue'
-export default {
-  name: 'LoginPage',
-  components: { LoginForm },
-  layout: 'default',
-  data() {
-    return {
-      loading: false,
-    }
-  },
-  computed: {
-    accessToken() {
-      return this.$route.query.access_token
-    },
 
-    tes() {
-      return this.$store.get('user/name')
-    },
-  },
-  mounted() {
-    if (this.accessToken) {
-      this.$cookiz.set('access_token', this.accessToken)
-      this.$router.push('/')
-    }
-  },
-  methods: {
-    async handleLogin(body) {
-      this.loading = true
-      const res = await this.$store.dispatch('user/login', body)
-      if (res) {
-        this.loading = false
-        this.$router.push('/')
-      } else {
-        this.loading = false
-      }
-    },
-  },
+<script setup lang="ts">
+import LoginForm from '~/components/Form/LoginForm.vue'
+import { useAuthMutations } from '@/composables/queries/useUsers'
+
+definePageMeta({ layout: 'default' })
+
+const route = useRoute()
+const toast = useToast()
+const { login } = useAuthMutations()
+
+const loginError = computed(() => {
+  const e: any = login.error.value
+  return e?.data?.message ?? e?.message ?? ''
+})
+
+onMounted(() => {
+  const accessToken = route.query.access_token as string | undefined
+  if (accessToken) {
+    useCookie('access_token').value = accessToken
+    navigateTo('/')
+  }
+})
+
+async function handleLogin(body: any) {
+  try {
+    await login.mutateAsync(body)
+    toast.add({ title: 'Login berhasil', color: 'success' })
+    await navigateTo('/')
+  } catch {
+    // surfaced via loginError
+  }
 }
 </script>

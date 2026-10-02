@@ -1,66 +1,34 @@
 <template>
   <div>
-    <v-row class="px-6 pt-4">
-      <span class="text-30 font-weight-medium gray_900--text">
-        {{ title }}
-      </span>
-      <v-spacer></v-spacer>
-
+    <div class="flex items-center gap-3 pt-4">
+      <h1 class="text-[30px] font-medium text-gray-900">{{ title }}</h1>
+      <div class="flex-1" />
       <slot name="actions" />
-      <v-btn
-        v-if="actions"
-        color="primary"
-        height="44"
-        dense
-        depressed
-        @click="modal = true"
-      >
-        <v-icon size="13" class="mr-2">$plus</v-icon>
-        Tambah Customer
-      </v-btn>
-    </v-row>
-    <v-row class="px-6" :class="{ 'pb-4': !searchBar }">
-      <span class="text-14 font-weight-normal gray_500--text">
-        {{ subtitle }}
-      </span>
-    </v-row>
-    <v-row v-if="searchBar" class="px-6 pt-4">
-      <Search
-        v-model="search"
-        style="max-width: 400px"
-        @input="$emit('search', search)"
-      />
-    </v-row>
+      <UButton v-if="actions" color="primary" size="lg" @click="$emit('add')">
+        <template #leading>
+          <UIcon name="i-heroicons-plus-20-solid" class="size-4" />
+        </template>
+        {{ addText }}
+      </UButton>
+    </div>
+    <p class="text-sm font-normal text-gray-500">{{ subtitle }}</p>
+    <div v-if="searchBar" class="max-w-[400px] pt-4">
+      <Search :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" />
+    </div>
+    <div v-if="searchBar" class="pb-1" />
   </div>
 </template>
-<script>
+
+<script setup lang="ts">
 import Search from '../Input/Search.vue'
 
-export default {
-  name: 'PageHeader',
-  components: { Search },
-  props: {
-    actions: {
-      type: Boolean,
-      default: true,
-    },
-    searchBar: {
-      type: Boolean,
-      default: true,
-    },
-    title: {
-      type: String,
-      default: 'Title',
-    },
-    subtitle: {
-      type: String,
-      default: 'Subtitle',
-    },
-  },
-  data() {
-    return {
-      search: '',
-    }
-  },
-}
+defineProps({
+  actions: { type: Boolean, default: true },
+  searchBar: { type: Boolean, default: true },
+  title: { type: String, default: 'Title' },
+  subtitle: { type: String, default: 'Subtitle' },
+  addText: { type: String, default: 'Tambah Customer' },
+  modelValue: { type: String, default: '' },
+})
+defineEmits(['add', 'search', 'update:modelValue', 'update:model-value'])
 </script>

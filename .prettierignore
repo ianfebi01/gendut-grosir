@@ -94,3 +94,12 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# Nuxt 4 / tooling output
+.output
+.data
+pnpm-lock.yaml
+
+# Orval output (pnpm generate:api-client)
+api/generated
+openapi.json
